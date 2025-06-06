@@ -14,10 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.*;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
 @Api(tags = "本地文件工具类")
 @Component
 public class ZwzFileUtils implements FileManage {
