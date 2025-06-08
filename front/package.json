@@ -2,7 +2,7 @@
   "name": "s069",
   "version": "1.0.0",
   "description": "教学资源共享平台",
-  "author": "郑为中 <916077357@qq.com>",
+  "author": "",
   "private": true,
   "scripts": {
     "dev": "vue-cli-service serve",

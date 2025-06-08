@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>cn.zwz</groupId>
+    <groupId>cn.wl</groupId>
     <artifactId>s068</artifactId>
     <description>教学资源共享平台</description>
     <version>3.0.0</version>
