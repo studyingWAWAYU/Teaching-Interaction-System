@@ -70,9 +70,9 @@ export default {
             // 模拟获取数据成功
             this.loading = false;
             if (this.form.id == "1") {
-                this.form.name = "zwz";
+                this.form.name = "wl";
             } else {
-                this.form.name = "zwz";
+                this.form.name = "wl";
             }
         },
         handleSubmit() {

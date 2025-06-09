@@ -25,7 +25,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @Api(tags = "${entity.description}管理接口")
-@RequestMapping("/zwz/${entity.classNameLowerCase}")
+@RequestMapping("/wl/${entity.classNameLowerCase}")
 @Transactional
 public class ${entity.className}Controller {
 

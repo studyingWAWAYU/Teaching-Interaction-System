@@ -144,7 +144,7 @@ export default {
                     "appid": "wwf94bb44e76e308f8",
                     "agentid": "1000002",
                     "redirect_uri": "https://artskyhome.com:8080/%23/login",
-                    "state": "ZWZ1314520",
+                    "state": "WL1314520",
                     "href": "",
                 });
             }
