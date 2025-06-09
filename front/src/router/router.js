@@ -45,12 +45,6 @@ export const page500 = {
     component: () => import('@/views/template/500.vue')
 };
 
-export const locking = {
-    path: '/locking',
-    name: 'locking',
-    component: () => import('@/views/main-components/lockscreen/components/locking-page.vue')
-};
-
 export const otherRouter = {
     path: '/',
     name: 'otherRouter',
@@ -69,7 +63,6 @@ export const routers = [
     loginRouter,
     registRouter,
     otherRouter,
-    locking,
     page500,
     page403
 ];
