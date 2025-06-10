@@ -7,6 +7,7 @@
                 <span class="line"></span>
                 <span class="title">教学资源共享平台</span>
             </div>
+
         </div>
         <div class="loginMiddle">
             <div class="login-background">
