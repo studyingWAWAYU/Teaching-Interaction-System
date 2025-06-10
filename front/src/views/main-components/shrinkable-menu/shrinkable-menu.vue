@@ -43,7 +43,7 @@ export default {
     },
     theme: {
       type: String,
-      default: "dark",
+      default: "light",
       validator(val) {
         return util.oneOf(val, ["dark", "light"]);
       }
@@ -57,10 +57,10 @@ export default {
   },
   computed: {
     bgColor() {
-      return "#ebeca2";
+      return "#EEF8FF";
     },
     shrinkIconColor() {
-      return this.theme == "dark" ? "#fff" : "#515a6e";
+      return "#515a6e";
     }
   },
   methods: {

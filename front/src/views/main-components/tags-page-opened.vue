@@ -4,18 +4,6 @@
 
 <template>
 <div ref="scrollCon" @DOMMouseScroll="handlescroll" @mousewheel="handlescroll" class="tags-outer-scroll-con">
-    <div class="close-all-tag-con">
-        <Dropdown transfer @on-click="handleTagsOption">
-            <Button size="small" type="primary">
-                关闭菜单
-                <Icon type="md-arrow-dropdown"></Icon>
-            </Button>
-            <DropdownMenu slot="list">
-                <DropdownItem name="clearAll">关闭全部</DropdownItem>
-                <DropdownItem name="clearOthers">关闭其他</DropdownItem>
-            </DropdownMenu>
-        </Dropdown>
-    </div>
     <div ref="scrollBody" class="tags-inner-scroll-body" :style="{left: tagBodyLeft + 'px'}">
         <transition-group name="taglist-moving-animation">
             <Tag type="dot" v-for="(item, index) in pageTagsList" ref="tagsPageOpened" :key="item.name" :name="item.name" @on-close="closePage" @click.native="linkTo(item)" :closable="item.name=='home_index'?false:true" :color="item.children?(item.children[0].name==currentPageName?'primary':'default'):(item.name==currentPageName?'primary':'default')">{{ item.title }}</Tag>
@@ -139,17 +127,6 @@ export default {
             }
             this.tagBodyLeft = left;
         },
-        handleTagsOption(type) {
-            if (type == "clearAll") {
-                this.$store.commit("clearAllTags");
-                this.$router.push({
-                    name: "home_index"
-                });
-            } else {
-                this.$store.commit("clearOtherTags", this);
-            }
-            this.tagBodyLeft = 0;
-        },
         moveToView(tag) {
             if (tag.offsetLeft < -this.tagBodyLeft) {
                 // 标签在可视区域左侧
@@ -201,7 +178,6 @@ export default {
                     }
                 });
             });
-            this.tagsCount = this.tagsList.length;
         }
     }
 };
