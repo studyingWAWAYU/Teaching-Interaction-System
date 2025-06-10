@@ -13,7 +13,7 @@
                 <div class="loginBg"></div>
                 <div class="loginRight">
                     <Row class="loginRow">
-                        <Tabs v-model="tabName" @on-click="changeTabName" class="loginTab">
+                        <Tabs v-model="tabName" class="loginTab">
                             <TabPane label="账号密码登录" name="userAndPassword">
                                 <Form ref="usernameLoginForm" :model="form" :rules="usernameLoginFormRules" class="form">
                                     <FormItem prop="username" class="loginInput">
@@ -28,15 +28,6 @@
                                         <Icon class="iconfont icon-mima1" slot="prefix" style="line-height:50px" />
                                         </Input>
                                     </FormItem>
-                                    <FormItem prop="imgCode">
-                                        <Row type="flex" justify="space-between" style="align-items: center;overflow: hidden;">
-                                            <Input v-model="form.imgCode" size="large" clearable placeholder="请输入验证码" :maxlength="10" class="input-verify" />
-                                            <div class="code-image" style="position:relative;font-size:12px;">
-                                                <Spin v-if="loadingCaptcha" fix></Spin>
-                                                <img :src="captchaImg" @click="getCaptchaImg" alt="验证码加载失败" style="width:110px;cursor:pointer;display:block" />
-                                            </div>
-                                        </Row>
-                                    </FormItem>
                                 </Form>
                                 <Row type="flex" justify="space-between" align="middle">
                                     <Checkbox v-model="saveLogin" size="large">是否自动登录</Checkbox>
@@ -50,9 +41,6 @@
                                         <span v-else>正在登录...请稍后}</span>
                                     </Button>
                                 </Row>
-                            </TabPane>
-                            <TabPane label="企业微信扫码" name="mobile">
-                                <div id="qywxsmqywxsm"></div>
                             </TabPane>
                         </Tabs>
 
@@ -83,8 +71,6 @@
 import {
     login,
     userInfo,
-    initCaptcha,
-    drawCodeImage
 } from "@/api/index";
 import Cookies from "js-cookie";
 import util from "@/libs/util.js";
@@ -94,9 +80,6 @@ export default {
     data() {
         return {
             saoMaFx: false,
-            captchaId: "",
-            captchaImg: "",
-            loadingCaptcha: false,
             error: false,
             tabName: "userAndPassword",
             saveLogin: true,
@@ -104,8 +87,6 @@ export default {
             form: {
                 username: "admin",
                 password: "123456",
-                mobile: "",
-                code: ""
             },
             usernameLoginFormRules: {
                 username: [{
@@ -118,37 +99,10 @@ export default {
                     message: "密码不能为空",
                     trigger: "blur"
                 }],
-                imgCode: [{
-                    required: true,
-                    message: "验证码不能为空",
-                    trigger: "blur"
-                }]
             }
         };
     },
     methods: {
-        getCaptchaImg() {
-            this.loadingCaptcha = true;
-            initCaptcha().then(res => {
-                this.loadingCaptcha = false;
-                if (res.success) {
-                    this.captchaId = res.result;
-                    this.captchaImg = drawCodeImage + this.captchaId;
-                }
-            });
-        },
-        changeTabName(e) {
-            if (e != "userAndPassword") {
-                window.WwLogin({
-                    "id": "qywxsmqywxsm",
-                    "appid": "wwf94bb44e76e308f8",
-                    "agentid": "1000002",
-                    "redirect_uri": "https://artskyhome.com:8080/%23/login",
-                    "state": "WL1314520",
-                    "href": "",
-                });
-            }
-        },
         afterLogin(res) {
             let accessToken = res.result;
             this.setStore("accessToken", accessToken);
@@ -187,15 +141,12 @@ export default {
                     login({
                         username: this.form.username,
                         password: this.form.password,
-                        code: this.form.imgCode,
-                        captchaId: this.captchaId,
                         saveLogin: this.saveLogin
                     }).then(res => {
                         if (res.success) {
                             this.afterLogin(res);
                         } else {
                             this.loading = false;
-                            this.getCaptchaImg();
                         }
                     });
                 }
@@ -203,7 +154,6 @@ export default {
         }
     },
     mounted() {
-        this.getCaptchaImg();
     }
 };
 </script>
@@ -331,6 +281,7 @@ a:hover{
         margin: 0px 42px;
         background-color: #ebeca2;
     }
+
     .ivu-tabs-nav .ivu-tabs-tab-active,.ivu-tabs-nav .ivu-tabs-tab:hover{
         color: #333333;   
     }
