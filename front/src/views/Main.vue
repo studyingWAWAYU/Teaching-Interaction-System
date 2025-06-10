@@ -63,8 +63,6 @@
                         </DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
-                <full-screen v-model="isFullScreen" @on-change="fullscreenChange"></full-screen>
-                <lock-screen></lock-screen>
                 <div class="user-dropdown-menu-con">
                     <Row type="flex" justify="end" align="middle" class="user-dropdown-innercon">
                         <Dropdown transfer trigger="hover" @on-click="handleClickUserDropdown">
@@ -102,8 +100,6 @@
 import shrinkableMenu from "./main-components/shrinkable-menu/shrinkable-menu.vue";
 import tagsPageOpened from "./main-components/tags-page-opened.vue";
 import breadcrumbNav from "./main-components/breadcrumb-nav.vue";
-import fullScreen from "./main-components/fullscreen.vue";
-import lockScreen from "./main-components/lockscreen/lockscreen.vue";
 import circleLoading from "@/views/template/circle-loading.vue";
 import Cookies from "js-cookie";
 import util from "@/libs/util.js";
@@ -112,8 +108,6 @@ export default {
         shrinkableMenu,
         tagsPageOpened,
         breadcrumbNav,
-        fullScreen,
-        lockScreen,
         circleLoading
     },
     data() {
@@ -122,7 +116,6 @@ export default {
             shrink: false,
             username: "",
             userId: "",
-            isFullScreen: false,
             openedSubmenuArr: this.$store.state.app.openedSubmenuArr,
             lastNav: [],
             navType: 1
@@ -241,7 +234,6 @@ export default {
         beforePush(name) {
             return true;
         },
-        fullscreenChange(isFullScreen) {},
         resize() {
             let currWidth = document.body.clientWidth;
             if (currWidth <= 1200 && currWidth > 900) {

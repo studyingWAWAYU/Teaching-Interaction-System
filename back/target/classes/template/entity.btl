@@ -1,6 +1,6 @@
 package ${entity.entityPackage};
 
-import cn.zwz.basics.baseClass.ZwzBaseEntity;
+import cn.wl.basics.baseClass.ZwzBaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiModel;

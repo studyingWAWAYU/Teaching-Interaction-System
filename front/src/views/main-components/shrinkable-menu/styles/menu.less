@@ -3,6 +3,47 @@
     width: 100%;
 }
 
+.ivu-menu-light {
+    background: #EEF8FF;
+}
+
+// 顶部导航栏
+.ivu-menu-light.ivu-menu-horizontal .ivu-menu-item, 
+.ivu-menu-light.ivu-menu-horizontal .ivu-menu-submenu {
+    background: #EEF8FF;
+}
+
+.ivu-menu-light.ivu-menu-horizontal .ivu-menu-item-active, 
+.ivu-menu-light.ivu-menu-horizontal .ivu-menu-item:hover, 
+.ivu-menu-light.ivu-menu-horizontal .ivu-menu-submenu-active, 
+.ivu-menu-light.ivu-menu-horizontal .ivu-menu-submenu:hover {
+    background: #EEF8FF;
+}
+
+//侧边栏
+.ivu-menu-vertical .ivu-menu-item:hover,
+.ivu-menu-vertical .ivu-menu-submenu-title:hover,
+.ivu-menu-vertical .ivu-menu-item-active:not(.ivu-menu-submenu) {
+    background: #dbedfd !important;
+    color: #515a6e !important;
+}
+
+.ivu-menu-vertical .ivu-menu-item-active:not(.ivu-menu-submenu)::after {
+    width: 4px !important;
+}
+
+.ivu-menu-vertical .ivu-menu-item:hover .ivu-icon,
+.ivu-menu-vertical .ivu-menu-submenu-title:hover .ivu-icon,
+.ivu-menu-vertical .ivu-menu-item-active:not(.ivu-menu-submenu) .ivu-icon {
+    color: #515a6e !important;
+}
+
+.ivu-menu-vertical .ivu-menu-item .ivu-icon,
+.ivu-menu-vertical .ivu-menu-submenu-title .ivu-icon {
+    color: #515a6e !important;
+}
+
+//伸缩按钮
 .ivu-btn-text:hover {
-    background-color: rgba(255,255,255,.2) !important;
+    background-color: #dbedfd !important;
 }

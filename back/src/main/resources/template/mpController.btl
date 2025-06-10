@@ -1,10 +1,10 @@
 package ${entity.controllerPackage};
 
-import cn.zwz.basics.utils.PageUtil;
-import cn.zwz.basics.utils.ResultUtil;
-import cn.zwz.basics.baseVo.PageVo;
-import cn.zwz.basics.baseVo.Result;
-import cn.zwz.data.utils.ZwzNullUtils;
+import cn.wl.basics.utils.PageUtil;
+import cn.wl.basics.utils.ResultUtil;
+import cn.wl.basics.baseVo.PageVo;
+import cn.wl.basics.baseVo.Result;
+import cn.wl.data.utils.ZwzNullUtils;
 import ${entity.entityPackage}.${entity.className};
 import ${entity.servicePackage}.I${entity.className}Service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
