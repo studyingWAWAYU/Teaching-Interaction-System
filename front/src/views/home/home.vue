@@ -1,169 +1,105 @@
 <template>
-<div :style="{ height: clientHeight }" class="topDiv">
+  <div :style="{ height: clientHeight }" class="topDiv">
     <Row :gutter="20">
-        <!-- 主体部分 -->
-        <div class="body">
-            <!--logo标题图片 -->
-            <img class="title" src="../../assets/logo.png" alt="" />
-            <!--第二排内容 -->
-            <div class="awayMenu">
-                <!--左侧 -->
-                <div class="awayLeft">
-                    <span class="manage2">
-                        欢迎
-                        <!--用户名称 -->
-                        <span>{{ name }}</span>
-                    </span>
-                    <!--登入地址 -->
-                    <div class="manage">登入地址：{{ location }}</div>
-                </div>
-                <!--时间，上下布局 -->
-                <div class="bottom">
-                    <!--年月日 -->
-                    <span class="showtime">{{ showtime }}</span>
-                    <!--时分 -->
-                    <span class="showtime2">{{ showtime2 }}</span>
-                </div>
-            </div>
-            <!--三层标题 -->
-            <div class="bigTips">
-                <span style="color:rgba(255,255,255,0.8)">常用模块</span>
-                <span style="67.5%"> </span>
-            </div>
-            <!--常用按钮层 -->
-            <div class="buttonMenu">
-                <!--常用按钮盒子 -->
-                <div class="addMenuBox">
-                    <!--循环遍历按钮 -->
-                    <div class="addMenu" v-for="(item, index) in addMenuTempList" :key="index" @click="selectItem(item)">
-                        {{ item.title }}
-                    </div>
-                </div>
-                <!--分隔线 -->
-                <div class="shu"></div>
-                <!--右侧3按钮 -->
-                <div class="threeButton">
-                    <!--按钮1 -->
-                    <div class="button" @click="toDaiBanPage">
-                        <div class="left">
-                            <!--图片1 -->
-                            <img class="homeThreeIcon" src="../../assets/homeIcon1.png" />
-                            <!--内容1 -->
-                            <span class="text">我的待办</span>
-                        </div>
-                    </div>
-                    <!--按钮2 -->
-                    <div class="button" @click="toFaQiPage">
-                        <div class="left">
-                            <!--图片2 -->
-                            <img class="homeThreeIcon" src="../../assets/homeIcon2.png" />
-                            <!--内容2 -->
-                            <span class="text">我的未办</span>
-                        </div>
-                    </div>
-                    <!--按钮3 -->
-                    <div class="button" @click="toJingBanPage">
-                        <div class="left">
-                            <!--图片3 -->
-                            <img class="homeThreeIcon" src="../../assets/homeIcon3.png" />
-                            <!--内容3 -->
-                            <span class="text">我的经办</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!--左下角提升语句，点击跳转盒子-->
-            <div class="bottomText" @click="toOwnMenu">
-                添加"常用模块"? 点我 进入个人门户设置
-            </div>
+      <div class="body">
+        <div class="header">
+          <div class="welcome">
+            <Icon type="md-person" class="welcome-icon" />
+            <span class="welcome-text">Welcome,&nbsp;<span class="user-name">{{ name }}</span></span>
+          </div>
+          <img class="logo" src="../../assets/logo.png" alt="" />
         </div>
+
+        <div class="mainContent">
+          <div class="leftSection">
+            <div class="titleLeft"><span>My Modules</span></div>
+            <div class="addMenuBox">
+              <div class="addMenu" v-for="(item, index) in addMenuTempList" :key="index" @click="selectItem(item)">
+                {{ item.title }}
+              </div>
+            </div>
+          </div>
+          <!--分隔线 -->
+          <div class="division"></div>
+          <div class="rightSection">
+            <div class="titleRight"><span class="showtime">{{ showtime }}</span></div>
+            <div class="calendar-container">
+              <Calendar />
+            </div>
+          </div>
+        </div>
+        <!--点击跳转-->
+        <div class="bottomText" @click="toOwnMenu">
+          Click to add personal frequently used modules.
+        </div>
+      </div>
     </Row>
-</div>
+  </div>
 </template>
 
 <script>
 import Cookies from "js-cookie";
 import {
-    ipInfo,
-    getMyDoorList6
+  getMyDoorList6
 } from "./api.js";
-export default {
-    name: "home",
-    data() {
-        return {
-            name: "",
-            showtime: "",
-            showtime2: "",
-            location: "公司内网",
-            addMenuTempList: [],
-            number1: 0,
-            number2: 0,
-            number3: 0,
-            number1List: [],
-            number2List: [],
-            number3List: []
-        };
-    },
+import Calendar from "@/views/main-components/calendar/calendar.vue";
 
-    methods: {
-        init() {
-            this.getMyDoorListFx();
-            let user = JSON.parse(Cookies.get("userInfo"));
-            this.name = user.nickname;
-            this.getNowTime();
-            ipInfo().then((res) => {
-                if (res.success) {
-                    this.location = res.result;
-                }
-            });
-            this.timer = setInterval(this.getNowTime, 1000);
-        },
-        selectItem(e) {
-            if (e.name != undefined && e.name != "null") {
-                this.$router.push({
-                    name: e.name,
-                });
-            }
-        },
-        toDaiBanPage() {
-            this.$Message.success("正在开发，敬请期待！");
-        },
-        toFaQiPage() {
-            this.$Message.success("正在开发，敬请期待！");
-        },
-        toJingBanPage() {
-            this.$Message.success("正在开发，敬请期待！");
-        },
-        toOwnMenu() {
-            this.$router.push("/myHome");
-        },
-        getMyDoorListFx() {
-            var that = this;
-            getMyDoorList6().then((res) => {
-                that.addMenuTempList = res.result;
-            });
-        },
-        getNowTime() {
-            this.showtime = this.format(new Date(), "yyyy年MM月dd日");
-            this.showtime2 = this.format(new Date(), "HH:mm:dd");
-        },
+export default {
+  name: "home",
+  components: {
+    Calendar
+  },
+  data() {
+    return {
+      name: "",
+      showtime: "",
+      addMenuTempList: []
+    };
+  },
+  methods: {
+    init() {
+      this.getMyDoorListFx();
+      let user = JSON.parse(Cookies.get("userInfo"));
+      this.name = user.nickname;
+      this.getNowTime();
+      this.timer = setInterval(this.getNowTime, 1000);
     },
-    mounted() {
-        this.init();
-        this.clientHeight = `${document.documentElement.clientHeight}`;
-        let that = this;
-        window.onresize = function () {
-            this.clientHeight = `${document.documentElement.clientHeight}`;
-            if (that.$refs.page) {
-                that.$refs.page.style.minHeight = clientHeight - 100 + "px";
-            }
-        };
+    selectItem(e) {
+      if (e.name != undefined && e.name != "null") {
+        this.$router.push({
+          name: e.name,
+        });
+      }
     },
-    watch: {
-        clientHeight() {
-            this.changeFixed(this.clientHeight);
-        },
+    toOwnMenu() {
+      this.$router.push("/myHome");
     },
+    getMyDoorListFx() {
+      var that = this;
+      getMyDoorList6().then((res) => {
+        that.addMenuTempList = res.result;
+      });
+    },
+    getNowTime() {
+      this.showtime = this.format(new Date(), "HH:mm:ss");
+    }
+  },
+  mounted() {
+    this.init();
+    this.clientHeight = `${document.documentElement.clientHeight}`;
+    let that = this;
+    window.onresize = function () {
+      this.clientHeight = `${document.documentElement.clientHeight}`;
+      if (that.$refs.page) {
+        that.$refs.page.style.minHeight = clientHeight - 100 + "px";
+      }
+    };
+  },
+  watch: {
+    clientHeight() {
+      this.changeFixed(this.clientHeight);
+    },
+  },
 };
 </script>
 
@@ -171,254 +107,171 @@ export default {
 @import "./home.less";
 
 .ivu-tooltip {
-    width: 100% !important;
+  width: 100% !important;
 }
 
-.margin {
-    margin-bottom: 20px;
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  margin: 5vh 0;
 }
 
-.awayLeft {
-    width: 60%;
-    display: flex;
-    align-items: center;
+.logo {
+  width: 24%;
 }
 
-.bottom {
-    width: 30%;
-    margin-left: 10%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+.welcome {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  padding: 12px 24px;
+  background: rgba(60,127,180,0.05);
+  border-radius: 16px;
 }
 
-.title {
-    width: 15%;
-    margin: 5vh 0;
-    max-height: 80px;
+.welcome-icon {
+  font-size: 24px;
+  color: #3c7fb4;
+  margin-right: 12px;
 }
 
-.awayMenu {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.welcome-text {
+  font-size: 24px;
+  color: #3c7fb4;
+  font-weight: 600;
+  letter-spacing: 1px;
 }
 
-.manage {
-    width: 40%;
-    height: 100%;
-    font-family: Microsoft YaHei;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    color: rgb(255, 255, 255, 0.7);
+.user-name {
+  color: #515a6e;
+  font-weight: 600;
+  margin-left: 4px;
+  text-decoration: underline;
+  text-underline-offset: 5px;
 }
 
-.manage2 {
-    width: 60%;
-    height: 100%;
-    font-size: 28px;
-    display: flex;
-    align-items: center;
-    color: rgb(255, 255, 255, 0.7);
+.mainContent {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
 }
 
-.buttonMenu {
-    width: 100%;
-    display: flex;
+.leftSection {
+  width: 650px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.bigTips {
-    width: 100%;
-    display: flex;
-    justify-content: left;
-    align-items: center;
-    margin-top: 3vh;
-    margin-bottom: 3vh;
-    font-size: 20px;
+.rightSection {
+  width: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.titles {
+  width: 1300px;
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.titleLeft {
+  width: 240px;
+  height: 50px;
+  text-align: center;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: #3c7fb4;
+  margin-bottom: 30px;
+}
+
+.titleRight {
+  width: 260px;
+  height: 50px;
+  text-align: center;
+  margin-bottom: 30px;
+  margin-left: 60px;
+}
+.showtime {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 5px;
+  color: #3c7fb4;
+  text-align: center;
 }
 
 .addMenuBox {
-    width: 50%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    flex-wrap: wrap;
-
-    .addMenu {
-        width: 45%;
-        // min-width: 180px;
-        height: 22%;
-        margin: 2% 2.5%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        background-color: rgba(255, 255, 255, 0.4);
-        border-radius: 20px;
-        color: #fff;
-        font-size: 20px;
-    }
-}
-
-.addMenu :nth-child(5) {
-    margin-bottom: 0;
-}
-
-.addMenu :nth-child(6) {
-    margin-bottom: 0;
-}
-
-.shu {
-    width: 0.2%;
-    margin: 0 9.9%;
-    background-color: #4c4c4c;
-}
-
-.threeButton {
-    width: 30%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.showtime {
-    font-family: Microsoft YaHei;
-    font-size: 22px;
-    letter-spacing: 1px;
-    color: rgb(255, 255, 255);
-    font-weight: 100;
-    text-align: center;
-}
-
-.showtime2 {
-    font-family: Microsoft YaHei;
-    font-size: 26px;
-    font-weight: 500;
-    letter-spacing: 1px;
-    color: rgb(255, 255, 255);
-    text-align: center;
-}
-
-.homeThreeIcon {
-    opacity: 1;
-    height: 25px;
-    width: 25px;
-    margin-right: 10%;
-}
-
-.button {
-    width: 60%;
-    height: 28%;
-    min-width: 310px;
-    max-width: 860px;
-    max-height: 80px;
+  width: 650px;
+  height: 400px;
+  display: flex;
+  margin-top: -12px;
+  padding: 30px 30px;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  background-color: #fff;
+  border-radius: 25px;
+  box-shadow: 0 2px 12px 0 rgba(0,0,0,.08);
+  border: 1px solid rgba(0,0,0,.08);
+  
+  // 自定义模块按钮
+  .addMenu {
+    width: 260px;
+    height: 65px;
+    margin: 20px 15px;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: rgba(255, 255, 255, 0.3);
-    border-radius: 10px;
-    padding: 20px;
-    margin: 0 auto;
-    z-index: 99;
+    color: #3c7fb4;
+    font-size: 20px;
+    background: linear-gradient(60deg, rgba(225, 241, 253, 0.08), rgba(60,127,180,.1));
+    //background: rgba(60,127,180,.06);
+    border-radius: 16px;
+    border: 2px solid #6DAADA;
+    box-shadow: 0 2px 12px 0 rgba(0,0,0,.08);
+    cursor: pointer;
+  }
 
-    .left {
-        width: 60%;
-        min-width: 150;
-        display: flex;
-        align-items: center;
-    }
+  .addMenu:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(60,127,180,.05);
+  }
+}
 
-    .text {
-        color: #fff;
-        font-size: 20px;
-        position: relative;
-    }
-
-    .shu {
-        width: 1px !important;
-        height: 100%;
-        max-height: 35px;
-        background-color: #fff;
-    }
-
-    .number {
-        font-size: 22px;
-        color: #fff;
-    }
+.division {
+  width: 3px;
+  height: 450px;
+  margin: 30px 100px;
+  opacity: 0.5;
+  background-color: #3c7fb4;
 }
 
 .bottomText {
-    opacity: 0.7;
-    width: 100%;
-    margin-top: 7vh;
-    text-align: left;
-    font-size: 16px;
-    color: #e6e6e6;
-    text-decoration: underline;
+  opacity: 0.7;
+  width: 100%;
+  margin-top: 15px;
+  text-align: left;
+  font-size: 16px;
+  color: #515a6e;
+  text-decoration: underline;
+  text-underline-offset: 5px;
 }
 
-.textBox {
-    width: 800px;
-    display: flex;
-    flex-direction: column;
-    align-items: left;
-    padding: 0 10%;
-
-    .text {
-        font-size: 16px;
-        margin: 3px 0;
-        border-bottom: 1px solid #777;
-
-        .one {
-            display: flex;
-            align-items: center;
-
-            .xuhao {
-                width: 20%;
-                min-width: 50px;
-                background-color: #ff9900;
-                border: 1px solid #ff9900;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                border-radius: 5px;
-                padding: 3px;
-                margin-right: 8px;
-            }
-
-            .floar {
-                width: 85%;
-                display: flex;
-                justify-content: center;
-                font-size: 16px;
-                font-family: "Fantasy";
-                font-weight: 500;
-                margin-right: 30px;
-            }
-        }
-
-        .two {
-            display: flex;
-            margin: 5px 0;
-            align-items: center;
-            justify-content: space-between;
-
-            .twoItem {
-                width: 35%;
-                font-size: 12px;
-            }
-
-            .twoItem2 {
-                width: 65%;
-                display: flex;
-                justify-content: center;
-                font-size: 12px;
-
-            }
-        }
-    }
+.calendar-container {
+  width: 450px;
+  height: 410px;
+  margin-top: -8px;
+  margin-left: 20px;
 }
 </style>
