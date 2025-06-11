@@ -66,7 +66,6 @@ public class DictController {
         return ResultUtil.error("字典已存在,不能同名");
     }
 
-    @SystemLog(about = "编辑数据字典", type = LogType.DATA_CENTER,doType = "DICT-04")
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     @ApiOperation(value = "编辑数据字典")
     public Result<Object> edit(Dict dict){
