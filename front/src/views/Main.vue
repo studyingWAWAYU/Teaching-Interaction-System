@@ -53,13 +53,9 @@
             </div>
             <div :class="{'header-avator-con':navType!=4, 'header-avator-con nav4':navType==4}">
                 <Dropdown @on-click="selectNav" class="options" v-if="navType==4">
-                    <Icon type="ios-apps" :size="24" class="language"></Icon>
                     <DropdownMenu slot="list">
                         <DropdownItem v-for="(item, i) in navList" :key="i" :name="item.name" :selected="currNav==item.name">
-                            <div>
-                                <Icon :type="item.icon" :size="14" style="margin: 0 10px 2px 0"></Icon>
-                                {{item.title}}
-                            </div>
+                            <div>{{item.title}}</div>
                         </DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
@@ -68,8 +64,8 @@
                         <Dropdown transfer trigger="hover" @on-click="handleClickUserDropdown">
                             <a>
                                 <span class="main-user-name">{{ username }}</span>
-                                <Icon type="md-arrow-dropdown" />
-                                <Avatar :src="avatarPath" style="background: #619fe7;margin-left: 10px;"></Avatar>
+                                <Icon type="md-arrow-dropdown" :size="22" style="color:#3c7fb4; margin-top:10px"/>
+                                <Avatar :src="avatarPath" style="margin-left: 15px;height:40px;width:40px"></Avatar>
                             </a>
                             <DropdownMenu slot="list">
                                 <DropdownItem name="changePass">修改密码</DropdownItem>
@@ -180,8 +176,6 @@ export default {
         selectNav(name) {
             this.$store.commit("setCurrNav", name);
             this.setStore("currNav", name);
-            // 清空所有已打开标签
-            this.$store.commit("clearAllTags");
             if (this.$route.name != "home_index") {
                 this.$router.push({
                     name: "home_index"
@@ -279,4 +273,5 @@ export default {
 
 <style lang="less">
 @import "./main.less";
+
 </style>
