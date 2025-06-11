@@ -63,7 +63,6 @@ public class DepartmentController {
 
     private static final String REDIS_STEP_STR = ":";
 
-    @SystemLog(about = "查询子部门", type = LogType.DATA_CENTER,doType = "DEP-01")
     @RequestMapping(value = "/getByParentId", method = RequestMethod.GET)
     @ApiOperation(value = "查询子部门")
     public Result<List<Department>> getByParentId(@RequestParam(required = false,defaultValue = "0") String parentId){
@@ -83,7 +82,6 @@ public class DepartmentController {
         return new ResultUtil<List<Department>>().setData(list);
     }
 
-    @SystemLog(about = "模糊搜索部门", type = LogType.DATA_CENTER,doType = "DEP-02")
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     @ApiOperation(value = "模糊搜索部门")
     public Result<List<Department>> search(@RequestParam String title){
@@ -94,7 +92,6 @@ public class DepartmentController {
         return new ResultUtil<List<Department>>().setData(setInfo(departmentList));
     }
 
-    @SystemLog(about = "添加部门", type = LogType.DATA_CENTER,doType = "DEP-03")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ApiOperation(value = "添加部门")
     public Result<Object> add(Department department){
@@ -111,7 +108,6 @@ public class DepartmentController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "编辑部门", type = LogType.DATA_CENTER,doType = "DEP-04")
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     @ApiOperation(value = "编辑部门")
     public Result<Object> edit(Department department,@RequestParam(required = false) String[] mainHeader,@RequestParam(required = false) String[] viceHeader){
@@ -152,7 +148,6 @@ public class DepartmentController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "删除部门", type = LogType.DATA_CENTER,doType = "DEP-05")
     @RequestMapping(value = "/delByIds", method = RequestMethod.POST)
     @ApiOperation(value = "删除部门")
     public Result<Object> delByIds(@RequestParam String[] ids){

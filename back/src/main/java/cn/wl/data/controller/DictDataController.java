@@ -43,7 +43,6 @@ public class DictDataController {
 
     private static final String REDIS_DIST_DATA_PRE_STR = "dictData::";
 
-    @SystemLog(about = "查询单个数据字典的值", type = LogType.DATA_CENTER,doType = "DICT_DATA-01")
     @RequestMapping(value = "/getByType/{type}", method = RequestMethod.GET)
     @ApiOperation(value = "查询单个数据字典的值")
     public Result<Object> getByType(@PathVariable String type){
@@ -58,7 +57,6 @@ public class DictDataController {
         return ResultUtil.data(iDictDataService.list(dataQw));
     }
 
-    @SystemLog(about = "查询数据字典值", type = LogType.DATA_CENTER,doType = "DICT_DATA-02")
     @RequestMapping(value = "/getByCondition", method = RequestMethod.GET)
     @ApiOperation(value = "查询数据字典值")
     public Result<IPage<DictData>> getByCondition(@ModelAttribute DictData dictData, @ModelAttribute PageVo page) {
@@ -90,7 +88,6 @@ public class DictDataController {
         return new ResultUtil<IPage<DictData>>().setData(data);
     }
 
-    @SystemLog(about = "删除数据字典值", type = LogType.DATA_CENTER,doType = "DICT_DATA-03")
     @RequestMapping(value = "/delByIds", method = RequestMethod.POST)
     @ApiOperation(value = "删除数据字典值")
     public Result<Object> delByIds(@RequestParam String[] ids){
@@ -103,7 +100,6 @@ public class DictDataController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "添加数据字典值", type = LogType.DATA_CENTER,doType = "DICT_DATA-04")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ApiOperation(value = "添加数据字典值")
     public Result<Object> add(DictData dictData){
@@ -116,7 +112,6 @@ public class DictDataController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "编辑数据字典值", type = LogType.DATA_CENTER,doType = "DICT_DATA-05")
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     @ApiOperation(value = "编辑数据字典值")
     public Result<Object> edit(DictData dictData){

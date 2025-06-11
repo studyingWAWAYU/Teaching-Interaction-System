@@ -39,7 +39,6 @@ public class UploadController {
     @Autowired
     private IFileService iFileService;
 
-    @SystemLog(about = "文件上传", type = LogType.DATA_CENTER,doType = "FILE-06")
     @RequestMapping(value = "/file", method = RequestMethod.POST)
     @ApiOperation(value = "文件上传")
     public Result<Object> upload(@RequestParam(required = false) MultipartFile file,@RequestParam(required = false) String base64) {

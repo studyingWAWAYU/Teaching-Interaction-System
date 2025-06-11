@@ -25,7 +25,6 @@ public class LogController{
     @Autowired
     private ILogService iLogService;
 
-    @SystemLog(about = "查询日志", type = LogType.DATA_CENTER,doType = "LOG-01")
     @RequestMapping(value = "/getAllByPage", method = RequestMethod.GET)
     @ApiOperation(value = "查询日志")
     public Result<Object> getAllByPage(@ModelAttribute Log log, @ModelAttribute PageVo page){

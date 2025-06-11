@@ -39,14 +39,12 @@ public class DictController {
     private IDictDataService iDictDataService;
 
 
-    @SystemLog(about = "查询所有数据字典", type = LogType.DATA_CENTER,doType = "DICT-01")
     @RequestMapping(value = "/getAll", method = RequestMethod.GET)
     @ApiOperation(value = "查询所有数据字典")
     public Result<List<Dict>> getAll(){
         return new ResultUtil<List<Dict>>().setData(iDictService.list());
     }
 
-    @SystemLog(about = "模拟搜索数据字典", type = LogType.DATA_CENTER,doType = "DICT-02")
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     @ApiOperation(value = "模拟搜索数据字典")
     public Result<List<Dict>> search(@RequestParam String key){
@@ -55,7 +53,6 @@ public class DictController {
         return new ResultUtil<List<Dict>>().setData(iDictService.list(qw));
     }
 
-    @SystemLog(about = "添加数据字典", type = LogType.DATA_CENTER,doType = "DICT-03")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ApiOperation(value = "添加数据字典")
     public Result<Object> add(Dict dict){
@@ -89,7 +86,6 @@ public class DictController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "删除数据字典", type = LogType.DATA_CENTER,doType = "DICT-05")
     @RequestMapping(value = "/delByIds", method = RequestMethod.POST)
     @ApiOperation(value = "删除数据字典")
     public Result<Object> delByIds(@RequestParam String[] ids){

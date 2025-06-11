@@ -63,7 +63,6 @@ public class PermissionController {
     @Autowired
     private IUserService iUserService;
 
-    @SystemLog(about = "查询菜单权限拥有者", type = LogType.DATA_CENTER,doType = "PERMISSION-01")
     @ApiOperation(value = "查询菜单权限拥有者")
     @RequestMapping(value = "/getUserByPermission", method = RequestMethod.GET)
     public Result<List<UserByPermissionVo>> getUserByPermission(@RequestParam String permissionId){
@@ -117,7 +116,6 @@ public class PermissionController {
         return iPermissionService.list(qw);
     }
 
-    @SystemLog(about = "查询菜单", type = LogType.DATA_CENTER,doType = "PERMISSION-02")
     @RequestMapping(value = "/getMenuList", method = RequestMethod.GET)
     @ApiOperation(value = "查询菜单")
     public Result<List<MenuVo>> getMenuList(){
@@ -192,7 +190,6 @@ public class PermissionController {
         return new ResultUtil<List<MenuVo>>().setData(menuList);
     }
 
-    @SystemLog(about = "搜索菜单", type = LogType.DATA_CENTER,doType = "PERMISSION-03")
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     @ApiOperation(value = "搜索菜单")
     public Result<List<Permission>> searchPermissionList(@RequestParam String title){
@@ -210,7 +207,6 @@ public class PermissionController {
         return iPermissionService.list(qw);
     }
 
-    @SystemLog(about = "查询全部菜单", type = LogType.DATA_CENTER,doType = "PERMISSION-04")
     @RequestMapping(value = "/getAllList", method = RequestMethod.GET)
     @ApiOperation(value = "查询全部菜单")
     @Cacheable(key = "'allList'")
@@ -235,7 +231,6 @@ public class PermissionController {
         return new ResultUtil<List<Permission>>().setData(list0);
     }
 
-    @SystemLog(about = "删除菜单", type = LogType.DATA_CENTER,doType = "PERMISSION-05")
     @RequestMapping(value = "/delByIds", method = RequestMethod.POST)
     @ApiOperation(value = "删除菜单")
     @CacheEvict(key = "'menuList'")
@@ -259,7 +254,6 @@ public class PermissionController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "添加菜单", type = LogType.DATA_CENTER,doType = "PERMISSION-06")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ApiOperation(value = "添加菜单")
     @CacheEvict(key = "'menuList'")
@@ -286,7 +280,6 @@ public class PermissionController {
         return new ResultUtil<Permission>().setData(permission);
     }
 
-    @SystemLog(about = "编辑菜单", type = LogType.DATA_CENTER,doType = "PERMISSION-07")
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     @ApiOperation(value = "编辑菜单")
     public Result<Permission> edit(Permission permission){

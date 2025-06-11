@@ -61,7 +61,6 @@ public class FileController {
     @PersistenceContext
     private EntityManager entityManager;
 
-    @SystemLog(about = "查询系统文件", type = LogType.DATA_CENTER,doType = "FILE-01")
     @RequestMapping(value = "/getByCondition", method = RequestMethod.GET)
     @ApiOperation(value = "查询系统文件")
     @ResponseBody
@@ -104,7 +103,6 @@ public class FileController {
         return new ResultUtil<IPage<File>>().setData(fileList);
     }
 
-    @SystemLog(about = "文件复制", type = LogType.DATA_CENTER,doType = "FILE-02")
     @RequestMapping(value = "/copy", method = RequestMethod.POST)
     @ApiOperation(value = "文件复制")
     @ResponseBody
@@ -121,7 +119,6 @@ public class FileController {
         return ResultUtil.data();
     }
 
-    @SystemLog(about = "文件重命名", type = LogType.DATA_CENTER,doType = "FILE-03")
     @RequestMapping(value = "/rename", method = RequestMethod.POST)
     @ApiOperation(value = "文件重命名")
     @ResponseBody
@@ -145,7 +142,6 @@ public class FileController {
         return ResultUtil.data();
     }
 
-    @SystemLog(about = "文件重命名", type = LogType.DATA_CENTER,doType = "FILE-04")
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @ApiOperation(value = "文件重命名")
     @ResponseBody
@@ -162,7 +158,6 @@ public class FileController {
         return ResultUtil.data();
     }
 
-    @SystemLog(about = "预览文件", type = LogType.DATA_CENTER,doType = "FILE-05")
     @RequestMapping(value = "/view/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "预览文件")
     public void view(@PathVariable String id,@RequestParam(required = false) String filename,@RequestParam(required = false, defaultValue = "false") Boolean preview,HttpServletResponse httpServletResponse) throws IOException {

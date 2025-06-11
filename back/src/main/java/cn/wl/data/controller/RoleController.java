@@ -50,14 +50,12 @@ public class RoleController {
     @Autowired
     private RedisTemplateHelper redisTemplateHelper;
 
-    @SystemLog(about = "查询全部角色", type = LogType.DATA_CENTER,doType = "ROLE-01")
     @RequestMapping(value = "/getAllList", method = RequestMethod.GET)
     @ApiOperation(value = "查询全部角色")
     public Result<Object> getAllList(){
         return ResultUtil.data(iRoleService.list());
     }
 
-    @SystemLog(about = "查询角色", type = LogType.DATA_CENTER,doType = "ROLE-02")
     @RequestMapping(value = "/getAllByPage", method = RequestMethod.GET)
     @ApiOperation(value = "查询角色")
     public Result<IPage<Role>> getRoleByPage(@ModelAttribute Role role,@ModelAttribute PageVo page) {
@@ -77,7 +75,6 @@ public class RoleController {
         return new ResultUtil<IPage<Role>>().setData(roleList);
     }
 
-    @SystemLog(about = "配置默认角色", type = LogType.DATA_CENTER,doType = "ROLE-03")
     @RequestMapping(value = "/setDefault", method = RequestMethod.POST)
     @ApiOperation(value = "配置默认角色")
     public Result<Object> setDefault(@RequestParam String id,@RequestParam Boolean isDefault){
@@ -92,7 +89,6 @@ public class RoleController {
         return ResultUtil.error("不存在");
     }
 
-    @SystemLog(about = "修改菜单权限", type = LogType.DATA_CENTER,doType = "ROLE-04")
     @RequestMapping(value = "/editRolePerm", method = RequestMethod.POST)
     @ApiOperation(value = "修改菜单权限")
     public Result<Object> editRolePerm(@RequestParam String roleId,@RequestParam(required = false) String[] permIds){
@@ -144,7 +140,6 @@ public class RoleController {
         return ResultUtil.data();
     }
 
-    @SystemLog(about = "新增角色", type = LogType.DATA_CENTER,doType = "ROLE-05")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @ApiOperation(value = "新增角色")
     public Result<Role> save(Role role){
@@ -152,7 +147,6 @@ public class RoleController {
         return new ResultUtil<Role>().setData(role);
     }
 
-    @SystemLog(about = "编辑角色", type = LogType.DATA_CENTER,doType = "ROLE-06")
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     @ApiOperation(value = "编辑角色")
     public Result<Role> edit(Role role){
@@ -164,7 +158,6 @@ public class RoleController {
         return new ResultUtil<Role>().setData(role);
     }
 
-    @SystemLog(about = "删除角色", type = LogType.DATA_CENTER,doType = "ROLE-07")
     @RequestMapping(value = "/delByIds", method = RequestMethod.POST)
     @ApiOperation(value = "删除角色")
     public Result<Object> delByIds(@RequestParam String[] ids){

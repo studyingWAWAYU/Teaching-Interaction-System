@@ -49,7 +49,6 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
 
     @Override
     @ApiOperation(value = "登录成功回调")
-    @SystemLog(about = "登录系统", type = LogType.LOGIN)
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication ac) throws IOException, ServletException {
         // 保存登录状态
         String saveLogin = request.getParameter(ZwzLoginProperties.SAVE_LOGIN_PRE);

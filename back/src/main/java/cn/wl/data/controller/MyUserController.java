@@ -32,7 +32,6 @@ public class MyUserController {
     @Autowired
     private IUserService iUserService;
 
-    @SystemLog(about = "查询用户", type = LogType.DATA_CENTER,doType = "USER-01")
     @RequestMapping(value = "/getByPage", method = RequestMethod.GET)
     @ApiOperation(value = "查询用户")
     public Result<IPage<User>> getByPage(@ModelAttribute User user,@ModelAttribute PageVo page){
