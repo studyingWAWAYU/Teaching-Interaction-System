@@ -1,10 +1,8 @@
 package cn.wl.data.controller;
 
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.redis.RedisTemplateHelper;
 import cn.wl.basics.utils.*;
 import cn.wl.basics.parameter.CommonConstant;
-import cn.wl.basics.log.LogType;
 import cn.wl.basics.baseVo.PageVo;
 import cn.wl.basics.baseVo.Result;
 import cn.wl.data.entity.*;

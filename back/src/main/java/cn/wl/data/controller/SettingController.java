@@ -1,8 +1,6 @@
 package cn.wl.data.controller;
 
 import cn.wl.basics.baseVo.Result;
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.data.entity.Setting;
 import cn.wl.data.service.ISettingService;

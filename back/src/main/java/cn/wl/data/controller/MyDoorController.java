@@ -1,8 +1,6 @@
 package cn.wl.data.controller;
 
 import cn.wl.basics.baseVo.Result;
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.utils.SecurityUtil;
 import cn.wl.data.entity.Permission;

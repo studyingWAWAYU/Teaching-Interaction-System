@@ -1,8 +1,6 @@
 package cn.wl.data.controller;
 
 import cn.wl.basics.exception.ZwzException;
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.utils.*;
 import cn.wl.data.entity.Setting;
 import cn.wl.data.entity.User;

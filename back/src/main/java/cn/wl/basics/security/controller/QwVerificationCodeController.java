@@ -1,8 +1,6 @@
 package cn.wl.basics.security.controller;
 
 import cn.wl.basics.baseVo.Result;
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.redis.RedisTemplateHelper;
 import cn.wl.basics.security.SecurityUserDetails;
 import cn.wl.basics.security.utils.WeiChatUtils;

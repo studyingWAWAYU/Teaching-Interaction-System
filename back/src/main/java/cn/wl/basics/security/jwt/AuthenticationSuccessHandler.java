@@ -1,7 +1,5 @@
 package cn.wl.basics.security.jwt;
 
-import cn.wl.basics.log.SystemLog;
-import cn.wl.basics.log.LogType;
 import cn.wl.basics.utils.ResponseUtil;
 import cn.wl.basics.baseVo.TokenUser;
 import cn.wl.basics.parameter.ZwzLoginProperties;

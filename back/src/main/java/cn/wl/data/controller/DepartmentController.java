@@ -1,7 +1,5 @@
 package cn.wl.data.controller;
 
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.parameter.CommonConstant;
 import cn.wl.basics.exception.ZwzException;
 import cn.wl.basics.redis.RedisTemplateHelper;

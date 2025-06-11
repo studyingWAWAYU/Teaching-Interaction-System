@@ -1,7 +1,5 @@
 package cn.wl.test.controller;
 
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.utils.PageUtil;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.baseVo.PageVo;
