@@ -2,7 +2,7 @@
 <div class="main" :class="{'main-hide-text': shrink}">
     <div class="sidebar-menu-con menu-bar" :style="{width: shrink ? '60px' : '220px', overflow: shrink ? 'visible' : 'auto'}">
         <shrinkable-menu :shrink="shrink" @on-change="handleSubmenuChange" :theme="menuTheme" :before-push="beforePush" :open-names="openedSubmenuArr" :menu-list="menuList">
-            <div slot="top" class="logo-con">
+            <div slot="top" class="logo-con" @click="goHome" style="cursor: pointer">
                 <img v-show="!shrink" src="../assets/logo.png" key="max-logo" />
                 <img v-show="shrink" src="../assets/logo-min.png" key="min-logo" />
             </div>
@@ -176,6 +176,9 @@ export default {
             if (currWidth <= 1200) {
                 this.sliceNum = 2;
             }
+        },
+        goHome() {
+          this.$router.push({ path: '/home' });
         },
         selectNav(name) {
             this.$store.commit("setCurrNav", name);
