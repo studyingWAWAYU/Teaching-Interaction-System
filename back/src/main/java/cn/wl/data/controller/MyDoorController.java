@@ -83,7 +83,7 @@ public class MyDoorController {
             ans.add(getNullMenu());ans.add(getNullMenu());ans.add(getNullMenu());
             return new ResultUtil().setData(ans);
         }
-        String[] zwz666s = myDoor.split("ZWZ666");
+        String[] zwz666s = myDoor.split("WL");
         List<Permission> all = iPermissionService.list();
         for (String zwz666 : zwz666s) {
             for (Permission permission : all) {
