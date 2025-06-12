@@ -71,7 +71,7 @@ export default {
         });
       }
       
-      // 添加当月的日期
+      // 当月的日期
       for (let i = 1; i <= daysInMonth; i++) {
         days.push({
           date: i,
@@ -79,7 +79,7 @@ export default {
         });
       }
       
-      // 添加下个月的日期
+      // 下个月
       const remainingDays = 42 - days.length; // 6行7列 = 42
       for (let i = 1; i <= remainingDays; i++) {
         days.push({
@@ -127,7 +127,7 @@ export default {
 
 <style lang="less" scoped>
 .calendar-container {
-  width: 35%;
+  width: 33%;
   padding: 20px;
   background-color: #fff;
   border-radius: 25px;
@@ -137,7 +137,7 @@ export default {
 
 .calendar-header {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -212,8 +212,8 @@ export default {
   border-radius: 50%;
   transition: all 0.2s ease;
   position: relative;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -240,7 +240,6 @@ export default {
   visibility: hidden;
 }
 
-//点击效果
 .calendar-days span:not(.current-day):active {
   transform: scale(0.95);
   background-color: rgba(0,122,255,0.2);
