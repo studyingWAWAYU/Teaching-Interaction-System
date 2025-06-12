@@ -128,7 +128,7 @@ public class MyDoorController {
     private MyDoorMenuClass getNullMenu() {
         MyDoorMenuClass menu = new MyDoorMenuClass();
         menu.setName("null");
-        menu.setTitle("尚未添加");
+        menu.setTitle("empty");
         return menu;
     }
 
