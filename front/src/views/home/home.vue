@@ -42,7 +42,7 @@ import Cookies from "js-cookie";
 import {
   getMyDoorList6
 } from "./api.js";
-import Calendar from "@/views/main-components/calendar/calendar.vue";
+import Calendar from "@/views/main-components/calendar.vue";
 
 export default {
   name: "home",
