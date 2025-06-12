@@ -1,12 +1,10 @@
 package cn.wl.test.controller;
 
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.utils.PageUtil;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.baseVo.PageVo;
 import cn.wl.basics.baseVo.Result;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import cn.wl.test.entity.Student;
 import cn.wl.test.service.IStudentService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -30,49 +28,44 @@ public class StudentController {
     @Autowired
     private IStudentService iStudentService;
 
-    @SystemLog(about = "查询单条学生", type = LogType.MORE_MOUDLE,doType = "STUDENT-01")
     @RequestMapping(value = "/getOne", method = RequestMethod.GET)
     @ApiOperation(value = "查询单条学生")
     public Result<Student> get(@RequestParam String id){
         return new ResultUtil<Student>().setData(iStudentService.getById(id));
     }
 
-    @SystemLog(about = "查询全部学生个数", type = LogType.MORE_MOUDLE,doType = "STUDENT-02")
     @RequestMapping(value = "/count", method = RequestMethod.GET)
     @ApiOperation(value = "查询全部学生个数")
     public Result<Long> getCount(){
         return new ResultUtil<Long>().setData(iStudentService.count());
     }
 
-    @SystemLog(about = "查询全部学生", type = LogType.MORE_MOUDLE,doType = "STUDENT-03")
     @RequestMapping(value = "/getAll", method = RequestMethod.GET)
     @ApiOperation(value = "查询全部学生")
     public Result<List<Student>> getAll(){
         return new ResultUtil<List<Student>>().setData(iStudentService.list());
     }
 
-    @SystemLog(about = "查询学生", type = LogType.MORE_MOUDLE,doType = "STUDENT-04")
     @RequestMapping(value = "/getByPage", method = RequestMethod.GET)
     @ApiOperation(value = "查询学生")
     public Result<IPage<Student>> getByPage(@ModelAttribute Student student ,@ModelAttribute PageVo page){
         QueryWrapper<Student> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(student.getName())) {
+        if(!WlNullUtils.isNull(student.getName())) {
             qw.like("name",student.getName());
         }
-        if(!ZwzNullUtils.isNull(student.getNumber())) {
+        if(!WlNullUtils.isNull(student.getNumber())) {
             qw.like("number",student.getNumber());
         }
-        if(!ZwzNullUtils.isNull(student.getSex())) {
+        if(!WlNullUtils.isNull(student.getSex())) {
             qw.like("sex",student.getSex());
         }
-        if(!ZwzNullUtils.isNull(student.getSchool())) {
+        if(!WlNullUtils.isNull(student.getSchool())) {
             qw.like("school",student.getSchool());
         }
         IPage<Student> data = iStudentService.page(PageUtil.initMpPage(page),qw);
         return new ResultUtil<IPage<Student>>().setData(data);
     }
 
-    @SystemLog(about = "增改学生", type = LogType.MORE_MOUDLE,doType = "STUDENT-05")
     @RequestMapping(value = "/insertOrUpdate", method = RequestMethod.POST)
     @ApiOperation(value = "增改学生")
     public Result<Student> saveOrUpdate(Student student){
@@ -82,7 +75,6 @@ public class StudentController {
         return ResultUtil.error();
     }
 
-    @SystemLog(about = "新增学生", type = LogType.MORE_MOUDLE,doType = "STUDENT-06")
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
     @ApiOperation(value = "新增学生")
     public Result<Student> insert(Student student){
@@ -90,7 +82,6 @@ public class StudentController {
         return new ResultUtil<Student>().setData(student);
     }
 
-    @SystemLog(about = "编辑学生", type = LogType.MORE_MOUDLE,doType = "STUDENT-07")
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ApiOperation(value = "编辑学生")
     public Result<Student> update(Student student){
@@ -98,7 +89,6 @@ public class StudentController {
         return new ResultUtil<Student>().setData(student);
     }
 
-    @SystemLog(about = "删除学生", type = LogType.MORE_MOUDLE,doType = "STUDENT-08")
     @RequestMapping(value = "/delByIds", method = RequestMethod.POST)
     @ApiOperation(value = "删除学生")
     public Result<Object> delByIds(@RequestParam String[] ids){

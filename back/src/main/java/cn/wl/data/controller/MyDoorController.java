@@ -1,15 +1,13 @@
 package cn.wl.data.controller;
 
 import cn.wl.basics.baseVo.Result;
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.utils.SecurityUtil;
 import cn.wl.data.entity.Permission;
 import cn.wl.data.entity.User;
 import cn.wl.data.service.IPermissionService;
 import cn.wl.data.service.IUserService;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.Data;
@@ -43,7 +41,6 @@ public class MyDoorController {
     @Autowired
     private IUserService iUserService;
 
-    @SystemLog(about = "查询个人门户菜单A", type = LogType.DATA_CENTER,doType = "MY-DOOR-01")
     @ApiOperation(value = "查询个人门户菜单A")
     @RequestMapping(value = "/getMyDoorList", method = RequestMethod.POST)
     public Result<List<MyDoorMenuClass>> getMyDoorList(){
@@ -51,7 +48,7 @@ public class MyDoorController {
         user = iUserService.getById(user.getId());
         List<MyDoorMenuClass> ans = new ArrayList<>();
         String myDoor = user.getMyDoor();
-        if(ZwzNullUtils.isNull(myDoor)) {
+        if(WlNullUtils.isNull(myDoor)) {
             return new ResultUtil().setData(ans);
         }
         String[] zwz666s = myDoor.split("ZWZ666");
@@ -70,7 +67,6 @@ public class MyDoorController {
         return new ResultUtil().setData(ans);
     }
 
-    @SystemLog(about = "查询个人门户菜单B", type = LogType.DATA_CENTER,doType = "MY-DOOR-02")
     @ApiOperation(value = "获取个人门户菜单B")
     @RequestMapping(value = "/getMyDoorList6", method = RequestMethod.POST)
     public Result<List<MyDoorMenuClass>> getMyDoorList6(){
@@ -78,7 +74,7 @@ public class MyDoorController {
         user = iUserService.getById(user.getId());
         List<MyDoorMenuClass> ans = new ArrayList<>();
         String myDoor = user.getMyDoor();
-        if(ZwzNullUtils.isNull(myDoor)) {
+        if(WlNullUtils.isNull(myDoor)) {
             ans.add(getNullMenu());ans.add(getNullMenu());ans.add(getNullMenu());
             ans.add(getNullMenu());ans.add(getNullMenu());ans.add(getNullMenu());
             return new ResultUtil().setData(ans);
@@ -106,14 +102,13 @@ public class MyDoorController {
         return new ResultUtil().setData(ans);
     }
 
-    @SystemLog(about = "修改个人门户菜单", type = LogType.DATA_CENTER,doType = "MY-DOOR-03")
     @ApiOperation(value = "修改个人门户菜单")
     @RequestMapping(value = "/setMyDoorList", method = RequestMethod.POST)
     public Result<Object> setMyDoorList(@RequestParam String str){
         User user = securityUtil.getCurrUser();
         user = iUserService.getById(user.getId());
         if(user != null) {
-            if(ZwzNullUtils.isNull(str)) {
+            if(WlNullUtils.isNull(str)) {
                 user.setMyDoor("");
                 iUserService.saveOrUpdate(user);
             } else {

@@ -1,12 +1,10 @@
 package cn.wl.data.controller;
 
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.utils.*;
 import cn.wl.data.entity.Setting;
 import cn.wl.data.service.IFileService;
 import cn.wl.data.service.ISettingService;
-import cn.wl.data.utils.ZwzFileUtils;
+import cn.wl.data.utils.WlFileUtils;
 import cn.wl.basics.baseVo.Result;
 import cn.wl.data.entity.File;
 import cn.hutool.core.util.StrUtil;
@@ -31,7 +29,7 @@ import java.io.InputStream;
 public class UploadController {
 
     @Autowired
-    private ZwzFileUtils zwzFileUtils;
+    private WlFileUtils WlFileUtils;
 
     @Autowired
     private ISettingService iSettingService;
@@ -39,7 +37,6 @@ public class UploadController {
     @Autowired
     private IFileService iFileService;
 
-    @SystemLog(about = "文件上传", type = LogType.DATA_CENTER,doType = "FILE-06")
     @RequestMapping(value = "/file", method = RequestMethod.POST)
     @ApiOperation(value = "文件上传")
     public Result<Object> upload(@RequestParam(required = false) MultipartFile file,@RequestParam(required = false) String base64) {
@@ -51,7 +48,7 @@ public class UploadController {
         File f = new File();
         try {
             InputStream inputStream = file.getInputStream();
-            result = zwzFileUtils.inputStreamUpload(inputStream, fKey, file);
+            result = WlFileUtils.inputStreamUpload(inputStream, fKey, file);
             f.setLocation(0);
             f.setName(file.getOriginalFilename());
             f.setSize(file.getSize());

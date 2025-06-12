@@ -1,12 +1,10 @@
 package cn.wl.basics.security.jwt;
 
-import cn.wl.basics.log.SystemLog;
-import cn.wl.basics.log.LogType;
 import cn.wl.basics.utils.ResponseUtil;
 import cn.wl.basics.baseVo.TokenUser;
-import cn.wl.basics.parameter.ZwzLoginProperties;
+import cn.wl.basics.parameter.WlLoginProperties;
 import cn.hutool.core.util.StrUtil;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import com.alibaba.fastjson2.JSON;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
 
     @Autowired
-    private ZwzLoginProperties tokenProperties;
+    private WlLoginProperties tokenProperties;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -49,12 +47,11 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
 
     @Override
     @ApiOperation(value = "登录成功回调")
-    @SystemLog(about = "登录系统", type = LogType.LOGIN)
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication ac) throws IOException, ServletException {
         // 保存登录状态
-        String saveLogin = request.getParameter(ZwzLoginProperties.SAVE_LOGIN_PRE);
+        String saveLogin = request.getParameter(WlLoginProperties.SAVE_LOGIN_PRE);
         Boolean saveLoginFlag = false;
-        if(!ZwzNullUtils.isNull(saveLogin) && Objects.equals(saveLogin,"true")){
+        if(!WlNullUtils.isNull(saveLogin) && Objects.equals(saveLogin,"true")){
             saveLoginFlag = true;
         }
         // 缓存菜单权限
@@ -73,18 +70,18 @@ public class AuthenticationSuccessHandler extends SavedRequestAwareAuthenticatio
         }
         // 单点登录判断（单点登录就是不能在多设备同时登录同一账号）
         if(tokenProperties.getSsoFlag()){
-            String oldToken = redisTemplate.opsForValue().get(ZwzLoginProperties.USER_TOKEN_PRE + username);
+            String oldToken = redisTemplate.opsForValue().get(WlLoginProperties.USER_TOKEN_PRE + username);
             if(StrUtil.isNotBlank(oldToken)){
-                redisTemplate.delete(ZwzLoginProperties.HTTP_TOKEN_PRE + oldToken);
+                redisTemplate.delete(WlLoginProperties.HTTP_TOKEN_PRE + oldToken);
             }
         }
         // token保存到redis里。如果要保存就保存几天，否则保存几分钟。这里的时间可以自己设定
         if(saveLoginFlag){
-            redisTemplate.opsForValue().set(ZwzLoginProperties.USER_TOKEN_PRE + username, token, tokenProperties.getUserSaveLoginTokenDays(), TimeUnit.DAYS);
-            redisTemplate.opsForValue().set(ZwzLoginProperties.HTTP_TOKEN_PRE + token, JSON.toJSONString(user), tokenProperties.getUserSaveLoginTokenDays(), TimeUnit.DAYS);
+            redisTemplate.opsForValue().set(WlLoginProperties.USER_TOKEN_PRE + username, token, tokenProperties.getUserSaveLoginTokenDays(), TimeUnit.DAYS);
+            redisTemplate.opsForValue().set(WlLoginProperties.HTTP_TOKEN_PRE + token, JSON.toJSONString(user), tokenProperties.getUserSaveLoginTokenDays(), TimeUnit.DAYS);
         }else{
-            redisTemplate.opsForValue().set(ZwzLoginProperties.USER_TOKEN_PRE + username, token, tokenProperties.getUserTokenInvalidDays(), TimeUnit.MINUTES);
-            redisTemplate.opsForValue().set(ZwzLoginProperties.HTTP_TOKEN_PRE + token, JSON.toJSONString(user), tokenProperties.getUserTokenInvalidDays(), TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set(WlLoginProperties.USER_TOKEN_PRE + username, token, tokenProperties.getUserTokenInvalidDays(), TimeUnit.MINUTES);
+            redisTemplate.opsForValue().set(WlLoginProperties.HTTP_TOKEN_PRE + token, JSON.toJSONString(user), tokenProperties.getUserTokenInvalidDays(), TimeUnit.MINUTES);
         }
         // token返回给前端
         ResponseUtil.out(response, ResponseUtil.resultMap(RESPONSE_SUCCESS_FLAG,RESPONSE_SUCCESS_CODE,"登录成功", token));

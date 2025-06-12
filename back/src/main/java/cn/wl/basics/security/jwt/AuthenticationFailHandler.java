@@ -1,9 +1,9 @@
 package cn.wl.basics.security.jwt;
 
 import cn.wl.basics.utils.ResponseUtil;
-import cn.wl.basics.exception.ZwzAuthException;
-import cn.wl.basics.parameter.ZwzLoginProperties;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.basics.exception.WlAuthException;
+import cn.wl.basics.parameter.WlLoginProperties;
+import cn.wl.data.utils.WlNullUtils;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ import java.util.concurrent.TimeUnit;
 public class AuthenticationFailHandler extends SimpleUrlAuthenticationFailureHandler {
 
     @Autowired
-    private ZwzLoginProperties tokenProperties;
+    private WlLoginProperties tokenProperties;
 
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
@@ -47,7 +47,7 @@ public class AuthenticationFailHandler extends SimpleUrlAuthenticationFailureHan
         String loginFailTimeStr = stringRedisTemplate.opsForValue().get(LOGIN_FAIL_TIMES_PRE + username);
         int loginFailTime = 0;
         // 已错误次数
-        if(!ZwzNullUtils.isNull(loginFailTimeStr)){
+        if(!WlNullUtils.isNull(loginFailTimeStr)){
             loginFailTime = Integer.parseInt(loginFailTimeStr) + 1;
         }
         stringRedisTemplate.opsForValue().set(LOGIN_FAIL_TIMES_PRE + username, loginFailTime + "", tokenProperties.getLoginFailMaxThenLockTimes(), TimeUnit.MINUTES);
@@ -66,7 +66,7 @@ public class AuthenticationFailHandler extends SimpleUrlAuthenticationFailureHan
             String failTimesStr = stringRedisTemplate.opsForValue().get(LOGIN_FAIL_TIMES_PRE + request.getParameter(REQUEST_PARAMETER_USERNAME));
             //已错误的次数
             int userFailTimes = 0;
-            if(!ZwzNullUtils.isNull(failTimesStr)){
+            if(!WlNullUtils.isNull(failTimesStr)){
                 userFailTimes = Integer.parseInt(failTimesStr);
             }
             int restLoginTime = tokenProperties.getMaxLoginFailTimes() - userFailTimes;
@@ -77,8 +77,8 @@ public class AuthenticationFailHandler extends SimpleUrlAuthenticationFailureHan
             } else {
                 ResponseUtil.out(response, ResponseUtil.resultMap(RESPONSE_FAIL_FLAG,RESPONSE_FAIL_CODE,"账号密码不正确"));
             }
-        } else if (exception instanceof ZwzAuthException){
-            ResponseUtil.out(response, ResponseUtil.resultMap(RESPONSE_FAIL_FLAG,RESPONSE_FAIL_CODE,((ZwzAuthException) exception).getMsg()));
+        } else if (exception instanceof WlAuthException){
+            ResponseUtil.out(response, ResponseUtil.resultMap(RESPONSE_FAIL_FLAG,RESPONSE_FAIL_CODE,((WlAuthException) exception).getMsg()));
         } else if (exception instanceof DisabledException) {
             ResponseUtil.out(response, ResponseUtil.resultMap(RESPONSE_FAIL_FLAG,RESPONSE_FAIL_CODE,"账户处于禁用状态，无法登录"));
         } else {
