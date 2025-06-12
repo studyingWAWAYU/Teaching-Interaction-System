@@ -4,7 +4,7 @@ import cn.wl.basics.utils.PageUtil;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.baseVo.PageVo;
 import cn.wl.basics.baseVo.Result;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import cn.wl.study.entity.TeacherData;
 import cn.wl.study.service.ITeacherDataService;
 import cn.hutool.core.util.StrUtil;
@@ -55,10 +55,10 @@ public class TeacherDataController {
     @ApiOperation(value = "查询教师信息")
     public Result<IPage<TeacherData>> getByPage(@ModelAttribute TeacherData teacherData ,@ModelAttribute PageVo page){
         QueryWrapper<TeacherData> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(teacherData.getName())) {
+        if(!WlNullUtils.isNull(teacherData.getName())) {
             qw.like("name",teacherData.getName());
         }
-        if(!ZwzNullUtils.isNull(teacherData.getLevel())) {
+        if(!WlNullUtils.isNull(teacherData.getLevel())) {
             qw.eq("level",teacherData.getLevel());
         }
         IPage<TeacherData> data = iTeacherDataService.page(PageUtil.initMpPage(page),qw);

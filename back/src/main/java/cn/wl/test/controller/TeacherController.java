@@ -1,12 +1,10 @@
 package cn.wl.test.controller;
 
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.utils.PageUtil;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.baseVo.PageVo;
 import cn.wl.basics.baseVo.Result;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import cn.wl.data.vo.AntvVo;
 import cn.wl.test.entity.Teacher;
 import cn.wl.test.service.ITeacherService;
@@ -38,46 +36,41 @@ public class TeacherController {
     @Autowired
     private ITeacherService iTeacherService;
 
-    @SystemLog(about = "查询单条教师", type = LogType.MORE_MOUDLE,doType = "TEACHER-01")
     @RequestMapping(value = "/getOne", method = RequestMethod.GET)
     @ApiOperation(value = "查询单条教师")
     public Result<Teacher> get(@RequestParam String id){
         return new ResultUtil<Teacher>().setData(iTeacherService.getById(id));
     }
 
-    @SystemLog(about = "查询全部教师个数", type = LogType.MORE_MOUDLE,doType = "TEACHER-02")
     @RequestMapping(value = "/count", method = RequestMethod.GET)
     @ApiOperation(value = "查询全部教师个数")
     public Result<Long> getCount(){
         return new ResultUtil<Long>().setData(iTeacherService.count());
     }
 
-    @SystemLog(about = "查询全部教师", type = LogType.MORE_MOUDLE,doType = "TEACHER-03")
     @RequestMapping(value = "/getAll", method = RequestMethod.GET)
     @ApiOperation(value = "查询全部教师")
     public Result<List<Teacher>> getAll(){
         return new ResultUtil<List<Teacher>>().setData(iTeacherService.list());
     }
 
-    @SystemLog(about = "查询教师", type = LogType.MORE_MOUDLE,doType = "TEACHER-04")
     @RequestMapping(value = "/getByPage", method = RequestMethod.GET)
     @ApiOperation(value = "查询教师")
     public Result<IPage<Teacher>> getByPage(@ModelAttribute Teacher teacher ,@ModelAttribute PageVo page){
         QueryWrapper<Teacher> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(teacher.getName())) {
+        if(!WlNullUtils.isNull(teacher.getName())) {
             qw.like("name",teacher.getName());
         }
-        if(!ZwzNullUtils.isNull(teacher.getEducation())) {
+        if(!WlNullUtils.isNull(teacher.getEducation())) {
             qw.eq("education",teacher.getEducation());
         }
-        if(!ZwzNullUtils.isNull(teacher.getGraduated())) {
+        if(!WlNullUtils.isNull(teacher.getGraduated())) {
             qw.like("graduated",teacher.getGraduated());
         }
         IPage<Teacher> data = iTeacherService.page(PageUtil.initMpPage(page),qw);
         return new ResultUtil<IPage<Teacher>>().setData(data);
     }
 
-    @SystemLog(about = "增改教师", type = LogType.MORE_MOUDLE,doType = "TEACHER-05")
     @RequestMapping(value = "/insertOrUpdate", method = RequestMethod.POST)
     @ApiOperation(value = "增改教师")
     public Result<Teacher> saveOrUpdate(Teacher teacher){
@@ -87,7 +80,6 @@ public class TeacherController {
         return ResultUtil.error();
     }
 
-    @SystemLog(about = "新增教师", type = LogType.MORE_MOUDLE,doType = "TEACHER-06")
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
     @ApiOperation(value = "新增教师")
     public Result<Teacher> insert(Teacher teacher){
@@ -95,7 +87,6 @@ public class TeacherController {
         return new ResultUtil<Teacher>().setData(teacher);
     }
 
-    @SystemLog(about = "编辑教师", type = LogType.MORE_MOUDLE,doType = "TEACHER-07")
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ApiOperation(value = "编辑教师")
     public Result<Teacher> update(Teacher teacher){
@@ -103,7 +94,6 @@ public class TeacherController {
         return new ResultUtil<Teacher>().setData(teacher);
     }
 
-    @SystemLog(about = "删除教师", type = LogType.MORE_MOUDLE,doType = "TEACHER-08")
     @RequestMapping(value = "/delByIds", method = RequestMethod.POST)
     @ApiOperation(value = "删除教师")
     public Result<Object> delByIds(@RequestParam String[] ids){
@@ -113,7 +103,6 @@ public class TeacherController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "查询图表数据", type = LogType.CHART,doType = "CHART-01")
     @RequestMapping(value = "/getAntvVoList", method = RequestMethod.GET)
     @ApiOperation(value = "查询图表数据")
     public Result<List<AntvVo>> getAntvVoList(){

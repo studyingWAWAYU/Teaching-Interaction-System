@@ -1,11 +1,11 @@
 package cn.wl.basics.security.jwt;
 
 import cn.wl.basics.baseVo.TokenUser;
-import cn.wl.basics.parameter.ZwzLoginProperties;
+import cn.wl.basics.parameter.WlLoginProperties;
 import cn.wl.basics.redis.RedisTemplateHelper;
 import cn.wl.basics.utils.ResponseUtil;
 import cn.wl.basics.utils.SecurityUtil;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import com.alibaba.fastjson2.JSONObject;
 import io.swagger.annotations.ApiOperation;
 import jakarta.servlet.FilterChain;
@@ -39,7 +39,7 @@ public class JwtTokenOncePerRequestFilter extends OncePerRequestFilter {
     @Autowired
     private RedisTemplateHelper redisTemplate;
 
-    private ZwzLoginProperties zwzLoginProperties;
+    private WlLoginProperties WlLoginProperties;
 
     private static final boolean RESPONSE_FAIL_FLAG = false;
 
@@ -48,11 +48,11 @@ public class JwtTokenOncePerRequestFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String tokenHeader = request.getHeader(ZwzLoginProperties.HTTP_HEADER);
-        if(ZwzNullUtils.isNull(tokenHeader)){
-            tokenHeader = request.getParameter(ZwzLoginProperties.HTTP_HEADER);
+        String tokenHeader = request.getHeader(WlLoginProperties.HTTP_HEADER);
+        if(WlNullUtils.isNull(tokenHeader)){
+            tokenHeader = request.getParameter(WlLoginProperties.HTTP_HEADER);
         }
-        if (ZwzNullUtils.isNull(tokenHeader)) {
+        if (WlNullUtils.isNull(tokenHeader)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -68,8 +68,8 @@ public class JwtTokenOncePerRequestFilter extends OncePerRequestFilter {
     @ApiOperation(value = "判断登录是否失效")
     private UsernamePasswordAuthenticationToken getUsernamePasswordAuthenticationToken(String header, HttpServletResponse response) {
         String userName = null;
-        String tokenInRedis = redisTemplate.get(ZwzLoginProperties.HTTP_TOKEN_PRE + header);
-        if(ZwzNullUtils.isNull(tokenInRedis)){
+        String tokenInRedis = redisTemplate.get(WlLoginProperties.HTTP_TOKEN_PRE + header);
+        if(WlNullUtils.isNull(tokenInRedis)){
             ResponseUtil.out(response, ResponseUtil.resultMap(RESPONSE_FAIL_FLAG,RESPONSE_NO_ROLE_CODE,"登录状态失效，需要重登！"));
             return null;
         }
@@ -77,7 +77,7 @@ public class JwtTokenOncePerRequestFilter extends OncePerRequestFilter {
         TokenUser tokenUser = JSONObject.parseObject(tokenInRedis,TokenUser.class);
         userName = tokenUser.getUsername();
         List<GrantedAuthority> permissionList = new ArrayList<>();
-        if(zwzLoginProperties.getSaveRoleFlag()){
+        if(WlLoginProperties.getSaveRoleFlag()){
             for(String permission : tokenUser.getPermissions()){
                 permissionList.add(new SimpleGrantedAuthority(permission));
             }
@@ -85,19 +85,19 @@ public class JwtTokenOncePerRequestFilter extends OncePerRequestFilter {
             permissionList = securityUtil.getCurrUserPerms(userName);
         }
         if(!tokenUser.getSaveLogin()){
-            redisTemplate.set(ZwzLoginProperties.USER_TOKEN_PRE + userName, header, zwzLoginProperties.getUserTokenInvalidDays(), TimeUnit.MINUTES);
-            redisTemplate.set(ZwzLoginProperties.HTTP_TOKEN_PRE + header, tokenInRedis, zwzLoginProperties.getUserTokenInvalidDays(), TimeUnit.MINUTES);
+            redisTemplate.set(WlLoginProperties.USER_TOKEN_PRE + userName, header, WlLoginProperties.getUserTokenInvalidDays(), TimeUnit.MINUTES);
+            redisTemplate.set(WlLoginProperties.HTTP_TOKEN_PRE + header, tokenInRedis, WlLoginProperties.getUserTokenInvalidDays(), TimeUnit.MINUTES);
         }
-        if(!ZwzNullUtils.isNull(userName)) {
+        if(!WlNullUtils.isNull(userName)) {
             User user = new User(userName, "", permissionList);
             return new UsernamePasswordAuthenticationToken(user, null, permissionList);
         }
         return null;
     }
 
-    public JwtTokenOncePerRequestFilter(RedisTemplateHelper redis, SecurityUtil securityUtil,ZwzLoginProperties zwzLoginProperties) {
+    public JwtTokenOncePerRequestFilter(RedisTemplateHelper redis, SecurityUtil securityUtil,WlLoginProperties WlLoginProperties) {
         this.redisTemplate = redis;
         this.securityUtil = securityUtil;
-        this.zwzLoginProperties = zwzLoginProperties;
+        this.WlLoginProperties = WlLoginProperties;
     }
 }

@@ -7,7 +7,7 @@ import cn.wl.basics.baseVo.PageVo;
 import cn.wl.basics.baseVo.Result;
 import cn.wl.basics.utils.SecurityUtil;
 import cn.wl.data.entity.User;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import cn.wl.study.entity.Appraise;
 import cn.wl.study.entity.Curriculum;
 import cn.wl.study.service.IAppraiseService;
@@ -83,13 +83,13 @@ public class AppraiseController {
     @ApiOperation(value = "查询课程评价")
     public Result<IPage<Appraise>> getByPage(@ModelAttribute Appraise appraise ,@ModelAttribute PageVo page){
         QueryWrapper<Appraise> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(appraise.getCurriculumName())) {
+        if(!WlNullUtils.isNull(appraise.getCurriculumName())) {
             qw.like("curriculum_name",appraise.getCurriculumName());
         }
-        if(!ZwzNullUtils.isNull(appraise.getUserName())) {
+        if(!WlNullUtils.isNull(appraise.getUserName())) {
             qw.like("user_name",appraise.getUserName());
         }
-        if(!ZwzNullUtils.isNull(appraise.getContent())) {
+        if(!WlNullUtils.isNull(appraise.getContent())) {
             qw.like("content",appraise.getContent());
         }
         IPage<Appraise> data = iAppraiseService.page(PageUtil.initMpPage(page),qw);

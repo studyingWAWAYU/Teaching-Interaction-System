@@ -1,6 +1,6 @@
 package cn.wl.data.entity;
 
-import cn.wl.basics.baseClass.ZwzBaseEntity;
+import cn.wl.basics.baseClass.WlBaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -24,7 +24,7 @@ import jakarta.persistence.Table;
 @Table(name = "a_role_permission")
 @TableName("a_role_permission")
 @ApiModel(value = "角色权限")
-public class RolePermission extends ZwzBaseEntity {
+public class RolePermission extends WlBaseEntity {
 
     private static final long serialVersionUID = 1L;
 

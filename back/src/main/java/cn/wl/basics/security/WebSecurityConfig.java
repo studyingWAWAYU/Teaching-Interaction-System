@@ -3,7 +3,7 @@ package cn.wl.basics.security;
 import cn.wl.basics.redis.RedisTemplateHelper;
 import cn.wl.basics.security.jwt.*;
 import cn.wl.basics.utils.SecurityUtil;
-import cn.wl.basics.parameter.ZwzLoginProperties;
+import cn.wl.basics.parameter.WlLoginProperties;
 import cn.wl.basics.security.validate.ImageValidateFilter;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
     @Autowired
-    private ZwzLoginProperties zwzLoginProperties;
+    private WlLoginProperties WlLoginProperties;
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
@@ -41,7 +41,7 @@ public class WebSecurityConfig {
     private AuthenticationFailHandler authenticationFailHandler;
 
     @Autowired
-    private ZwzAccessDeniedHandler zwzAccessDeniedHandler;
+    private WlAccessDeniedHandler wlAccessDeniedHandler;
 
     @Autowired
     private ImageValidateFilter imageValidateFilter;
@@ -76,7 +76,7 @@ public class WebSecurityConfig {
                 .csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
-                .exceptionHandling().accessDeniedHandler(zwzAccessDeniedHandler)
+                .exceptionHandling().accessDeniedHandler(wlAccessDeniedHandler)
                 .and()
                 .authenticationProvider(authenticationProvider())
                 // 自定义限流过滤器。防止白名单网站请求量太大导致服务器垮掉
@@ -111,6 +111,6 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtTokenOncePerRequestFilter authenticationJwtTokenFilter() throws Exception {
-        return new JwtTokenOncePerRequestFilter(redisTemplate, securityUtil, zwzLoginProperties);
+        return new JwtTokenOncePerRequestFilter(redisTemplate, securityUtil, WlLoginProperties);
     }
 }

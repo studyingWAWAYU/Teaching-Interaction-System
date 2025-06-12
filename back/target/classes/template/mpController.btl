@@ -4,7 +4,7 @@ import cn.wl.basics.utils.PageUtil;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.baseVo.PageVo;
 import cn.wl.basics.baseVo.Result;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import ${entity.entityPackage}.${entity.className};
 import ${entity.servicePackage}.I${entity.className}Service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -54,7 +54,7 @@ public class ${entity.className}Controller {
     @ApiOperation(value = "查询${entity.description}")
     public Result<IPage<${entity.className}>> getByPage(@ModelAttribute ${entity.className} ${entity.classNameLowerCase} ,@ModelAttribute PageVo page){
         QueryWrapper<${entity.className}> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(${entity.classNameLowerCase}.getCreateBy())) {
+        if(!WlNullUtils.isNull(${entity.classNameLowerCase}.getCreateBy())) {
         }
         IPage<${entity.className}> data = i${entity.className}Service.page(PageUtil.initMpPage(page),qw);
         return new ResultUtil<IPage<${entity.className}>>().setData(data);

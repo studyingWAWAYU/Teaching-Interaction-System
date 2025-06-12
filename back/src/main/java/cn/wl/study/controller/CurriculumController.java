@@ -4,7 +4,7 @@ import cn.wl.basics.utils.PageUtil;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.baseVo.PageVo;
 import cn.wl.basics.baseVo.Result;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import cn.wl.study.entity.Curriculum;
 import cn.wl.study.service.ICurriculumService;
 import cn.hutool.core.util.StrUtil;
@@ -55,13 +55,13 @@ public class CurriculumController {
     @ApiOperation(value = "查询课程")
     public Result<IPage<Curriculum>> getByPage(@ModelAttribute Curriculum curriculum ,@ModelAttribute PageVo page){
         QueryWrapper<Curriculum> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(curriculum.getTitle())) {
+        if(!WlNullUtils.isNull(curriculum.getTitle())) {
             qw.like("title",curriculum.getTitle());
         }
-        if(!ZwzNullUtils.isNull(curriculum.getContent())) {
+        if(!WlNullUtils.isNull(curriculum.getContent())) {
             qw.like("content",curriculum.getContent());
         }
-        if(!ZwzNullUtils.isNull(curriculum.getStatus())) {
+        if(!WlNullUtils.isNull(curriculum.getStatus())) {
             qw.eq("status",curriculum.getStatus());
         }
         IPage<Curriculum> data = iCurriculumService.page(PageUtil.initMpPage(page),qw);

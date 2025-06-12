@@ -1,6 +1,6 @@
 package cn.wl.data.entity;
 
-import cn.wl.basics.baseClass.ZwzBaseEntity;
+import cn.wl.basics.baseClass.WlBaseEntity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
@@ -23,7 +23,7 @@ import java.util.List;
 @Table(name = "a_permission")
 @TableName("a_permission")
 @ApiModel(value = "菜单权限")
-public class Permission extends ZwzBaseEntity {
+public class Permission extends WlBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
