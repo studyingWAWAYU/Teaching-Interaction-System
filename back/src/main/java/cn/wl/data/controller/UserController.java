@@ -98,7 +98,6 @@ public class UserController {
     @RequestMapping(value = "/regist", method = RequestMethod.POST)
     @ApiOperation(value = "注册用户")
     public Result<Object> regist(@Valid User u){
-        u.setEmail(u.getMobile() + "@qq.com");
         QueryWrapper<User> userQw = new QueryWrapper<>();
         userQw.and(wrapper -> wrapper.eq("username", u.getUsername()).or().eq("mobile",u.getMobile()));
         if(iUserService.count(userQw) > 0L) {
