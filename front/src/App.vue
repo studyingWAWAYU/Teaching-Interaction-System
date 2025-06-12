@@ -37,7 +37,7 @@ body {
 }
 
 .operation .brr button {
-    margin-right: 0px !important;
+    margin-right: 0 !important;
 }
 
 .ivu-btn-text:focus {
@@ -62,6 +62,19 @@ body {
 .form-quill {
     .ivu-form-item-content {
         line-height: unset !important;
+    }
+}
+
+// 导航栏下拉菜单
+.ivu-dropdown-menu {
+    width: 150px !important;
+    padding: 4px 4px !important;
+
+    .ivu-dropdown-item {
+        font-size: 18px !important;
+    }
+    .ivu-dropdown-item:hover{
+        background-color: rgba(0,122,255,0.1);
     }
 }
 </style>

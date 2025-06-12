@@ -149,30 +149,16 @@
             top: 0;
             height: 100%;
             width: 280px;
+            margin-right: 10px;
+            // border: 1px solid black;
 
             .options {
                 .ivu-select-dropdown {
                     transform-origin: center top 0px;
                     position: absolute;
                     top: 45px !important;
-                    left: -2px;
                     will-change: top, left;
                 }
-            }
-
-            .language {
-                display: inline-block;
-                width: 30px;
-                padding: 18px 0;
-                text-align: center;
-                cursor: pointer;
-                vertical-align: middle;
-            }
-
-            .switch-theme-con {
-                display: inline-block;
-                width: 40px;
-                height: 100%;
             }
 
             .message-con {
@@ -181,20 +167,9 @@
                 padding: 18px 0;
                 text-align: center;
                 cursor: pointer;
-
                 i {
                     vertical-align: middle;
                 }
-            }
-
-            .change-skin {
-                font-size: 14px;
-                font-weight: 500;
-                padding-right: 5px;
-            }
-
-            .switch-theme {
-                height: 100%;
             }
 
             .user-dropdown {
@@ -202,14 +177,15 @@
                     position: absolute;
                     right: 0;
                     top: 0;
-                    width: 135px;
+                    width: 270px;
                     height: 100%;
 
                     .main-user-name {
-                        font-size: 14px;
+                        font-size: 20px;
+                        color: #3c7fb4;
                         display: inline-block;
-                        width: 58px;
-                        margin-right: 5px;
+                        width: 100px;
+                        margin-right: 10px;
                         word-break: keep-all;
                         white-space: nowrap;
                         vertical-align: middle;
@@ -220,32 +196,8 @@
                 }
 
                 &-innercon {
-                    height: 100%;
-                    padding-right: 14px;
-                }
-            }
-
-            .full-screen-btn-con {
-                display: inline-block;
-                width: 30px;
-                padding: 18px 0;
-                text-align: center;
-                cursor: pointer;
-
-                i {
-                    vertical-align: middle;
-                }
-            }
-
-            .lock-screen-btn-con {
-                display: inline-block;
-                width: 30px;
-                padding: 18px 0;
-                text-align: center;
-                cursor: pointer;
-
-                i {
-                    vertical-align: middle;
+                    height: 90%;
+                    padding-right: 20px;
                 }
             }
         }
