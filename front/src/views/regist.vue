@@ -102,6 +102,7 @@ export default {
         username: "",
         password: "",
         nickname: "",
+        identity: ""
       },
       rules: {
         username: [{
@@ -132,23 +133,28 @@ export default {
       }
     };
   },
-  methods: {
-    submitRegist() {
-      this.$refs.usernameLoginForm.validate(valid => {
-        if (valid) {
-          this.loading = true;
-          regist(this.form).then(res => {
-            this.loading = false;
-            if (res.success) {
-              this.$router.push({
-                name: "login"
-              });
-            }
-          });
+   methods: {
+        submitRegist() {
+            this.$refs.usernameLoginForm.validate(valid => {
+                if (valid) {
+                    this.loading = true;
+                    regist({
+			username: this.form.username,
+                        password: this.form.password,
+                        nickname: this.form.nickname
+			}).then(res => {
+                        this.loading = false;
+                        if (res.success) {
+                            this.$router.push({
+                                name: "login"
+                            });
+                        } 
+                    });
+                }
+            });
         }
-      });
-    }
-  },
+    },
+
   mounted() {
   }
 };
@@ -178,7 +184,7 @@ a:hover{
 }
 .login {
   height: 100%;
-  background-color: #C4E2FF;
+  background-color: #EAF3FA;
 
   .ivu-tabs-nav-container {
     line-height: 2;
@@ -194,8 +200,8 @@ a:hover{
   .loginUp{
     width: 100%;
     min-height: 80px;
-    background-color: #99c2ed;
-    margin: 0 auto;
+    background-color: #b7d5f0;
+    margin-top:-5px;
     overflow: hidden;
   }
   .loginLeft{
@@ -224,7 +230,7 @@ a:hover{
     width: 100%;
     height: 680px;
     margin: 0 auto;
-    background-color: #C4E2FF;
+    background-color: #EAF3FA;
     overflow: hidden;
     // background: linear-gradient(45deg, rgba(2, 173, 168, 0.17), rgba(0, 221, 215, 0.17));
   }
@@ -236,12 +242,12 @@ a:hover{
     justify-content: space-between;
   }
   .loginBg{
-    width: 560px;
-    height: 604px;
-    margin-top: -20px;
-    background-image: url(../assets/login/star.png);
+    width: 650px;
+    height: 400px;
+    margin-top: 100px;
+    background-image: url(../assets/login/back.png);
     background-repeat: no-repeat;
-    background-position: left bottom;
+    background-position: center;
   }
   .loginRight{
     width: 450px;
@@ -316,7 +322,7 @@ a:hover{
   .loginBottom{
     width: 448px;
     height: 65px;
-    background:rgb(82, 140, 199);
+    background:#99c2ed;
     border-radius: 0px 0px 30px 30px;
     padding: 0px;
     position: absolute;
