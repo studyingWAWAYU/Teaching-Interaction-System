@@ -7,7 +7,7 @@ import cn.wl.basics.baseVo.Result;
 import cn.wl.basics.utils.SecurityUtil;
 import cn.wl.data.entity.User;
 import cn.wl.data.service.IUserService;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import cn.wl.study.entity.CourseResources;
 import cn.wl.study.entity.Curriculum;
 import cn.wl.study.entity.Timetable;
@@ -72,10 +72,10 @@ public class TimetableController {
     @ApiOperation(value = "查询课表")
     public Result<IPage<Timetable>> getByPage(@ModelAttribute Timetable timetable ,@ModelAttribute PageVo page){
         QueryWrapper<Timetable> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(timetable.getCurriculumName())) {
+        if(!WlNullUtils.isNull(timetable.getCurriculumName())) {
             qw.like("curriculum_name",timetable.getCurriculumName());
         }
-        if(!ZwzNullUtils.isNull(timetable.getUserName())) {
+        if(!WlNullUtils.isNull(timetable.getUserName())) {
             qw.like("user_name",timetable.getUserName());
         }
         IPage<Timetable> data = iTimetableService.page(PageUtil.initMpPage(page),qw);
@@ -88,10 +88,10 @@ public class TimetableController {
         QueryWrapper<Timetable> qw = new QueryWrapper<>();
         User currUser = securityUtil.getCurrUser();
         qw.eq("user_id",currUser.getId());
-        if(!ZwzNullUtils.isNull(timetable.getCurriculumName())) {
+        if(!WlNullUtils.isNull(timetable.getCurriculumName())) {
             qw.like("curriculum_name",timetable.getCurriculumName());
         }
-        if(!ZwzNullUtils.isNull(timetable.getUserName())) {
+        if(!WlNullUtils.isNull(timetable.getUserName())) {
             qw.like("user_name",timetable.getUserName());
         }
         IPage<Timetable> data = iTimetableService.page(PageUtil.initMpPage(page),qw);

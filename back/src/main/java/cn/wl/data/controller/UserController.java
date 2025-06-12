@@ -1,15 +1,13 @@
 package cn.wl.data.controller;
 
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.redis.RedisTemplateHelper;
 import cn.wl.basics.utils.*;
 import cn.wl.basics.parameter.CommonConstant;
-import cn.wl.basics.log.LogType;
 import cn.wl.basics.baseVo.PageVo;
 import cn.wl.basics.baseVo.Result;
 import cn.wl.data.entity.*;
 import cn.wl.data.service.*;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import cn.wl.data.vo.PermissionDTO;
 import cn.wl.data.vo.RoleDTO;
 import cn.hutool.core.util.StrUtil;
@@ -85,7 +83,6 @@ public class UserController {
 
     private static final String REDIS_PRE_4 = "user::";
 
-    @SystemLog(about = "获取当前登录用户", type = LogType.DATA_CENTER,doType = "USER-02")
     @RequestMapping(value = "/info", method = RequestMethod.GET)
     @ApiOperation(value = "获取当前登录用户")
     public Result<User> getUserInfo(){
@@ -118,7 +115,6 @@ public class UserController {
         return ResultUtil.data(u);
     }
 
-    @SystemLog(about = "解锁验证密码", type = LogType.DATA_CENTER,doType = "USER-03")
     @RequestMapping(value = "/unlock", method = RequestMethod.POST)
     @ApiOperation(value = "解锁验证密码")
     public Result<Object> unLock(@RequestParam String password){
@@ -129,7 +125,6 @@ public class UserController {
         return ResultUtil.data(null);
     }
 
-    @SystemLog(about = "重置密码", type = LogType.DATA_CENTER,doType = "USER-04")
     @RequestMapping(value = "/resetPass", method = RequestMethod.POST)
     @ApiOperation(value = "重置密码")
     public Result<Object> resetPass(@RequestParam String[] ids){
@@ -145,7 +140,6 @@ public class UserController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "修改用户资料", type = LogType.DATA_CENTER,doType = "USER-05")
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     @ApiOperation(value = "修改用户资料",notes = "用户名密码不会修改 需要username更新缓存")
     @CacheEvict(key = "#u.username")
@@ -157,7 +151,6 @@ public class UserController {
         return ResultUtil.success("修改成功");
     }
 
-    @SystemLog(about = "修改密码", type = LogType.DATA_CENTER,doType = "USER-06")
     @RequestMapping(value = "/modifyPass", method = RequestMethod.POST)
     @ApiOperation(value = "修改密码")
     public Result<Object> modifyPass(@RequestParam String password,@RequestParam String newPass,@RequestParam String passStrength){
@@ -173,15 +166,14 @@ public class UserController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "查询用户", type = LogType.DATA_CENTER,doType = "USER-07")
     @RequestMapping(value = "/getUserList", method = RequestMethod.GET)
     @ApiOperation(value = "查询用户")
     public Result<IPage<User>> getUserList(@ModelAttribute User user, @ModelAttribute PageVo page) {
         QueryWrapper<User> userQw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(user.getNickname())) {
+        if(!WlNullUtils.isNull(user.getNickname())) {
             userQw.like("nickname",user.getNickname());
         }
-        if(!ZwzNullUtils.isNull(user.getDepartmentId())) {
+        if(!WlNullUtils.isNull(user.getDepartmentId())) {
             userQw.eq("department_id",user.getDepartmentId());
         }
         IPage<User> userData = iUserService.page(PageUtil.initMpPage(page),userQw);
@@ -199,7 +191,6 @@ public class UserController {
         return new ResultUtil<IPage<User>>().setData(userData);
     }
 
-    @SystemLog(about = "根据部门查询用户", type = LogType.DATA_CENTER,doType = "USER-08")
     @RequestMapping(value = "/getByDepartmentId", method = RequestMethod.GET)
     @ApiOperation(value = "根据部门查询用户")
     public Result<List<User>> getByCondition(@RequestParam String departmentId){
@@ -213,7 +204,6 @@ public class UserController {
         return new ResultUtil<List<User>>().setData(list);
     }
 
-    @SystemLog(about = "模拟搜索用户", type = LogType.DATA_CENTER,doType = "USER-09")
     @RequestMapping(value = "/searchByName/{username}", method = RequestMethod.GET)
     @ApiOperation(value = "模拟搜索用户")
     public Result<List<User>> searchByName(@PathVariable String username) throws UnsupportedEncodingException {
@@ -228,7 +218,6 @@ public class UserController {
         return new ResultUtil<List<User>>().setData(list);
     }
 
-    @SystemLog(about = "查询全部用户", type = LogType.DATA_CENTER,doType = "USER-10")
     @RequestMapping(value = "/getAll", method = RequestMethod.GET)
     @ApiOperation(value = "查询全部用户")
     public Result<List<User>> getAll(){
@@ -240,7 +229,6 @@ public class UserController {
         return new ResultUtil<List<User>>().setData(userList);
     }
 
-    @SystemLog(about = "管理员修改资料", type = LogType.DATA_CENTER,doType = "USER-11")
     @RequestMapping(value = "/admin/edit", method = RequestMethod.POST)
     @ApiOperation(value = "管理员修改资料")
     @CacheEvict(key = "#u.username")
@@ -258,7 +246,7 @@ public class UserController {
                 return ResultUtil.error("手机号重复");
             }
         }
-        if(!ZwzNullUtils.isNull(u.getDepartmentId())) {
+        if(!WlNullUtils.isNull(u.getDepartmentId())) {
             Department department = iDepartmentService.getById(u.getDepartmentId());
             if(department != null) {
                 u.setDepartmentTitle(department.getTitle());
@@ -286,7 +274,6 @@ public class UserController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "添加用户", type = LogType.DATA_CENTER,doType = "USER-12")
     @RequestMapping(value = "/admin/add", method = RequestMethod.POST)
     @ApiOperation(value = "添加用户")
     public Result<Object> add(@Valid User u,@RequestParam(required = false) String[] roleIds) {
@@ -295,7 +282,7 @@ public class UserController {
         if(iUserService.count(userQw) > 0L) {
             return ResultUtil.error("登录账号/手机号重复");
         }
-        if(!ZwzNullUtils.isNull(u.getDepartmentId())){
+        if(!WlNullUtils.isNull(u.getDepartmentId())){
             Department department = iDepartmentService.getById(u.getDepartmentId());
             if(department != null){
                 u.setDepartmentTitle(department.getTitle());
@@ -317,7 +304,6 @@ public class UserController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "禁用用户", type = LogType.DATA_CENTER,doType = "USER-13")
     @RequestMapping(value = "/disable", method = RequestMethod.POST)
     @ApiOperation(value = "禁用用户")
     public Result<Object> disable( @RequestParam String id){
@@ -331,7 +317,6 @@ public class UserController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "启用用户", type = LogType.DATA_CENTER,doType = "USER-14")
     @RequestMapping(value = "/enable", method = RequestMethod.POST)
     @ApiOperation(value = "启用用户")
     public Result<Object> enable(@RequestParam String id){
@@ -345,7 +330,6 @@ public class UserController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "删除用户", type = LogType.DATA_CENTER,doType = "USER-15")
     @RequestMapping(value = "/delByIds", method = RequestMethod.POST)
     @ApiOperation(value = "删除用户")
     public Result<Object> delByIds(@RequestParam String[] ids) {
@@ -368,7 +352,6 @@ public class UserController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "导入用户", type = LogType.DATA_CENTER,doType = "USER-16")
     @RequestMapping(value = "/importData", method = RequestMethod.POST)
     @ApiOperation(value = "导入用户")
     public Result<Object> importData(@RequestBody List<User> users){

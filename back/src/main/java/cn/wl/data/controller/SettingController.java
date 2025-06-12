@@ -1,8 +1,6 @@
 package cn.wl.data.controller;
 
 import cn.wl.basics.baseVo.Result;
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.data.entity.Setting;
 import cn.wl.data.service.ISettingService;
@@ -25,14 +23,12 @@ public class SettingController {
     @Autowired
     private ISettingService iSettingService;
 
-    @SystemLog(about = "查看单个配置", type = LogType.DATA_CENTER,doType = "SETTING-01")
     @RequestMapping(value = "/getOne", method = RequestMethod.GET)
     @ApiOperation(value = "查看单个配置")
     public Result<Setting> getOne(@RequestParam String id) {
         return new ResultUtil<Setting>().setData(iSettingService.getById(id));
     }
 
-    @SystemLog(about = "修改单个配置", type = LogType.DATA_CENTER,doType = "SETTING-02")
     @RequestMapping(value = "/setOne", method = RequestMethod.GET)
     @ApiOperation(value = "修改单个配置")
     public Result<Object> setOne(@RequestParam String id,@RequestParam String value) {

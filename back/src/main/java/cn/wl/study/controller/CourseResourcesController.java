@@ -4,7 +4,7 @@ import cn.wl.basics.utils.PageUtil;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.baseVo.PageVo;
 import cn.wl.basics.baseVo.Result;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import cn.wl.study.entity.CourseResources;
 import cn.wl.study.entity.Curriculum;
 import cn.wl.study.service.ICourseResourcesService;
@@ -62,10 +62,10 @@ public class CourseResourcesController {
     @ApiOperation(value = "查询资源")
     public Result<IPage<CourseResources>> getByPage(@ModelAttribute CourseResources courseResources ,@ModelAttribute PageVo page){
         QueryWrapper<CourseResources> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(courseResources.getCurriculumName())) {
+        if(!WlNullUtils.isNull(courseResources.getCurriculumName())) {
             qw.like("curriculum_name",courseResources.getCurriculumName());
         }
-        if(!ZwzNullUtils.isNull(courseResources.getTitle())) {
+        if(!WlNullUtils.isNull(courseResources.getTitle())) {
             qw.like("title",courseResources.getTitle());
         }
         IPage<CourseResources> data = iCourseResourcesService.page(PageUtil.initMpPage(page),qw);
