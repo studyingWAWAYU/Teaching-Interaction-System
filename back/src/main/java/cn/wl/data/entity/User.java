@@ -1,6 +1,6 @@
 package cn.wl.data.entity;
 
-import cn.wl.basics.baseClass.ZwzBaseEntity;
+import cn.wl.basics.baseClass.WlBaseEntity;
 import cn.wl.basics.parameter.CommonConstant;
 import cn.wl.data.vo.PermissionDTO;
 import cn.wl.data.vo.RoleDTO;
@@ -34,7 +34,7 @@ import java.util.List;
 @Table(name = "a_user")
 @TableName("a_user")
 @ApiModel(value = "用户")
-public class User extends ZwzBaseEntity {
+public class User extends WlBaseEntity {
 
     private static final long serialVersionUID = 1L;
 

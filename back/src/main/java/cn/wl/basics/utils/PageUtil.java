@@ -1,8 +1,8 @@
 package cn.wl.basics.utils;
 
-import cn.wl.basics.exception.ZwzException;
+import cn.wl.basics.exception.WlException;
 import cn.wl.basics.baseVo.PageVo;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.ApiModelProperty;
@@ -38,8 +38,8 @@ public class PageUtil {
         pageNumber = pageNumber < 1 ? 1 : pageNumber;
         pageSize = pageSize < 1 ? 1 : pageSize;
         pageSize = pageSize > 100 ? 100 : pageSize;
-        if(!ZwzNullUtils.isNull(sort)) {
-            Sort.Direction direction = ZwzNullUtils.isNull(order) ? Sort.Direction.DESC : Sort.Direction.valueOf(order.toUpperCase());
+        if(!WlNullUtils.isNull(sort)) {
+            Sort.Direction direction = WlNullUtils.isNull(order) ? Sort.Direction.DESC : Sort.Direction.valueOf(order.toUpperCase());
             Sort sortBy = Sort.by(direction, sort);
             able = PageRequest.of(pageNumber - 1, pageSize, sortBy);
         } else {
@@ -59,9 +59,9 @@ public class PageUtil {
         pageNumber = pageNumber < 1 ? 1 : pageNumber;
         pageSize = pageSize < 1 ? 1 : pageSize;
         pageSize = pageSize > 100 ? 100 : pageSize;
-        if(!ZwzNullUtils.isNull(sort)) {
+        if(!WlNullUtils.isNull(sort)) {
             Boolean isAsc = false;
-            if(ZwzNullUtils.isNull(order)) {
+            if(WlNullUtils.isNull(order)) {
                 isAsc = false;
             } else {
                 if(Objects.equals(order.toLowerCase(),SORT_BY_DESC)){
@@ -98,20 +98,20 @@ public class PageUtil {
 
     @ApiModelProperty(value = "防 Mybatis Plus 的 SQL 注入攻击")
     public static void SQLInject(String sqlStr){
-        if (ZwzNullUtils.isNull(sqlStr)) {
+        if (WlNullUtils.isNull(sqlStr)) {
             return;
         }
         sqlStr = sqlStr.toLowerCase();
         for(int i = 0; i < NO_CAN_USE_WORDS.length; i ++) {
             if (sqlStr.contains(NO_CAN_USE_WORDS[i])) {
-                throw new ZwzException(sqlStr + " 单词不合法");
+                throw new WlException(sqlStr + " 单词不合法");
             }
         }
     }
 
     @ApiModelProperty(value = "驼峰转下划线")
     public static String camel2Underline(String underlineContent) {
-        if (ZwzNullUtils.isNull(underlineContent)) {
+        if (WlNullUtils.isNull(underlineContent)) {
             return NULL_STR;
         }
         if(underlineContent.length() < 2){

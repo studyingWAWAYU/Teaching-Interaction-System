@@ -9,7 +9,7 @@ import cn.wl.data.entity.*;
 import cn.wl.data.service.IRolePermissionService;
 import cn.wl.data.service.IRoleService;
 import cn.wl.data.service.IUserRoleService;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
@@ -58,10 +58,10 @@ public class RoleController {
     @ApiOperation(value = "查询角色")
     public Result<IPage<Role>> getRoleByPage(@ModelAttribute Role role,@ModelAttribute PageVo page) {
         QueryWrapper<Role> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(role.getName())) {
+        if(!WlNullUtils.isNull(role.getName())) {
             qw.like("name",role.getName());
         }
-        if(!ZwzNullUtils.isNull(role.getDescription())) {
+        if(!WlNullUtils.isNull(role.getDescription())) {
             qw.like("description",role.getDescription());
         }
         IPage<Role> roleList = iRoleService.page(PageUtil.initMpPage(page),qw);

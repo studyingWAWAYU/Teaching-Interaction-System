@@ -7,7 +7,7 @@ import cn.wl.basics.baseVo.PageVo;
 import cn.wl.basics.baseVo.Result;
 import cn.wl.basics.utils.SecurityUtil;
 import cn.wl.data.entity.User;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import cn.wl.study.entity.Message;
 import cn.wl.study.service.IMessageService;
 import cn.hutool.core.util.StrUtil;
@@ -61,10 +61,10 @@ public class MessageController {
     @ApiOperation(value = "查询留言")
     public Result<IPage<Message>> getByPage(@ModelAttribute Message message ,@ModelAttribute PageVo page){
         QueryWrapper<Message> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(message.getContent())) {
+        if(!WlNullUtils.isNull(message.getContent())) {
             qw.like("content",message.getContent());
         }
-        if(!ZwzNullUtils.isNull(message.getUserName())) {
+        if(!WlNullUtils.isNull(message.getUserName())) {
             qw.like("user_name",message.getUserName());
         }
         IPage<Message> data = iMessageService.page(PageUtil.initMpPage(page),qw);

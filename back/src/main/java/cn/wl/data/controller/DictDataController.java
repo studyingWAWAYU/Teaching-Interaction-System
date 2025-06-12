@@ -8,7 +8,7 @@ import cn.wl.data.entity.Dict;
 import cn.wl.data.entity.DictData;
 import cn.wl.data.service.IDictDataService;
 import cn.wl.data.service.IDictService;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
@@ -59,19 +59,19 @@ public class DictDataController {
     @ApiOperation(value = "查询数据字典值")
     public Result<IPage<DictData>> getByCondition(@ModelAttribute DictData dictData, @ModelAttribute PageVo page) {
         QueryWrapper<DictData> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(dictData.getDictId())) {
+        if(!WlNullUtils.isNull(dictData.getDictId())) {
             qw.eq("dict_id",dictData.getDictId());
         }
         if(!Objects.equals(null,dictData.getStatus())) {
             qw.eq("status",dictData.getStatus());
         }
-        if(!ZwzNullUtils.isNull(dictData.getTitle())) {
+        if(!WlNullUtils.isNull(dictData.getTitle())) {
             qw.like("title",dictData.getTitle());
         }
-        if(!ZwzNullUtils.isNull(dictData.getValue())) {
+        if(!WlNullUtils.isNull(dictData.getValue())) {
             qw.like("value",dictData.getValue());
         }
-        if(!ZwzNullUtils.isNull(dictData.getDescription())) {
+        if(!WlNullUtils.isNull(dictData.getDescription())) {
             qw.like("description",dictData.getDescription());
         }
         IPage<DictData> data = iDictDataService.page(PageUtil.initMpPage(page),qw);

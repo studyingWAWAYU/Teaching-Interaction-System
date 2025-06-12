@@ -1,6 +1,6 @@
 package cn.wl.data.entity;
 
-import cn.wl.basics.baseClass.ZwzBaseEntity;
+import cn.wl.basics.baseClass.WlBaseEntity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
@@ -26,7 +26,7 @@ import java.math.BigDecimal;
 @Table(name = "a_dict_data")
 @TableName("a_dict_data")
 @ApiModel(value = "数据字典值")
-public class DictData extends ZwzBaseEntity {
+public class DictData extends WlBaseEntity {
 
     private static final long serialVersionUID = 1L;
 

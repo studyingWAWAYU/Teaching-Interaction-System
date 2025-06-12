@@ -1,7 +1,7 @@
 package cn.wl.data.controller;
 
 import cn.wl.basics.parameter.CommonConstant;
-import cn.wl.basics.exception.ZwzException;
+import cn.wl.basics.exception.WlException;
 import cn.wl.basics.redis.RedisTemplateHelper;
 import cn.wl.basics.utils.CommonUtil;
 import cn.wl.basics.utils.ResultUtil;
@@ -13,7 +13,7 @@ import cn.wl.data.entity.User;
 import cn.wl.data.service.IDepartmentHeaderService;
 import cn.wl.data.service.IDepartmentService;
 import cn.wl.data.service.IUserService;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
@@ -68,7 +68,7 @@ public class DepartmentController {
         User nowUser = securityUtil.getCurrUser();
         String key = REDIS_DEPARTMENT_PRE_STR + parentId + REDIS_STEP_STR + nowUser.getId();
         String value = redisTemplateHelper.get(key);
-        if(!ZwzNullUtils.isNull(value)){
+        if(!WlNullUtils.isNull(value)){
             return new ResultUtil<List<Department>>().setData(JSON.parseArray(value,Department.class));
         }
         QueryWrapper<Department> depQw = new QueryWrapper<>();
@@ -167,11 +167,11 @@ public class DepartmentController {
         userQw.eq("department_id",id);
         long userCountInDepartment = iUserService.count(userQw);
         if(userCountInDepartment > 0L){
-            throw new ZwzException("不能删除包含员工的部门");
+            throw new WlException("不能删除包含员工的部门");
         }
         Department department = iDepartmentService.getById(id);
         Department parentDepartment = null;
-        if(department != null && !ZwzNullUtils.isNull(department.getParentId())){
+        if(department != null && !WlNullUtils.isNull(department.getParentId())){
             parentDepartment = iDepartmentService.getById(department.getParentId());
         }
         iDepartmentService.removeById(id);

@@ -1,6 +1,6 @@
 package cn.wl.data.entity;
 
-import cn.wl.basics.baseClass.ZwzBaseEntity;
+import cn.wl.basics.baseClass.WlBaseEntity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -28,7 +28,7 @@ import jakarta.persistence.Transient;
 @Table(name = "a_file")
 @TableName("a_file")
 @ApiModel(value = "文件")
-public class File extends ZwzBaseEntity {
+public class File extends WlBaseEntity {
 
     private static final long serialVersionUID = 1L;
 

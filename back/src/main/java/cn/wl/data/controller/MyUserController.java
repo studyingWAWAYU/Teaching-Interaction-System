@@ -6,7 +6,7 @@ import cn.wl.basics.baseVo.PageVo;
 import cn.wl.basics.baseVo.Result;
 import cn.wl.data.entity.User;
 import cn.wl.data.service.IUserService;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
@@ -34,10 +34,10 @@ public class MyUserController {
     @ApiOperation(value = "查询用户")
     public Result<IPage<User>> getByPage(@ModelAttribute User user,@ModelAttribute PageVo page){
         QueryWrapper<User> qw = new QueryWrapper<>();
-        if(user.getDepartmentId() != null && !ZwzNullUtils.isNull(user.getDepartmentId())) {
+        if(user.getDepartmentId() != null && !WlNullUtils.isNull(user.getDepartmentId())) {
             qw.like("department_id",user.getDepartmentId());
         }
-        if(user.getNickname() != null && !ZwzNullUtils.isNull(user.getNickname())) {
+        if(user.getNickname() != null && !WlNullUtils.isNull(user.getNickname())) {
             qw.like("nickname",user.getNickname());
         }
         IPage<User> data = iUserService.page(PageUtil.initMpPage(page),qw);

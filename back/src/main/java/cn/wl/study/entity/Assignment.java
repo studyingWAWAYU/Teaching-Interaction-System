@@ -1,6 +1,6 @@
 package cn.wl.study.entity;
 
-import cn.wl.basics.baseClass.ZwzBaseEntity;
+import cn.wl.basics.baseClass.WlBaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiModel;
@@ -21,7 +21,7 @@ import jakarta.persistence.Table;
 @Table(name = "a_assignment")
 @TableName("a_assignment")
 @ApiModel(value = "课程作业")
-public class Assignment extends ZwzBaseEntity {
+public class Assignment extends WlBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
