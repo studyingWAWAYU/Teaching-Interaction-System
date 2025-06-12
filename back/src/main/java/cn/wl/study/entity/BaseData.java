@@ -1,6 +1,6 @@
 package cn.wl.study.entity;
 
-import cn.wl.basics.baseClass.ZwzBaseEntity;
+import cn.wl.basics.baseClass.WlBaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiModel;
@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 @Table(name = "a_base_data")
 @TableName("a_base_data")
 @ApiModel(value = "基本信息")
-public class BaseData extends ZwzBaseEntity {
+public class BaseData extends WlBaseEntity {
 
     private static final long serialVersionUID = 1L;
 

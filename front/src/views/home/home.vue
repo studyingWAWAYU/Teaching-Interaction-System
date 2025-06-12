@@ -42,7 +42,7 @@ import Cookies from "js-cookie";
 import {
   getMyDoorList6
 } from "./api.js";
-import Calendar from "@/views/main-components/calendar/calendar.vue";
+import Calendar from "@/views/main-components/calendar.vue";
 
 export default {
   name: "home",
@@ -235,17 +235,17 @@ export default {
     align-items: center;
     color: #3c7fb4;
     font-size: 20px;
-    background: linear-gradient(60deg, rgba(225, 241, 253, 0.08), rgba(60,127,180,.1));
+    background: linear-gradient(145deg, rgba(225, 241, 253, 0.2), rgba(60,127,180,0.3));
     //background: rgba(60,127,180,.06);
-    border-radius: 16px;
+    border-radius: 20px;
     border: 2px solid #6DAADA;
-    box-shadow: 0 2px 12px 0 rgba(0,0,0,.08);
+    box-shadow: 3px 2px 6px 2px rgba(0, 0, 0, 0.15);
     cursor: pointer;
   }
 
   .addMenu:hover {
     transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(60,127,180,.05);
+    box-shadow: 1px 1px 2px 2px rgba(60,127,180,0.15);
   }
 }
 

@@ -1,7 +1,7 @@
 package cn.wl.basics.utils;
 
 import cn.hutool.http.HttpUtil;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import com.alibaba.fastjson2.JSONObject;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
@@ -51,14 +51,14 @@ public class IpInfoUtil {
                 String provinceStr = adInfo.getString("province");
                 String cityStr = adInfo.getString("city");
                 String districtStr = adInfo.getString("district");
-                if(!ZwzNullUtils.isNull(nationStr) && ZwzNullUtils.isNull(provinceStr)){
+                if(!WlNullUtils.isNull(nationStr) && WlNullUtils.isNull(provinceStr)){
                     resultStr = nationStr;
                 } else {
                     resultStr = provinceStr;
-                    if(!ZwzNullUtils.isNull(cityStr)){
+                    if(!WlNullUtils.isNull(cityStr)){
                         resultStr += "-" + cityStr;
                     }
-                    if(!ZwzNullUtils.isNull(districtStr)){
+                    if(!WlNullUtils.isNull(districtStr)){
                         resultStr += "-" + districtStr;
                     }
                 }

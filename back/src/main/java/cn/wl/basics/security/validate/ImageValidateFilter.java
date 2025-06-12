@@ -2,7 +2,7 @@ package cn.wl.basics.security.validate;
 
 import cn.wl.basics.utils.ResponseUtil;
 import cn.wl.basics.parameter.CaptchaProperties;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -54,12 +54,12 @@ public class ImageValidateFilter extends OncePerRequestFilter {
         }
         String verificationCodeId = request.getParameter("captchaId");
         String userInputCode = request.getParameter("code");
-        if(ZwzNullUtils.isNull(userInputCode) || ZwzNullUtils.isNull(verificationCodeId)){
+        if(WlNullUtils.isNull(userInputCode) || WlNullUtils.isNull(verificationCodeId)){
             ResponseUtil.out(response, ResponseUtil.resultMap(RESPONSE_FAIL_FLAG,RESPONSE_CODE_FAIL_CODE,"验证码为空"));
             return;
         }
         String codeAnsInRedis = redisTemplate.opsForValue().get(verificationCodeId);
-        if(ZwzNullUtils.isNull(codeAnsInRedis)){
+        if(WlNullUtils.isNull(codeAnsInRedis)){
             ResponseUtil.out(response, ResponseUtil.resultMap(RESPONSE_FAIL_FLAG,RESPONSE_CODE_FAIL_CODE,"已过期的验证码，需要重新填写"));
             return;
         }

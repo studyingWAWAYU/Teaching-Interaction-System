@@ -2,7 +2,7 @@ package cn.wl.basics.security;
 
 import cn.wl.data.entity.User;
 import cn.wl.data.service.IUserService;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         String loginFailFlag = LOGIN_FAIL_DISABLED_PRE + username;
         String value = redisTemplate.opsForValue().get(loginFailFlag);
         Long timeRest = redisTemplate.getExpire(loginFailFlag, TimeUnit.MINUTES);
-        if(!ZwzNullUtils.isNull(value)){
+        if(!WlNullUtils.isNull(value)){
             throw new UsernameNotFoundException("试错超限，请您在" + timeRest + "分钟后再登");
         }
         // 根据用户名或手机号查询用户的实体类并返回

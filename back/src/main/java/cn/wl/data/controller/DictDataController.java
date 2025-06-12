@@ -1,7 +1,5 @@
 package cn.wl.data.controller;
 
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.utils.PageUtil;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.baseVo.PageVo;
@@ -10,7 +8,7 @@ import cn.wl.data.entity.Dict;
 import cn.wl.data.entity.DictData;
 import cn.wl.data.service.IDictDataService;
 import cn.wl.data.service.IDictService;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
@@ -43,7 +41,6 @@ public class DictDataController {
 
     private static final String REDIS_DIST_DATA_PRE_STR = "dictData::";
 
-    @SystemLog(about = "查询单个数据字典的值", type = LogType.DATA_CENTER,doType = "DICT_DATA-01")
     @RequestMapping(value = "/getByType/{type}", method = RequestMethod.GET)
     @ApiOperation(value = "查询单个数据字典的值")
     public Result<Object> getByType(@PathVariable String type){
@@ -58,24 +55,23 @@ public class DictDataController {
         return ResultUtil.data(iDictDataService.list(dataQw));
     }
 
-    @SystemLog(about = "查询数据字典值", type = LogType.DATA_CENTER,doType = "DICT_DATA-02")
     @RequestMapping(value = "/getByCondition", method = RequestMethod.GET)
     @ApiOperation(value = "查询数据字典值")
     public Result<IPage<DictData>> getByCondition(@ModelAttribute DictData dictData, @ModelAttribute PageVo page) {
         QueryWrapper<DictData> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(dictData.getDictId())) {
+        if(!WlNullUtils.isNull(dictData.getDictId())) {
             qw.eq("dict_id",dictData.getDictId());
         }
         if(!Objects.equals(null,dictData.getStatus())) {
             qw.eq("status",dictData.getStatus());
         }
-        if(!ZwzNullUtils.isNull(dictData.getTitle())) {
+        if(!WlNullUtils.isNull(dictData.getTitle())) {
             qw.like("title",dictData.getTitle());
         }
-        if(!ZwzNullUtils.isNull(dictData.getValue())) {
+        if(!WlNullUtils.isNull(dictData.getValue())) {
             qw.like("value",dictData.getValue());
         }
-        if(!ZwzNullUtils.isNull(dictData.getDescription())) {
+        if(!WlNullUtils.isNull(dictData.getDescription())) {
             qw.like("description",dictData.getDescription());
         }
         IPage<DictData> data = iDictDataService.page(PageUtil.initMpPage(page),qw);
@@ -90,7 +86,6 @@ public class DictDataController {
         return new ResultUtil<IPage<DictData>>().setData(data);
     }
 
-    @SystemLog(about = "删除数据字典值", type = LogType.DATA_CENTER,doType = "DICT_DATA-03")
     @RequestMapping(value = "/delByIds", method = RequestMethod.POST)
     @ApiOperation(value = "删除数据字典值")
     public Result<Object> delByIds(@RequestParam String[] ids){
@@ -103,7 +98,6 @@ public class DictDataController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "添加数据字典值", type = LogType.DATA_CENTER,doType = "DICT_DATA-04")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ApiOperation(value = "添加数据字典值")
     public Result<Object> add(DictData dictData){
@@ -116,7 +110,6 @@ public class DictDataController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "编辑数据字典值", type = LogType.DATA_CENTER,doType = "DICT_DATA-05")
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     @ApiOperation(value = "编辑数据字典值")
     public Result<Object> edit(DictData dictData){

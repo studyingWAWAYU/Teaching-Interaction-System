@@ -7,7 +7,7 @@ import cn.wl.basics.baseVo.Result;
 import cn.wl.basics.utils.SecurityUtil;
 import cn.wl.data.entity.User;
 import cn.wl.data.service.IUserService;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import cn.wl.data.vo.AntvVo;
 import cn.wl.study.entity.Assignment;
 import cn.wl.study.entity.Curriculum;
@@ -113,10 +113,10 @@ public class AssignmentController {
         if(iUserService.count(userQw) < 1L) {
             qw.eq("user_id",currUser.getId());
         }
-        if(!ZwzNullUtils.isNull(assignment.getCurriculumName())) {
+        if(!WlNullUtils.isNull(assignment.getCurriculumName())) {
             qw.like("curriculum_name",assignment.getCurriculumName());
         }
-        if(!ZwzNullUtils.isNull(assignment.getTitle())) {
+        if(!WlNullUtils.isNull(assignment.getTitle())) {
             qw.like("title",assignment.getTitle());
         }
         IPage<Assignment> data = iAssignmentService.page(PageUtil.initMpPage(page),qw);
