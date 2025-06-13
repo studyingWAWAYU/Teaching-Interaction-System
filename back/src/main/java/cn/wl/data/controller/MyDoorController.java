@@ -51,11 +51,11 @@ public class MyDoorController {
         if(WlNullUtils.isNull(myDoor)) {
             return new ResultUtil().setData(ans);
         }
-        String[] zwz666s = myDoor.split("ZWZ666");
+        String[] WLs = myDoor.split("WL");
         List<Permission> all = iPermissionService.list();
-        for (String zwz666 : zwz666s) {
+        for (String wl : WLs) {
             for (Permission permission : all) {
-                if(Objects.equals(permission.getName(),zwz666)) {
+                if(Objects.equals(permission.getName(),wl)) {
                     MyDoorMenuClass menu = new MyDoorMenuClass();
                     menu.setName(permission.getName());
                     menu.setTitle(permission.getTitle());
