@@ -35,14 +35,6 @@ public class Role extends WlBaseEntity {
     @ApiModelProperty(value = "数据权限")
     private int dataType;
 
-    @ApiModelProperty(value = "是否默认")
-    private Boolean defaultRole;
-
     @ApiModelProperty(value = "角色备注")
     private String description;
-
-    @Transient
-    @TableField(exist=false)
-    @ApiModelProperty(value = "角色拥有菜单列表")
-    private List<RolePermission> permissions;
 }
