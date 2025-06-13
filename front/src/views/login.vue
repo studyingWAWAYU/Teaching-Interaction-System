@@ -13,42 +13,46 @@
           <div class="loginBg"></div>
           <div class="loginRight">
             <Row class="loginRow">
-              <Tabs v-model="tabName" @on-click="changeTabName" class="loginTab">
-                <TabPane label="-" disabled name="mobile">
-                </TabPane>
-                <TabPane label="Login" name="userAndPassword">
-                  <Form ref="usernameLoginForm" :model="form" :rules="usernameLoginFormRules" class="form">
-                    <FormItem prop="username" class="loginInput">
-                      <Row>
-                        <Input v-model="form.username" size="large" clearable placeholder="Log in to your account" autocomplete="off">
-                          <Icon class="iconfont icon-yonghu" slot="prefix" style="line-height:50px" />
-                        </Input>
-                      </Row>
-                    </FormItem>
-                    <FormItem prop="password">
-                      <Input style="height:50px;line-height:50px" type="password" v-model="form.password" size="large" placeholder="Please enter your login password" password autocomplete="off">
-                        <Icon class="iconfont icon-mima1" slot="prefix" style="line-height:50px" />
+              <!-- 改为普通标签，移除Tabs组件 -->
+              <div class="loginTab" style="margin-top: 20px;">
+                <div class="login-tabs-container">
+                  <span class="login-tab-item">-</span>
+                  <span class="login-tab-item active">Login</span>
+                  <span class="login-tab-item">-</span>
+                  <!-- 下划线样式保留 -->
+                  <div class="login-ink-bar"></div>
+                </div>
+              </div>
+              
+              <!-- 标签页内容（仅保留当前显示的内容） -->
+              <div class="login-tab-content">
+                <Form ref="usernameLoginForm" :model="form" :rules="usernameLoginFormRules" class="form">
+                  <FormItem prop="username" class="loginInput">
+                    <Row>
+                      <Input v-model="form.username" size="large" clearable placeholder="Log in to your account" autocomplete="off">
+                        <Icon class="iconfont icon-yonghu" slot="prefix" style="line-height:50px" />
                       </Input>
-                    </FormItem>
-
-                  </Form>
-                  <Row type="flex" justify="space-between" align="middle">
-                    <Checkbox v-model="saveLogin" size="large">Automatic Login</Checkbox>
-                    <router-link to="/regist">
-                      <a class="forget-pass">Click here to register</a>
-                    </router-link>
-                  </Row>
-                  <Row>
-                    <Button class="login-btn" type="primary" size="large" :loading="loading" @click="submitLogin" long>
-                      <span v-if="!loading" style=" font-weight:bold">Login</span>
-                      <span v-else>Logging in... Please wait}</span>
-                    </Button>
-                  </Row>
-                </TabPane>
-                <TabPane label="-" disabled name="mobile">
-                </TabPane>
-              </Tabs>
-
+                    </Row>
+                  </FormItem>
+                  <FormItem prop="password">
+                    <Input style="height:50px;line-height:50px" type="password"  v-model="form.password" size="large" placeholder="Please enter your login password" password autocomplete="off">
+                      <Icon class="iconfont icon-mima1" slot="prefix" style="line-height:50px" />
+                    </Input>
+                  </FormItem>
+                </Form>
+                <Row type="flex" justify="space-between" align="middle">
+                  <Checkbox v-model="saveLogin" size="large">Automatic Login</Checkbox>
+                  <router-link to="/regist">
+                    <a class="forget-pass">Click here to register</a>
+                  </router-link>
+                </Row>
+                <Row>
+                  <Button class="login-btn" type="primary" size="large" :loading="loading" @click="submitLogin" long>
+                    <span v-if="!loading" style=" font-weight:bold">Login</span>
+                    <span v-else>Logging in... Please wait}</span>
+                  </Button>
+                </Row>
+              </div>
             </Row>
             <p class="loginBottom">
               Ask. Answer. Achieve. Together.
@@ -171,7 +175,7 @@ export default {
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 html,body{
   background: #ffffff !important;
   font-family: Microsoft YaHei;
@@ -188,6 +192,7 @@ input::-webkit-input-placeholder {
 .ivu-checkbox-wrapper.ivu-checkbox-large{
   font-size: 14px;
 }
+
 a:hover{
   font-family: Microsoft YaHei;
   color: #77C8C6;
@@ -196,15 +201,6 @@ a:hover{
   height: 100%;
   background-color: #EAF3FA;
 
-  .ivu-tabs-nav-container {
-    line-height: 2;
-    font-size: 17px;
-    box-sizing: border-box;
-    white-space: nowrap;
-    overflow: hidden;
-    position: relative;
-    zoom: 1;
-  }
   .loginUp{
     width: 100%;
     min-height: 80px;
@@ -259,12 +255,12 @@ a:hover{
   }
   .loginRight{
     width: 450px;
-    height: 480px;
+    height: 470px;
     background-color: #ffffff;
     border: 1px solid #E6E6E6;
     box-shadow: 0px 2px 15px 1px rgba(0, 0, 0, 0.1);
     border-radius: 30px;
-    margin-top: 115px;
+    margin-top: 50px;
     position: relative;
   }
   .loginRow{
@@ -301,38 +297,42 @@ a:hover{
     margin-right: 5px;
     font-size: 16px; /* 图标大小，适配视觉效果  */
   }
-  .loginTab{
+  .loginTab {
     margin-top: 20px;
   }
-  .ivu-tabs-tab{
+  
+  .login-tabs-container {
+    line-height: 2;
+    font-size: 17px;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+  }
+  
+  .login-tab-item {
+    padding: 8px;
+    margin-right: 100px;
+    margin-left:20px;
     color: #333333;
     font-size: 18px;
     font-family: Microsoft YaHei;
     font-weight: bold;
   }
-  /* 禁用标签页滚动箭头 */
-  .ivu-tabs-nav-next, .ivu-tabs-nav-prev {
-    display: none !important;
+  
+  .login-tab-item.active {
+    color: #333333;
   }
   
-  /* 禁用标签页滚动行为 */
-  .ivu-tabs-nav-wrap {
-    overflow: hidden !important;
-    padding-right: 0 !important;
-  }
-  .ivu-tabs-nav .ivu-tabs-tab{
-    padding: 8px !important;
-    margin-right:100px !important;
-  }
-  .ivu-tabs-ink-bar{
+  .login-ink-bar {
+    position: absolute;
+    bottom: 0;
     height: 4px;
-    width: 86px !important;
+    width: 86px;
     border-radius: 2px;
-    margin: 0px 70px;
+    margin: 0px 150px;
     background-color: #C4E2FF;
-  }
-  .ivu-tabs-nav .ivu-tabs-tab-active,.ivu-tabs-nav .ivu-tabs-tab:hover{
-    color: #333333;
   }
   .loginInput{
     font-size: 18px;
@@ -350,10 +350,9 @@ a:hover{
     border: 2px solid #61C8C5;
     box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.21);
     border-radius: 35px;
+    margin-top:30px;
   }
-  .login .login-btn, .login .other-login{
-    margin-top: 15px;
-  }
+  
   .loginBottom{
     width: 448px;
     height: 65px;
@@ -382,23 +381,23 @@ a:hover{
   .ivu-form-item{
     margin-bottom: 24px;
   }
+  
   .ivu-input-wrapper-large .ivu-input-icon{
     line-height: 50px;
   }
   .loginInput input:nth-of-type(1){
     height: 50px;
     font-size: 18px;
-    font-weight: bold;
+    font-weight: bold!important;
     font-family: Microsoft YaHei;
     color: #333333;
     line-height: 50px;
   }
   .ivu-input-large{
-    height: 50px;
+    font-weight: bold !important;
+    height: 50px !important;
     color:#CFCFCF;
     line-height: 50px;
-  }
-  .ivu-input-large{
     font-size: 14px;
   }
   .ivu-btn-large{
@@ -407,9 +406,6 @@ a:hover{
   .form {
     padding-top: 2vh;
 
-    .input-verify {
-      width: 67%;
-    }
   }
 
   .forget-pass,
