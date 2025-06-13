@@ -73,9 +73,9 @@ INSERT INTO `role` (`id`, `description`, `name`, `datatype`) VALUES
 
 DROP TABLE IF EXISTS `user_role`;
 CREATE TABLE IF NOT EXISTS `user_role` (
-  `id` integer primary key auto_increment,
-	user_id integer,
-	role_id integer,
+  id integer primary key auto_increment,
+  user_id integer,
+  role_id integer,
   foreign key (user_id) references user(id),
   foreign key (role_id) references role(id)
 );
@@ -90,18 +90,18 @@ INSERT INTO `user_role` (`id`, `user_id`,`role_id`) VALUES
 DROP TABLE IF EXISTS `permission`;
 CREATE TABLE IF NOT EXISTS `permission` (
   `id` integer primary key auto_increment,
-	`description` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
-	`parent_id` varchar(255) DEFAULT NULL,
-	`type` int DEFAULT NULL,
-	`sort_order` decimal(10,2) DEFAULT NULL,
-	`component` varchar(255) DEFAULT NULL,
-	`path` varchar(255) DEFAULT NULL,
-	`title` varchar(255) DEFAULT NULL,
-	`icon` varchar(255) DEFAULT NULL,
-	`level` int unsigned DEFAULT NULL,
+  `parent_id` varchar(255) DEFAULT NULL,
+  `type` int DEFAULT NULL,
+  `sort_order` decimal(10,2) DEFAULT NULL,
+  `component` varchar(255) DEFAULT NULL,
+  `path` varchar(255) DEFAULT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `icon` varchar(255) DEFAULT NULL,
+  `level` int unsigned DEFAULT NULL,
   `button_type` varchar(255) DEFAULT NULL,
-	`status` int DEFAULT NULL,
+  `status` int DEFAULT NULL,
   `show_always` bit(1) DEFAULT NULL
 );
 
@@ -176,9 +176,9 @@ INSERT INTO `permission` (`id`, `description`, `name`, `parent_id`, `type`, `sor
 
 DROP TABLE IF EXISTS `role_permission`;
 CREATE TABLE IF NOT EXISTS `role_permission` (
-  `id` integer primary key auto_increment,
-	permission_id integer,
-	role_id integer,
+  id integer primary key auto_increment,
+  permission_id integer,
+  role_id integer,
   foreign key (permission_id) references permission(id),
   foreign key (role_id) references role(id)
 );
@@ -271,7 +271,7 @@ INSERT INTO `role_permission` (`id`,`permission_id`, `role_id`) VALUES
 DROP TABLE IF EXISTS `course`;
 CREATE TABLE IF NOT EXISTS `course` (
   `id` integer primary key auto_increment,
-	create_by integer,
+  create_by integer,
   foreign key (create_by) references user(id),
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP,
   `content` varchar(800) DEFAULT NULL,
@@ -288,21 +288,22 @@ INSERT INTO `course` (`id`, `create_by`, `update_time`, `content`, `image`, `sta
 
 DROP TABLE IF EXISTS `feedback`;
 CREATE TABLE IF NOT EXISTS `feedback` (
-  `id` integer primary key auto_increment,
-	create_by integer,
+  id integer primary key auto_increment,
+  create_by integer,
   foreign key (create_by) references user(id),
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
-  `content` varchar(255) NOT NULL,
-	course_id integer,
-  foreign key (course_id) references course(id)
+  create_time datetime DEFAULT CURRENT_TIMESTAMP,
+  content varchar(255) NOT NULL,
+  course_id integer,
+  foreign key (course_id) references course(id),
+  rating integer DEFAULT NULL
 );
 
 DELETE FROM `feedback`;
 INSERT INTO `feedback` (`id`, `create_by`, `create_time`,`content`, `course_id`) VALUES
-	(1, 3, '2025-06-10 10:36:57', 'Very good.', 1),
-	(2, 3, '2025-06-10 11:01:46', '666', 2),
-	(3, 4, '2025-6-10 11:02:17', 'I like this course', 1),
-	(4, 4, '2025-06-11 16:25:26', 'Not bad', 2);
+	(1, 3, '2025-06-10 10:36:57', 'Very good.', 1,NULL),
+	(2, 3, '2025-06-10 11:01:46', '666', 2,NULL),
+	(3, 4, '2025-6-10 11:02:17', 'I like this course', 1,NULL),
+	(4, 4, '2025-06-11 16:25:26', 'Not bad', 2,NULL);
 
 
 DROP TABLE IF EXISTS `assignment_req`;
@@ -315,7 +316,7 @@ CREATE TABLE IF NOT EXISTS `assignment_req` (
   description varchar(1000) DEFAULT NULL,
   file varchar(255) DEFAULT NULL,
   upload_time datetime DEFAULT CURRENT_TIMESTAMP,
-	course_id integer,
+  course_id integer,
   foreign key (course_id) references course(id)
 );
 
@@ -335,9 +336,9 @@ CREATE TABLE IF NOT EXISTS `assignment_ans` (
   title varchar(255) NOT NULL,
   file varchar(255) DEFAULT NULL,
   upload_time datetime DEFAULT CURRENT_TIMESTAMP,
-	student_id integer,
+  student_id integer,
   foreign key (student_id) references user(id),
-	req_id integer,
+  req_id integer,
   foreign key (req_id) references assignment_req(id)
 );
 
@@ -351,13 +352,13 @@ INSERT INTO `assignment_ans` (`id`, `title`, file,`upload_time`, student_id, req
 
 DROP TABLE IF EXISTS `course_resources`;
 CREATE TABLE IF NOT EXISTS `course_resources` (
-  `id` integer primary key auto_increment,
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP,
-	course_id integer,
+  id integer primary key auto_increment,
+  update_time datetime DEFAULT CURRENT_TIMESTAMP,
+  course_id integer,
   foreign key (course_id) references course(id),
   title varchar(255) NOT NULL,
   description varchar(1000) DEFAULT NULL,
-  `file_url` varchar(255) DEFAULT NULL
+  file_url varchar(255) DEFAULT NULL
 );
 
 DELETE FROM `course_resources`;
@@ -370,34 +371,36 @@ INSERT INTO `course_resources` (`id`, `update_time`, `course_id`, title, descrip
 
 DROP TABLE IF EXISTS `topics`;
 CREATE TABLE IF NOT EXISTS `topics` (
-  `id` integer primary key auto_increment,
-	create_by integer,
+  id integer primary key auto_increment,
+  create_by integer,
   foreign key (create_by) references user(id),
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP,
+  update_time datetime DEFAULT CURRENT_TIMESTAMP,
   title varchar(150) NOT NULL,
   description varchar(5000) DEFAULT NULL,
-	course_id integer,
-  foreign key (course_id) references course(id)
+  course_id integer,
+  foreign key (course_id) references course(id),
+  likes integer DEFAULT 0
 );
 
 DELETE FROM `topics`;
-INSERT INTO `topics` (`id`, `create_by`, `update_time`, `title`, description, `course_id`) VALUES
-	(1, 1, '2025-06-12 13:56:47', 'Is Java Platform Independent if then how?', NULL, 1);
+INSERT INTO `topics` (`id`, `create_by`, `update_time`, `title`, description, `course_id`,likes) VALUES
+	(1, 1, '2025-06-12 13:56:47', 'Is Java Platform Independent if then how?', NULL, 1,0);
 
 DROP TABLE IF EXISTS `posts`;
 CREATE TABLE IF NOT EXISTS `posts` (
-  `id` integer primary key auto_increment,
-	create_by integer,
+  id integer primary key auto_increment,
+  create_by integer,
   foreign key (create_by) references user(id),
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
+  create_time datetime DEFAULT CURRENT_TIMESTAMP,
   content varchar(5000) NOT NULL,
-	topic_id integer,
-  foreign key (topic_id) references topics(id)
+  topic_id integer,
+  foreign key (topic_id) references topics(id),
+  likes integer DEFAULT 0
 );
 
 DELETE FROM `posts`;
-INSERT INTO `posts` (`id`, `create_by`, `create_time`, `content`, `topic_id`) VALUES
-	(1, 3, '2025-06-12 18:56:47', 'Yes, Java is a Platform Independent language. Unlike many programming languages javac compiles the program to form a bytecode or .class file. This file is independent of the software or hardware running but needs a JVM(Java Virtual Machine) file preinstalled in the operating system for further execution of the bytecode.', 1);
+INSERT INTO `posts` (`id`, `create_by`, `create_time`, `content`, `topic_id`,likes) VALUES
+	(1, 3, '2025-06-12 18:56:47', 'Yes, Java is a Platform Independent language. Unlike many programming languages javac compiles the program to form a bytecode or .class file. This file is independent of the software or hardware running but needs a JVM(Java Virtual Machine) file preinstalled in the operating system for further execution of the bytecode.', 1,0);
 
 
 DROP TABLE IF EXISTS `dict`;
@@ -418,7 +421,7 @@ DROP TABLE IF EXISTS `dict_data`;
 CREATE TABLE IF NOT EXISTS `dict_data` (
   `id` integer primary key auto_increment,
   `description` varchar(255) DEFAULT NULL,
-	dict_id integer,
+  dict_id integer,
   foreign key (dict_id) references dict(id),
   `status` int DEFAULT NULL,
   `title` varchar(100) DEFAULT NULL,
@@ -451,7 +454,7 @@ INSERT INTO `dict_data` (`id`, `description`, `dict_id`, `status`, `title`, `val
 DROP TABLE IF EXISTS `file`;
 CREATE TABLE IF NOT EXISTS `file` (
   `id` integer primary key auto_increment,
-	create_by integer,
+  create_by integer,
   foreign key (create_by) references user(id),
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP,
   `name` varchar(255) NOT NULL,
