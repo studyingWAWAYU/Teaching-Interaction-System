@@ -98,6 +98,7 @@ import Discussion from './components/discussion.vue'
 import CourseDetails from './components/details.vue'
 import CourseResources from './components/resources.vue'
 import CourseAssignments from './components/assignments.vue'
+import Cookies from 'js-cookie'
 
 export default {
   name: 'Lessons',
@@ -151,20 +152,23 @@ export default {
           author: 'Ken',
           time: '2024-03-15 14:30',
           content: '在实现多线程时，如何避免死锁问题？有没有一些最佳实践可以分享？',
-          replyCount: 3,
+          replyCount: 2,
+          likes: 5,
           showReplies: false,
           replies: [
             {
               id: 1,
               author: 'Ben',
               time: '2024-03-15 15:00',
-              content: '建议使用tryLock()方法，并设置超时时间，这样可以避免死锁。'
+              content: '建议使用tryLock()方法，并设置超时时间，这样可以避免死锁。',
+              likes: 3
             },
             {
               id: 2,
               author: 'Amy',
               time: '2024-03-15 15:30',
-              content: '也可以使用ReentrantLock，它提供了更灵活的锁机制。'
+              content: '也可以使用ReentrantLock，它提供了更灵活的锁机制。',
+              likes: 2
             }
           ]
         },
@@ -175,13 +179,15 @@ export default {
           time: '2024-03-14 10:20',
           content: '建议在课程项目中加入更多实际案例，这样可以帮助我们更好地理解知识点。',
           replyCount: 2,
+          likes: 3,
           showReplies: false,
           replies: [
             {
               id: 3,
               author: 'Ken',
               time: '2024-03-14 11:00',
-              content: '很好的建议，我会在下一节课加入更多实际案例。'
+              content: '很好的建议，我会在下一节课加入更多实际案例。',
+              likes: 1
             }
           ]
         }
@@ -263,19 +269,15 @@ export default {
         return;
       }
       try {
-        // const response = await this.$api.course.createTopic({
-        //   courseId: this.$route.params.id,
-        //   ...this.newTopic
-        // });
-        // this.discussions.unshift(response.data);
-        // 暂时使用模拟数据
+        const userInfo = JSON.parse(Cookies.get('userInfo'));
         const newTopic = {
-          id: Date.now(), // 临时ID
+          id: Date.now(),
           title: this.newTopic.title,
-          author: 'Current User',
+          author: userInfo.nickname,
           time: new Date().toLocaleString(),
           content: this.newTopic.content,
           replyCount: 0,
+          likes: 0,
           showReplies: false,
           replies: []
         };
@@ -301,20 +303,15 @@ export default {
       }
       try {
         const topic = this.discussions[this.newReply.topicIndex];
-        // const response = await this.$api.course.createReply({
-        //   courseId: this.$route.params.id,
-        //   topicId: topic.id,
-        //   content: this.newReply.content
-        // });
-        // topic.replies.push(response.data);
-        // 暂时使用模拟数据
+        const userInfo = JSON.parse(Cookies.get('userInfo'));
         topic.replies.push({
           id: Date.now(), // 临时ID
-          author: 'Current User',
+          author: userInfo.nickname,
           time: new Date().toLocaleString(),
-          content: this.newReply.content
+          content: this.newReply.content,
+          likes: 0
         });
-        topic.replyCount++;
+        topic.replyCount = topic.replies.length;
         topic.showReplies = true;
         this.$Message.success('Reply posted successfully');
       } catch (error) {
@@ -447,12 +444,6 @@ export default {
         border-radius: 5px;
         background-color: #2d8cf0;
       }
-    }
-
-    .empty-content {
-      padding: 40px 0;
-      text-align: center;
-      color: #808695;
     }
   }
 }
