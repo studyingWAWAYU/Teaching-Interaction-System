@@ -58,8 +58,8 @@ public class TeacherDataController {
         if(!WlNullUtils.isNull(teacherData.getName())) {
             qw.like("name",teacherData.getName());
         }
-        if(!WlNullUtils.isNull(teacherData.getLevel())) {
-            qw.eq("level",teacherData.getLevel());
+        if(!WlNullUtils.isNull(teacherData.getTitle())) {
+            qw.eq("level",teacherData.getTitle());
         }
         IPage<TeacherData> data = iTeacherDataService.page(PageUtil.initMpPage(page),qw);
         return new ResultUtil<IPage<TeacherData>>().setData(data);

@@ -40,7 +40,7 @@ public abstract class WlBaseEntity implements Serializable{
     @ApiModelProperty(value = "ID")
     @Id
     @TableId
-    private String id = IdUtil.getSnowflake(1, 1).nextId() + "";
+    private Integer id = Integer.valueOf((int) IdUtil.getSnowflake(1, 1).nextId());
 
     @LastModifiedBy
     @TableField(fill = FieldFill.UPDATE)

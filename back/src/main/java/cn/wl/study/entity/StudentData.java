@@ -18,16 +18,16 @@ import jakarta.persistence.Table;
 @Entity
 @DynamicInsert
 @DynamicUpdate
-@Table(name = "teacher")
-@TableName("teacher")
+@Table(name = "student")
+@TableName("student")
 @ApiModel(value = "教师信息")
-public class TeacherData extends User {
+public class StudentData extends User {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "教师级别")
-    private String title;
+    @ApiModelProperty(value = "学生年级")
+    private String grade;
 
-    @ApiModelProperty(value = "教师简介")
-    private String content;
+    @ApiModelProperty(value = "学生专业")
+    private String major;
 }
