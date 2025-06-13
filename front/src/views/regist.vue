@@ -14,6 +14,23 @@
           <div class="loginBg"></div>
           <div class="loginRight">
             <Row v-if="!socialLogining" class="loginRow">
+              <!-- 新增的切换标签 -->
+              <div class="role-switch">
+                <div 
+                  class="switch-option" 
+                  :class="{ 'active': form.identity === '1' }"
+                  @click="form.identity = '1'"
+                >
+                  Teacher
+                </div>
+                <div 
+                  class="switch-option" 
+                  :class="{ 'active': form.identity === '0' }"
+                  @click="form.identity = '0'"
+                >
+                  Student
+                </div>
+              </div>
               <Form ref="usernameLoginForm" :model="form" :rules="rules" class="form" style="width:100%">
                 <FormItem prop="username" class="loginInput">
                   <Row>
@@ -102,7 +119,7 @@ export default {
         username: "",
         password: "",
         nickname: "",
-        identity: ""
+        identity: "0"
       },
       rules: {
         username: [{
@@ -134,33 +151,72 @@ export default {
     };
   },
    methods: {
-        submitRegist() {
-            this.$refs.usernameLoginForm.validate(valid => {
-                if (valid) {
-                    this.loading = true;
-                    regist({
-			username: this.form.username,
-                        password: this.form.password,
-                        nickname: this.form.nickname
-			}).then(res => {
-                        this.loading = false;
-                        if (res.success) {
-                            this.$router.push({
-                                name: "login"
-                            });
-                        } 
-                    });
-                }
-            });
+    submitRegist() {
+      this.$refs.usernameLoginForm.validate(valid => {
+        if (valid) {
+          this.loading = true;
+          regist({
+            username: this.form.username,
+            password: this.form.password,
+            nickname: this.form.nickname,
+            identity: this.form.identity
+          }).then(res => {
+            this.loading = false;
+            if (res.success) {
+              this.$router.push({
+                name: "login"
+              });
+            } 
+          });
         }
-    },
+      });
+    }
+  },
 
   mounted() {
   }
 };
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
+
+.role-switch {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  background: #f5f5f5;
+  border-radius: 25px;
+  padding: 5px;
+  position: relative;
+  width: 80%;
+  margin-left: auto;
+  margin-right: auto;
+  
+  .switch-option {
+    flex: 1;
+    text-align: center;
+    padding: 12px 0; /* 增加padding */
+    cursor: pointer;
+    font-weight: bold;
+    color: #666;
+    transition: all 0.3s ease;
+    border-radius: 20px;
+    z-index: 1;
+    margin: 0 2px; /* 增加间距 */
+    
+    &.active {
+      color: #fff;
+      background: radial-gradient(circle, #77C8C6, #50C7C4);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      transform: scale(1.02); /* 轻微放大效果 */
+    }
+    
+    &:hover:not(.active) {
+      background: rgba(119, 200, 198, 0.1); /* 悬停效果 */
+    }
+  }
+}
+
 html,body{
   background: #ffffff !important;
   font-family: Microsoft YaHei;
@@ -251,12 +307,12 @@ a:hover{
   }
   .loginRight{
     width: 450px;
-    height: 480px;
+    height: 520px;
     background-color: #ffffff;
     border: 1px solid #E6E6E6;
     box-shadow: 0px 2px 15px 1px rgba(0, 0, 0, 0.1);
     border-radius: 30px;
-    margin-top: 115px;
+    margin-top: 50px;
     position: relative;
   }
   .loginRow{
@@ -316,7 +372,7 @@ a:hover{
     border: 2px solid #61C8C5;
     box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.21);
     border-radius: 35px;
-    margin-top:15px;
+    margin-bottom:15px;
   }
 
   .loginBottom{
@@ -363,18 +419,10 @@ a:hover{
   .ivu-btn-large{
     height: 50px;
   }
-  .form {
-    padding-top: 2vh;
-  }
 
   .forget-pass,
   .other-way {
     font-size: 14px;
-  }
-
-  .login-btn,
-  .other-login {
-    margin-top: 15px;
   }
 
   .icons {
