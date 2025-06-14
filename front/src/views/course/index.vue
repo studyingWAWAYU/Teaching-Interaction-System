@@ -1,5 +1,5 @@
 <template>
-  <div class="lessons-container">
+  <div class="course-container">
     <Card class="course-info">
       <Row :gutter="20">
         <Col span="8">
@@ -323,7 +323,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.lessons-container {
+.course-container {
   padding: 30px;
   background: rgba(246,247,251, 0.8);
   border-radius: 20px;
