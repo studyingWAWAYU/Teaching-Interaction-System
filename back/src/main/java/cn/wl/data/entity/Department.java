@@ -50,12 +50,12 @@ public class Department extends WlBaseEntity {
     @Transient
     @TableField(exist=false)
     @ApiModelProperty(value = "领导人")
-    private List<String> mainHeader;
+    private List<Integer> mainHeader;
 
     @Transient
     @TableField(exist=false)
     @ApiModelProperty(value = "副领导人")
-    private List<String> viceHeader;
+    private List<Integer> viceHeader;
 
     @Transient
     @TableField(exist=false)

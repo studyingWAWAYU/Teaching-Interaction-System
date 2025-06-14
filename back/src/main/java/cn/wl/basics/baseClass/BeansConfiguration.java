@@ -38,6 +38,6 @@ public class BeansConfiguration {
     @Bean
     @ApiOperation(value = "初始化Redis锁")
     public RedisLockRegistry redisLockRegistry(RedisConnectionFactory redisConnectionFactory) {
-        return new RedisLockRegistry(redisConnectionFactory, "zwz-lock");
+        return new RedisLockRegistry(redisConnectionFactory, "wl-lock");
     }
 }

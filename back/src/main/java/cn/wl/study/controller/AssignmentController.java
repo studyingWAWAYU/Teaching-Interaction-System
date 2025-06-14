@@ -10,10 +10,10 @@ import cn.wl.data.service.IUserService;
 import cn.wl.data.utils.WlNullUtils;
 import cn.wl.data.vo.AntvVo;
 import cn.wl.study.entity.Assignment;
-import cn.wl.study.entity.Curriculum;
+import cn.wl.study.entity.Course;
 import cn.wl.study.entity.Timetable;
 import cn.wl.study.service.IAssignmentService;
-import cn.wl.study.service.ICurriculumService;
+import cn.wl.study.service.ICourseService;
 import cn.wl.study.service.ITimetableService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -29,10 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
+
 @Slf4j
 @RestController
 @Api(tags = "课程作业管理接口")
@@ -47,7 +44,7 @@ public class AssignmentController {
     private ITimetableService iTimetableService;
 
     @Autowired
-    private ICurriculumService iCurriculumService;
+    private ICourseService iCourseService;
 
     @Autowired
     private IUserService iUserService;
@@ -58,7 +55,7 @@ public class AssignmentController {
     @RequestMapping(value = "/create", method = RequestMethod.GET)
     @ApiOperation(value = "生成课程作业")
     public Result<Assignment> create(@RequestParam String id,@RequestParam String title,@RequestParam String file){
-        Curriculum curriculum = iCurriculumService.getById(id);
+        Course curriculum = iCourseService.getById(id);
         if(curriculum == null) {
             return ResultUtil.error("课程不存在");
         }
@@ -72,8 +69,8 @@ public class AssignmentController {
         List<Timetable> timetableList = iTimetableService.list(tQw);
         for (Timetable t : timetableList) {
             Assignment a = new Assignment();
-            a.setCurriculumId(curriculum.getId());
-            a.setCurriculumName(curriculum.getTitle());
+            //a.setCourseId(course.getId());
+            //a.setCourseName(course.getTitle());
             a.setTitle(title);
             a.setFile1(file);
             a.setFile2("");
@@ -113,9 +110,12 @@ public class AssignmentController {
         if(iUserService.count(userQw) < 1L) {
             qw.eq("user_id",currUser.getId());
         }
-        if(!WlNullUtils.isNull(assignment.getCurriculumName())) {
-            qw.like("curriculum_name",assignment.getCurriculumName());
+        /*
+        if(!WlNullUtils.isNull(assignment.getCourseName())) {
+            qw.like("course_name",assignment.getCourseName());
         }
+
+         */
         if(!WlNullUtils.isNull(assignment.getTitle())) {
             qw.like("title",assignment.getTitle());
         }

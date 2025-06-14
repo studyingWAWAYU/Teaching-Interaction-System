@@ -14,10 +14,9 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.util.Date;
 
@@ -25,11 +24,11 @@ import java.util.Date;
 @Entity
 @DynamicInsert
 @DynamicUpdate
+@Table(name = "assignment_req")
+@TableName("assignment_req")
 @EntityListeners(AuditingEntityListener.class)
-@Table(name = "topics")
-@TableName("topics")
-@ApiModel(value = "主题")
-public class Topics{
+@ApiModel(value = "课程作业")
+public class AssignmentReq {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "ID")
@@ -37,27 +36,31 @@ public class Topics{
     @TableId
     private Integer id;
 
-    @CreatedBy
-    @TableField(fill = FieldFill.INSERT)
-    @ApiModelProperty(value="留言人ID")
-    private Integer create_by;
+    @ApiModelProperty(value = "作业开放提交时间")
+    private Date startTime;
+
+    @ApiModelProperty(value = "作业截止提交时间")
+    private Date end_time;
+
+    @ApiModelProperty(value = "作业状态")
+    private String status;
+
+    @ApiModelProperty(value = "作业名称")
+    private String title;
+
+    @ApiModelProperty(value = "作业备注")
+    private String description;
+
+    @ApiModelProperty(value = "作业附件")
+    private String file;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField(fill = FieldFill.UPDATE)
-    @LastModifiedDate
-    @ApiModelProperty(value = "最后一次更新时间")
-    private Date update_time;
+    @TableField(fill = FieldFill.INSERT)
+    @CreatedDate
+    @ApiModelProperty(value = "创建时间")
+    private Date uploadTime;
 
-    @ApiModelProperty(value="标题")
-    private String title;
-
-    @ApiModelProperty(value="内容")
-    private String description;
-
-    @ApiModelProperty(value="隶属的课程")
-    private Integer course_id;
-
-    @ApiModelProperty(value="点赞数")
-    private Integer likes;
+    @ApiModelProperty(value = "课程ID")
+    private Integer courseId;
 }

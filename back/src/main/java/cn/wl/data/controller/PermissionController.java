@@ -198,7 +198,7 @@ public class PermissionController {
     }
 
     @ApiOperation(value = "根据父ID查询菜单")
-    private List<Permission> getPermissionListByParentId(String parentId) {
+    private List<Permission> getPermissionListByParentId(Integer parentId) {
         QueryWrapper<Permission> qw = new QueryWrapper<>();
         qw.eq("parent_id",parentId);
         qw.orderByAsc("sort_order");
@@ -266,7 +266,7 @@ public class PermissionController {
         }
         if(Objects.equals(CommonConstant.PERMISSION_NAV,permission.getType())) {
             // 顶级菜单添加标识
-            permission.setParentId("0");
+            permission.setParentId(0);
             if(WlNullUtils.isNull(permission.getPath())) {
                 permission.setPath(permission.getName());
             }
@@ -301,7 +301,7 @@ public class PermissionController {
         return new ResultUtil<Permission>().setData(permission);
     }
 
-    private List<Permission> getPermissionByUserId(String userId) {
+    private List<Permission> getPermissionByUserId(Integer userId) {
         QueryWrapper<UserRole> urQw = new QueryWrapper<>();
         urQw.eq("user_id",userId);
         List<UserRole> userRoleList = iUserRoleService.list(urQw);

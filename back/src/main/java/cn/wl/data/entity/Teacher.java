@@ -4,24 +4,23 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import java.math.BigDecimal;
-
 @Data
+@Accessors(chain = true)
 @Entity
 @DynamicInsert
 @DynamicUpdate
-@Table(name = "dict")
-@TableName("dict")
-@ApiModel(value = "数据字典")
-public class Dict{
+@Table(name = "teacher")
+@TableName("teacher")
+@ApiModel(value = "教师用户")
+public class Teacher {
 
     private static final long serialVersionUID = 1L;
 
@@ -30,9 +29,9 @@ public class Dict{
     @TableId
     private Integer id;
 
-    @ApiModelProperty(value = "数据字典标题")
-    private String title;
+    @ApiModelProperty(value = "描述")
+    private String description;
 
-    @ApiModelProperty(value = "数据字典类型")
-    private String type;
+    @ApiModelProperty(value = "职称")
+    private String title;
 }

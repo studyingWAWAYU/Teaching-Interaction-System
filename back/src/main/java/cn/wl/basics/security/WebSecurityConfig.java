@@ -80,9 +80,9 @@ public class WebSecurityConfig {
                 .and()
                 .authenticationProvider(authenticationProvider())
                 // 自定义限流过滤器。防止白名单网站请求量太大导致服务器垮掉
-                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
                 // 图形验证码的过滤器
-                .addFilterBefore(imageValidateFilter, UsernamePasswordAuthenticationFilter.class);
+                //.addFilterBefore(imageValidateFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

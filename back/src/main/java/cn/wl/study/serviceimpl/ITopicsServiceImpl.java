@@ -9,10 +9,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @Transactional
 public class ITopicsServiceImpl extends ServiceImpl<TopicsMapper, Topics> implements ITopicsService {
     @Autowired
     private TopicsMapper topicsMapper;
+
+    @Override
+    public List<Topics> getAllOrderByLikesDesc() {
+        return List.of();
+    }
 }

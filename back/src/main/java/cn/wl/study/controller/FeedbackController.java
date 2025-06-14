@@ -8,10 +8,10 @@ import cn.wl.basics.baseVo.Result;
 import cn.wl.basics.utils.SecurityUtil;
 import cn.wl.data.entity.User;
 import cn.wl.data.utils.WlNullUtils;
-import cn.wl.study.entity.Appraise;
-import cn.wl.study.entity.Curriculum;
-import cn.wl.study.service.IAppraiseService;
-import cn.wl.study.service.ICurriculumService;
+import cn.wl.study.entity.Feedback;
+import cn.wl.study.entity.Course;
+import cn.wl.study.service.IFeedbackService;
+import cn.wl.study.service.ICourseService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
@@ -21,23 +21,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
+
 @Slf4j
 @RestController
 @Api(tags = "课程评价管理接口")
-@RequestMapping("/wl/appraise")
+@RequestMapping("/wl/feedback")
 @Transactional
-public class AppraiseController {
+public class FeedbackController {
 
     @Autowired
-    private IAppraiseService iAppraiseService;
+    private IFeedbackService iFeedbackService;
     @Autowired
-    private ICurriculumService iCurriculumService;
+    private ICourseService iCourseService;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -45,85 +43,85 @@ public class AppraiseController {
     @RequestMapping(value = "/addOne", method = RequestMethod.GET)
     @ApiOperation(value = "添加课程评价")
     public Result<Object> addOne(@RequestParam String id,@RequestParam String content){
-        Curriculum curriculum = iCurriculumService.getById(id);
-        if(curriculum == null) {
+        Course course = iCourseService.getById(id);
+        if(course == null) {
             return ResultUtil.error("课程不存在");
         }
         User currUser = securityUtil.getCurrUser();
-        Appraise a = new Appraise();
-        a.setCurriculumId(curriculum.getId());
-        a.setCurriculumName(curriculum.getTitle());
-        a.setUserId(currUser.getId());
-        a.setUserName(currUser.getNickname());
+        Feedback a = new Feedback();
+        a.setCourseId(course.getId());
+        a.setCreateBy(currUser.getId());
         a.setContent(content);
-        a.setTime(DateUtil.now());
-        iAppraiseService.saveOrUpdate(a);
+        a.setCreateTime(new Date(DateUtil.now()));
+        iFeedbackService.saveOrUpdate(a);
         return ResultUtil.success();
     }
 
     @RequestMapping(value = "/getOne", method = RequestMethod.GET)
     @ApiOperation(value = "查询单条课程评价")
-    public Result<Appraise> get(@RequestParam String id){
-        return new ResultUtil<Appraise>().setData(iAppraiseService.getById(id));
+    public Result<Feedback> get(@RequestParam String id){
+        return new ResultUtil<Feedback>().setData(iFeedbackService.getById(id));
     }
 
     @RequestMapping(value = "/count", method = RequestMethod.GET)
     @ApiOperation(value = "查询全部课程评价个数")
     public Result<Long> getCount(){
-        return new ResultUtil<Long>().setData(iAppraiseService.count());
+        return new ResultUtil<Long>().setData(iFeedbackService.count());
     }
 
     @RequestMapping(value = "/getAll", method = RequestMethod.GET)
     @ApiOperation(value = "查询全部课程评价")
-    public Result<List<Appraise>> getAll(){
-        return new ResultUtil<List<Appraise>>().setData(iAppraiseService.list());
+    public Result<List<Feedback>> getAll(){
+        return new ResultUtil<List<Feedback>>().setData(iFeedbackService.list());
     }
 
     @RequestMapping(value = "/getByPage", method = RequestMethod.GET)
     @ApiOperation(value = "查询课程评价")
-    public Result<IPage<Appraise>> getByPage(@ModelAttribute Appraise appraise ,@ModelAttribute PageVo page){
-        QueryWrapper<Appraise> qw = new QueryWrapper<>();
-        if(!WlNullUtils.isNull(appraise.getCurriculumName())) {
-            qw.like("curriculum_name",appraise.getCurriculumName());
+    public Result<IPage<Feedback>> getByPage(@ModelAttribute Feedback feedback ,@ModelAttribute PageVo page){
+        QueryWrapper<Feedback> qw = new QueryWrapper<>();
+        /*
+        if(!WlNullUtils.isNull(feedback.getCourseName())) {
+            qw.like("course_name",feedback.getCourseName());
         }
-        if(!WlNullUtils.isNull(appraise.getUserName())) {
-            qw.like("user_name",appraise.getUserName());
+        if(!WlNullUtils.isNull(feedback.getUserName())) {
+            qw.like("user_name",feedback.getUserName());
         }
-        if(!WlNullUtils.isNull(appraise.getContent())) {
-            qw.like("content",appraise.getContent());
+        */
+        if(!WlNullUtils.isNull(feedback.getContent())) {
+            qw.like("content",feedback.getContent());
         }
-        IPage<Appraise> data = iAppraiseService.page(PageUtil.initMpPage(page),qw);
-        return new ResultUtil<IPage<Appraise>>().setData(data);
+        IPage<Feedback> data = iFeedbackService.page(PageUtil.initMpPage(page),qw);
+        return new ResultUtil<IPage<Feedback>>().setData(data);
     }
 
     @RequestMapping(value = "/insertOrUpdate", method = RequestMethod.POST)
     @ApiOperation(value = "增改课程评价")
-    public Result<Appraise> saveOrUpdate(Appraise appraise){
-        if(iAppraiseService.saveOrUpdate(appraise)){
-            return new ResultUtil<Appraise>().setData(appraise);
+    public Result<Feedback> saveOrUpdate(Feedback feedback){
+        if(iFeedbackService.saveOrUpdate(feedback)){
+            return new ResultUtil<Feedback>().setData(feedback);
         }
         return ResultUtil.error();
     }
 
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
     @ApiOperation(value = "新增课程评价")
-    public Result<Appraise> insert(Appraise appraise){
-        iAppraiseService.saveOrUpdate(appraise);
-        return new ResultUtil<Appraise>().setData(appraise);
+    public Result<Feedback> insert(Feedback feedback){
+        iFeedbackService.saveOrUpdate(feedback);
+        return new ResultUtil<Feedback>().setData(feedback);
     }
 
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ApiOperation(value = "编辑课程评价")
-    public Result<Appraise> update(Appraise appraise){
-        iAppraiseService.saveOrUpdate(appraise);
-        return new ResultUtil<Appraise>().setData(appraise);
+    public Result<Feedback> update(Feedback feedback){
+        iFeedbackService.saveOrUpdate(feedback);
+        return new ResultUtil<Feedback>().setData(feedback);
     }
 
     @RequestMapping(value = "/delByIds", method = RequestMethod.POST)
     @ApiOperation(value = "删除课程评价")
     public Result<Object> delByIds(@RequestParam String[] ids){
         for(String id : ids){
-            iAppraiseService.removeById(id);
+            iFeedbackService.removeById(id);
         }
         return ResultUtil.success();
     }

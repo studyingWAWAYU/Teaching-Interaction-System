@@ -29,7 +29,7 @@ public class Message extends WlBaseEntity {
     private String content;
 
     @ApiModelProperty(value = "留言人ID")
-    private String userId;
+    private Integer userId;
 
     @ApiModelProperty(value = "留言人")
     private String userName;
@@ -41,7 +41,7 @@ public class Message extends WlBaseEntity {
     private String replyContent;
 
     @ApiModelProperty(value = "回复人ID")
-    private String replyId;
+    private Integer replyId;
 
     @ApiModelProperty(value = "回复人")
     private String replyName;
