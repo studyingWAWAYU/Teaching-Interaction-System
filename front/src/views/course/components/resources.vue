@@ -1,6 +1,6 @@
 <template>
-  <div class="slides-content">
-    <div class="slides-list">
+  <div class="resource-content">
+    <div class="resource-list">
       <div class="file-item" v-for="file in files" :key="file.id">
         <div class="file-info">
           <Icon :type="getFileIcon(file.title)" class="file-icon" />
@@ -74,7 +74,7 @@ export default {
         this.files = mockFiles
       } catch (error) {
         this.error = error.message
-        this.$Message.error('获取课件列表失败')
+        this.$Message.error('Failed to fetch the resources list.')
       } finally {
         this.loading = false
       }
@@ -87,9 +87,9 @@ export default {
         // const response = await this.$api.downloadFile(file.id)
         // 处理文件下载逻辑
         
-        this.$Message.success(`开始下载: ${file.title}`)
+        this.$Message.success(`Start Downlaod: ${file.title}`)
       } catch (error) {
-        this.$Message.error('下载失败，请稍后重试')
+        this.$Message.error('Download failed, please try again later.')
       }
     },
 
@@ -112,10 +112,10 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.slides-content {
+.resource-content {
   padding: 15px 25px;
 
-  .slides-list {
+  .resource-list {
     padding: 30px;
     
     .file-item {
@@ -133,11 +133,6 @@ export default {
         transform: translateY(-2px);
         box-shadow: 2px 6px 16px rgba(0, 0, 0, 0.08);
         background: rgba(255, 255, 255, 0.9);
-        
-        .download-btn {
-          opacity: 1;
-          transform: translateX(0);
-        }
       }
 
       &:last-child {
@@ -157,7 +152,6 @@ export default {
         .file-name {
           color: #515a6e;
           font-size: 18px;
-          font-weight: 500;
         }
       }
 
@@ -179,7 +173,6 @@ export default {
         }
 
         .download-btn {
-          //opacity: 0.8;
           transform: translateX(5px);
           transition: all 0.3s ease;
           background: rgba(0,122,255,0.6);
