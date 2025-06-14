@@ -478,7 +478,6 @@ INSERT INTO `file` (`id`, `create_by`, `update_time`, `name`, `size`, `type`, `u
 	(8, 1, '2025-06-08 14:38:35', '5.pdf', 334684, 'application/pdf', 'C:\\\\oa-file/20231028/52464052ede6406e97a0e08a6726d528.pdf', '52464052ede6406e97a0e08a6726d528.pdf', 0);
 
 
-
 DROP TABLE IF EXISTS `file_setting`;
 CREATE TABLE IF NOT EXISTS `file_setting` (
   `id` varchar(50) primary key,
