@@ -173,7 +173,7 @@ public class UserController {
         IPage<User> userData = iUserService.page(PageUtil.initMpPage(page),userQw);
         for(User u: userData.getRecords()) {
             QueryWrapper<Role> roleQw = new QueryWrapper<>();
-            roleQw.inSql("id","SELECT role_id FROM user_role WHERE user_id = '" + u.getId() + "'");
+            roleQw.inSql("id","SELECT role_id FROM user_role WHERE user_id = " + u.getId());
             List<Role> list = iRoleService.list(roleQw);
             List<RoleDTO> roleDTOList = list.stream().map(e->{
                 return new RoleDTO().setId(e.getId()).setName(e.getName()).setDescription(e.getDescription());
