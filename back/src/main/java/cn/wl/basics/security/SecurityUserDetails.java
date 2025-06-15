@@ -61,23 +61,17 @@ public class SecurityUserDetails extends User implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
     @ApiOperation(value = "账号密码是否过期")
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
-    /*
     @Override
     @ApiOperation(value = "账号是否禁用")
     public boolean isAccountNonLocked() {
-        return !Objects.equals(CommonConstant.USER_STATUS_LOCK, this.getStatus());
+        //return !Objects.equals(CommonConstant.USER_STATUS_LOCK, this.getStatus());
+        return true;
     }
-     */
 
     /**
      * 自定义类构造器

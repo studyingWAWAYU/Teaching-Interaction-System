@@ -106,7 +106,7 @@ public class AssignmentController {
         User currUser = securityUtil.getCurrUser();
         QueryWrapper<User> userQw = new QueryWrapper<>();
         userQw.eq("id",currUser.getId());
-        userQw.inSql("id","SELECT user_id FROM a_user_role WHERE del_flag = 0 AND role_id = '1536606659751841799'");
+        userQw.inSql("id","SELECT user_id FROM user_role WHERE role_id =2 ");
         if(iUserService.count(userQw) < 1L) {
             qw.eq("user_id",currUser.getId());
         }

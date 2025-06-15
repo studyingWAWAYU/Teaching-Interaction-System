@@ -18,14 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * @author ${entity.author}
- * CSDN: Designer 小郑
- */
 @Slf4j
 @RestController
 @Api(tags = "${entity.description}管理接口")
-@RequestMapping("/zwz/${entity.classNameLowerCase}")
+@RequestMapping("/wl/${entity.classNameLowerCase}")
 @Transactional
 public class ${entity.className}Controller {
 
