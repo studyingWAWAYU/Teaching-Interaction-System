@@ -33,4 +33,7 @@ public class Student {
 
     @ApiModelProperty(value = "专业")
     private String major;
+
+    @ApiModelProperty(value = "用户ID")
+    private Integer userId;
 }

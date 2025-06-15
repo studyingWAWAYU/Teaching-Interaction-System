@@ -34,4 +34,7 @@ public class Teacher {
 
     @ApiModelProperty(value = "职称")
     private String title;
+
+    @ApiModelProperty(value = "用户id")
+    private Integer userId;
 }

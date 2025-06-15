@@ -24,7 +24,7 @@ public class MenuVo {
     private String name;
 
     @ApiModelProperty(value = "父菜单ID")
-    private String parentId;
+    private Integer parentId;
 
     @ApiModelProperty(value = "菜单层级")
     private Integer level;
