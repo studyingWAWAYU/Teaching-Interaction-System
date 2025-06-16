@@ -1,3 +1,4 @@
+/*
 package cn.wl.data.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -48,3 +49,5 @@ public class UserRole {
     @ApiModelProperty(value = "角色名")
     private String roleName;
 }
+
+ */

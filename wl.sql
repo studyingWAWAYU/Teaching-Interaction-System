@@ -21,7 +21,8 @@ CREATE TABLE IF NOT EXISTS `user` (
   `sex` char(10) DEFAULT NULL,
   `avatar` varchar(255) DEFAULT NULL,
   `department` varchar(50) DEFAULT NULL,
-  `my_door` varchar(255) DEFAULT NULL
+  `my_door` varchar(255) DEFAULT NULL,
+  `role_id` integer DEFAULT NULL
 );
 
 DELETE FROM `user`;
@@ -76,20 +77,7 @@ INSERT INTO `role` (`id`, `description`, `name`, `datatype`) VALUES
 	(2, 'admin', 'ROLE_ADMIN', 0);
 
 DROP TABLE IF EXISTS `user_role`;
-CREATE TABLE IF NOT EXISTS `user_role` (
-  id integer primary key auto_increment,
-  user_id integer,
-  role_id integer,
-  foreign key (user_id) references user(id),
-  foreign key (role_id) references role(id)
-);
 
-DELETE FROM `user_role`;
-INSERT INTO `user_role` (`id`, `user_id`,`role_id`) VALUES
-	(1, 1, 2),
-	(2,2,1),
-	(3,3,0),
-	(4,4,0);
 
 DROP TABLE IF EXISTS `permission`;
 CREATE TABLE IF NOT EXISTS `permission` (

@@ -49,8 +49,8 @@ public class PermissionController {
     @Autowired
     private IPermissionService iPermissionService;
 
-    @Autowired
-    private IUserRoleService iUserRoleService;
+    //@Autowired
+    //private IUserRoleService iUserRoleService;
 
     @Autowired
     private RedisTemplateHelper redisTemplateHelper;
@@ -76,11 +76,18 @@ public class PermissionController {
         for (RolePermission rp : rolePermissionList) {
             Role role = iRoleService.getById(rp.getRoleId());
             if(role != null) {
+                /*
                 QueryWrapper<UserRole> urQw = new QueryWrapper<>();
                 urQw.eq("role_id",role.getId());
                 List<UserRole> userRoleList = iUserRoleService.list(urQw);
                 for (UserRole ur : userRoleList) {
-                    User user = iUserService.getById(ur.getUserId());
+
+                 */
+                QueryWrapper<User> userQw = new QueryWrapper<>();
+                userQw.eq("role_id", role.getId());
+                List<User> userList = iUserService.list(userQw);
+                for (User user : userList) {
+                    //User user = iUserService.getById(ur.getUserId());
                     if(user != null) {
                         boolean flag = false;
                         for (UserByPermissionVo vo : ansList) {
@@ -235,7 +242,7 @@ public class PermissionController {
     public Result<Object> delByIds(@RequestParam String[] ids){
         for(String id : ids){
             QueryWrapper<RolePermission> qw = new QueryWrapper<>();
-            qw.like("permission_id",id);
+            qw.eq("permission_id",id);
             long rolePermissionCount = iRolePermissionService.count(qw);
             if(rolePermissionCount > 0L) {
                 Permission permission = iPermissionService.getById(id);
@@ -302,6 +309,7 @@ public class PermissionController {
     }
 
     private List<Permission> getPermissionByUserId(Integer userId) {
+        /*
         QueryWrapper<UserRole> urQw = new QueryWrapper<>();
         urQw.eq("user_id",userId);
         List<UserRole> userRoleList = iUserRoleService.list(urQw);
@@ -323,6 +331,29 @@ public class PermissionController {
                 }
             }
         }
+
+         */
+        User user = iUserService.getById(userId);
+        if (user == null || user.getRoleId() == null) {
+            return new ArrayList<>();
+        }
+        QueryWrapper<RolePermission> rpQw = new QueryWrapper<>();
+        rpQw.eq("role_id", user.getRoleId());
+        List<RolePermission> rolePermissionList = iRolePermissionService.list(rpQw);
+        List<Permission> permissionList = new ArrayList<>();
+        for (RolePermission rolePermission : rolePermissionList) {
+            boolean flag = true;
+            for (Permission permission : permissionList) {
+                if (Objects.equals(permission.getId(), rolePermission.getPermissionId())) {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag) {
+                permissionList.add(iPermissionService.getById(rolePermission.getPermissionId()));
+            }
+        }
+
         return permissionList;
     }
 }

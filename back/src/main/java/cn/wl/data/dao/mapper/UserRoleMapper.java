@@ -1,3 +1,4 @@
+/*
 package cn.wl.data.dao.mapper;
 
 import cn.wl.data.entity.Role;
@@ -7,9 +8,7 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
 public interface UserRoleMapper extends BaseMapper<UserRole> {
 }
+
+ */

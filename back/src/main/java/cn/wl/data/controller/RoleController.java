@@ -8,7 +8,8 @@ import cn.wl.basics.baseVo.Result;
 import cn.wl.data.entity.*;
 import cn.wl.data.service.IRolePermissionService;
 import cn.wl.data.service.IRoleService;
-import cn.wl.data.service.IUserRoleService;
+import cn.wl.data.service.IUserService;
+//import cn.wl.data.service.IUserRoleService;
 import cn.wl.data.utils.WlNullUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -32,8 +33,10 @@ public class RoleController {
     @Autowired
     private IRoleService iRoleService;
 
+    //@Autowired
+    //private IUserRoleService iUserRoleService;
     @Autowired
-    private IUserRoleService iUserRoleService;
+    private IUserService iUserService;
 
     @Autowired
     private IRolePermissionService iRolePermissionService;
@@ -158,9 +161,10 @@ public class RoleController {
     @ApiOperation(value = "删除角色")
     public Result<Object> delByIds(@RequestParam String[] ids){
         for(String id : ids) {
-            QueryWrapper<UserRole> urQw = new QueryWrapper<>();
-            urQw.eq("role_id", id);
-            long urCount = iUserRoleService.count(urQw);
+            QueryWrapper<User> userQw = new QueryWrapper<>();
+            //QueryWrapper<UserRole> urQw = new QueryWrapper<>();
+            userQw.eq("role_id", id);
+            long urCount = iUserService.count(userQw);
             if(urCount > 0L){
                 return ResultUtil.error("不能删除正在使用的角色");
             }
