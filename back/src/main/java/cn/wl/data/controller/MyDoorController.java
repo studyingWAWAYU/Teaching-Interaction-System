@@ -70,8 +70,10 @@ public class MyDoorController {
     @ApiOperation(value = "获取个人门户菜单B")
     @RequestMapping(value = "/getMyDoorList6", method = RequestMethod.POST)
     public Result<List<MyDoorMenuClass>> getMyDoorList6(){
-        User user = securityUtil.getCurrUser();
-        user = iUserService.getById(user.getId());
+        User currentUser = securityUtil.getCurrUser();
+        Integer userId = currentUser.getId();
+        User user = iUserService.getById(userId);
+
         List<MyDoorMenuClass> ans = new ArrayList<>();
         String myDoor = user.getMyDoor();
         if(WlNullUtils.isNull(myDoor)) {

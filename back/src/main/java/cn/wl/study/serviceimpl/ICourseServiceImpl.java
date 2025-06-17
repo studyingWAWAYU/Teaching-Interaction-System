@@ -1,23 +1,19 @@
 package cn.wl.study.serviceimpl;
 
-import cn.wl.study.mapper.CurriculumMapper;
-import cn.wl.study.entity.Curriculum;
-import cn.wl.study.service.ICurriculumService;
+import cn.wl.study.entity.Course;
+import cn.wl.study.mapper.CourseMapper;
+import cn.wl.study.service.ICourseService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * 课程 服务层接口实现
- * @author 郑为中
- */
 @Slf4j
 @Service
 @Transactional
-public class ICurriculumServiceImpl extends ServiceImpl<CurriculumMapper, Curriculum> implements ICurriculumService {
-
+public class ICourseServiceImpl extends ServiceImpl<CourseMapper, Course> implements ICourseService {
     @Autowired
-    private CurriculumMapper curriculumMapper;
+    private CourseMapper courseMapper;
 }
+

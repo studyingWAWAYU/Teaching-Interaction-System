@@ -63,7 +63,7 @@ public class SecurityUtil {
          * 填充角色
          */
         QueryWrapper<Role> roleQw = new QueryWrapper<>();
-        roleQw.inSql("id","SELECT role_id FROM a_user_role WHERE del_flag = 0 AND user_id = '" + user.getId() + "'");
+        roleQw.inSql("id","SELECT role_id FROM user_role WHERE user_id = " + user.getId());
         List<Role> roleList = iRoleService.list(roleQw);
         List<RoleDTO> roles = new ArrayList<>();
         for (Role role : roleList) {
@@ -74,7 +74,7 @@ public class SecurityUtil {
          * 填充菜单
          */
         QueryWrapper<Permission> permissionQw = new QueryWrapper<>();
-        permissionQw.inSql("id","SELECT role_id FROM a_role_permission WHERE del_flag = 0 AND permission_id = '" + user.getId() + "'");
+        permissionQw.inSql("id","SELECT role_id FROM role_permission WHERE permission_id = " + user.getId());
         List<Permission> permissionList = iPermissionService.list(permissionQw);
         List<PermissionDTO> permissions = new ArrayList<>();
         for (Permission permission : permissionList) {

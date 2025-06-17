@@ -29,10 +29,10 @@ public class DepartmentHeader extends WlBaseEntity {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "用户ID")
-    private String userId;
+    private Integer userId;
 
     @ApiModelProperty(value = "部门ID")
-    private String departmentId;
+    private Integer departmentId;
 
     @ApiModelProperty(value = "领导类型")
     private Integer type = 0;

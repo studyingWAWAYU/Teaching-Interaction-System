@@ -23,10 +23,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
 @RestController
 @Api(tags = "角色管理接口")
 @RequestMapping("/wl/role")
@@ -73,6 +69,7 @@ public class RoleController {
         return new ResultUtil<IPage<Role>>().setData(roleList);
     }
 
+    /*
     @RequestMapping(value = "/setDefault", method = RequestMethod.POST)
     @ApiOperation(value = "配置默认角色")
     public Result<Object> setDefault(@RequestParam String id,@RequestParam Boolean isDefault){
@@ -86,22 +83,23 @@ public class RoleController {
         }
         return ResultUtil.error("不存在");
     }
+    */
 
     @RequestMapping(value = "/editRolePerm", method = RequestMethod.POST)
     @ApiOperation(value = "修改菜单权限")
-    public Result<Object> editRolePerm(@RequestParam String roleId,@RequestParam(required = false) String[] permIds){
+    public Result<Object> editRolePerm(@RequestParam String roleId,@RequestParam(required = false) Integer[] permIds){
         Role role = iRoleService.getById(roleId);
         if(role == null) {
             return ResultUtil.error("角色已被删除");
         }
         if(permIds == null) {
-            permIds = new String[0];
+            permIds = new Integer[0];
         }
         QueryWrapper<RolePermission> oldQw = new QueryWrapper<>();
         oldQw.eq("role_id",role.getId());
         List<RolePermission> oldPermissionList = iRolePermissionService.list(oldQw);
         // 判断新增 = oldPermissionList没有 permIds有
-        for (String permId : permIds) {
+        for (Integer permId : permIds) {
             boolean flag = true;
             for (RolePermission rp : oldPermissionList) {
                 if(Objects.equals(permId,rp.getPermissionId())) {
@@ -119,7 +117,7 @@ public class RoleController {
         // 判断删除 = oldPermissionList有 permIds没有
         for (RolePermission rp : oldPermissionList) {
             boolean flag = true;
-            for (String permId : permIds) {
+            for (Integer permId : permIds) {
                 if(Objects.equals(permId,rp.getPermissionId())) {
                     flag = false;
                     break;

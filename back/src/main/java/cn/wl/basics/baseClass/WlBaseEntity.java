@@ -22,10 +22,7 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
+
 @ApiOperation(value = "模板实体类")
 @Data
 @AllArgsConstructor
@@ -40,8 +37,9 @@ public abstract class WlBaseEntity implements Serializable{
     @ApiModelProperty(value = "ID")
     @Id
     @TableId
-    private String id = IdUtil.getSnowflake(1, 1).nextId() + "";
+    private Integer id;
 
+    /*
     @LastModifiedBy
     @TableField(fill = FieldFill.UPDATE)
     @ApiModelProperty(value = "最后更新人")
@@ -65,7 +63,5 @@ public abstract class WlBaseEntity implements Serializable{
     @CreatedDate
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
-
-    @ApiModelProperty(value = "逻辑删除")
-    private int delFlag;
+    */
 }

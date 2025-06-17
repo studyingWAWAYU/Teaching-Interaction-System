@@ -14,6 +14,6 @@ import java.io.Serializable;
 @ApiOperation(value = "模板数据链路层")
 @NoRepositoryBean
 public interface WlBaseDao<E, ID extends Serializable> extends JpaRepository<E, ID>, JpaSpecificationExecutor<E> {
-    @Override
-    E getById(ID id);
+    //@Override
+    //E getById(ID id);
 }

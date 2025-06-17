@@ -83,6 +83,7 @@ public class FileController {
                 entityManager.detach(e);
                 e.setUrl(url + e.getId());
             }
+            /*
             if (StrUtil.isNotBlank(e.getCreateBy())) {
                 if (!map.containsKey(e.getCreateBy())) {
                     QueryWrapper<User> userQw = new QueryWrapper<>();
@@ -92,10 +93,12 @@ public class FileController {
                         e.setNickname(u.getNickname());
                     }
                     map.put(e.getCreateBy(), u.getNickname());
-                } else {
+                }
+                else {
                     e.setNickname(map.get(e.getCreateBy()));
                 }
             }
+            */
         }
         map = null;
         return new ResultUtil<IPage<File>>().setData(fileList);

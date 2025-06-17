@@ -31,10 +31,6 @@ import java.net.URLDecoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
 @RestController
 @Api(tags = "用户接口")
 @RequestMapping("/wl/user")
@@ -102,7 +98,6 @@ public class UserController {
             return ResultUtil.error("登录账号/手机号重复");
         }
         String encryptPass = new BCryptPasswordEncoder().encode(u.getPassword());
-        u.setPassword(encryptPass).setType(0);
         iUserService.saveOrUpdate(u);
         QueryWrapper<Role> roleQw = new QueryWrapper<>();
         roleQw.eq("default_role",true);
@@ -160,7 +155,6 @@ public class UserController {
         }
         String newEncryptPass= new BCryptPasswordEncoder().encode(newPass);
         user.setPassword(newEncryptPass);
-        user.setPassStrength(passStrength);
         iUserService.saveOrUpdate(user);
         redisTemplate.delete(REDIS_PRE_4 + user.getUsername());
         return ResultUtil.success();
@@ -179,7 +173,7 @@ public class UserController {
         IPage<User> userData = iUserService.page(PageUtil.initMpPage(page),userQw);
         for(User u: userData.getRecords()) {
             QueryWrapper<Role> roleQw = new QueryWrapper<>();
-            roleQw.inSql("id","SELECT role_id FROM a_user_role WHERE user_id = '" + u.getId() + "'");
+            roleQw.inSql("id","SELECT role_id FROM user_role WHERE user_id = " + u.getId());
             List<Role> list = iRoleService.list(roleQw);
             List<RoleDTO> roleDTOList = list.stream().map(e->{
                 return new RoleDTO().setId(e.getId()).setName(e.getName()).setDescription(e.getDescription());
@@ -232,7 +226,7 @@ public class UserController {
     @RequestMapping(value = "/admin/edit", method = RequestMethod.POST)
     @ApiOperation(value = "管理员修改资料")
     @CacheEvict(key = "#u.username")
-    public Result<Object> edit(User u,@RequestParam(required = false) String[] roleIds){
+    public Result<Object> edit(User u,@RequestParam(required = false) Integer[] roleIds){
         User customaryUser = iUserService.getById(u.getId());
         // 登录账号和密码不能发生变更
         u.setUsername(customaryUser.getUsername());
@@ -246,6 +240,7 @@ public class UserController {
                 return ResultUtil.error("手机号重复");
             }
         }
+        /*
         if(!WlNullUtils.isNull(u.getDepartmentId())) {
             Department department = iDepartmentService.getById(u.getDepartmentId());
             if(department != null) {
@@ -255,13 +250,14 @@ public class UserController {
             u.setDepartmentId("");
             u.setDepartmentTitle("");
         }
-        // 吃哦就花
+        */
+
         iUserService.saveOrUpdate(u);
         QueryWrapper<UserRole> userRoleQw = new QueryWrapper<>();
         userRoleQw.eq("user_id",u.getId());
         iUserRoleService.remove(userRoleQw);
-        if(roleIds != null && roleIds.length > 0) {
-            for (String roleId : roleIds) {
+        if(roleIds != null) {
+            for (Integer roleId : roleIds) {
                 UserRole ur = new UserRole();
                 ur.setUserId(u.getId());
                 ur.setRoleId(roleId);
@@ -276,12 +272,13 @@ public class UserController {
 
     @RequestMapping(value = "/admin/add", method = RequestMethod.POST)
     @ApiOperation(value = "添加用户")
-    public Result<Object> add(@Valid User u,@RequestParam(required = false) String[] roleIds) {
+    public Result<Object> add(@Valid User u,@RequestParam(required = false) Integer[] roleIds) {
         QueryWrapper<User> userQw = new QueryWrapper<>();
         userQw.and(wrapper -> wrapper.eq("username", u.getUsername()).or().eq("mobile",u.getMobile()));
         if(iUserService.count(userQw) > 0L) {
             return ResultUtil.error("登录账号/手机号重复");
         }
+        /*
         if(!WlNullUtils.isNull(u.getDepartmentId())){
             Department department = iDepartmentService.getById(u.getDepartmentId());
             if(department != null){
@@ -291,10 +288,12 @@ public class UserController {
             u.setDepartmentId("");
             u.setDepartmentTitle("");
         }
+         */
+
         u.setPassword(new BCryptPasswordEncoder().encode(u.getPassword()));
         iUserService.saveOrUpdate(u);
-        if(roleIds != null && roleIds.length > 0) {
-            for (String roleId : roleIds) {
+        if(roleIds != null) {
+            for (Integer roleId : roleIds) {
                 UserRole userRole = new UserRole();
                 userRole.setUserId(u.getId());
                 userRole.setRoleId(roleId);
@@ -311,7 +310,7 @@ public class UserController {
         if(user == null){
             return ResultUtil.error("用户不存在");
         }
-        user.setStatus(CommonConstant.USER_STATUS_LOCK);
+        //user.setStatus(CommonConstant.USER_STATUS_LOCK);
         iUserService.saveOrUpdate(user);
         redisTemplate.delete("user::"+user.getUsername());
         return ResultUtil.success();
@@ -324,7 +323,7 @@ public class UserController {
         if(user==null){
             return ResultUtil.error("用户不存在");
         }
-        user.setStatus(CommonConstant.USER_STATUS_NORMAL);
+        //user.setStatus(CommonConstant.USER_STATUS_NORMAL);
         iUserService.saveOrUpdate(user);
         redisTemplate.delete("user::"+user.getUsername());
         return ResultUtil.success();
@@ -382,9 +381,11 @@ public class UserController {
                     continue;
                 }
             }
+            /*
             if(u.getStatus()==null){
                 u.setStatus(CommonConstant.USER_STATUS_NORMAL);
             }
+
             iUserService.saveOrUpdate(u);
             if(u.getDefaultRole() != null && u.getDefaultRole()==1) {
                 QueryWrapper<Role> roleQw = new QueryWrapper<>();
@@ -397,6 +398,7 @@ public class UserController {
                     }
                 }
             }
+            */
         }
         int successCount = users.size() - errors.size();
         String successMessage = "成功导入 " + successCount + " 位用户";
@@ -428,14 +430,14 @@ public class UserController {
         }
         user.setRoles(roleDTOList);
         // 菜单
-        List<String> permissionIdList = new ArrayList<>();
+        List<Integer> permissionIdList = new ArrayList<>();
         for (RoleDTO dto : roleDTOList) {
             QueryWrapper<RolePermission> rpQw = new QueryWrapper<>();
             rpQw.eq("role_id",dto.getId());
             List<RolePermission> list = iRolePermissionService.list(rpQw);
             for (RolePermission rp : list) {
                 boolean flag = true;
-                for (String id : permissionIdList) {
+                for (Integer id : permissionIdList) {
                     if(Objects.equals(id,rp.getPermissionId())) {
                         flag = false;
                         break;
@@ -447,7 +449,7 @@ public class UserController {
             }
         }
         List<PermissionDTO> permissionDTOList = new ArrayList<>();
-        for (String id : permissionIdList) {
+        for (Integer id : permissionIdList) {
             Permission permission = iPermissionService.getById(id);
             if(permission != null) {
                 if(Objects.equals(permission.getType(),CommonConstant.PERMISSION_OPERATION)) {

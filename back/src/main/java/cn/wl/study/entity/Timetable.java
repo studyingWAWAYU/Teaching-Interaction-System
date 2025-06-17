@@ -26,10 +26,10 @@ public class Timetable extends WlBaseEntity {
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "课程ID")
-    private String curriculumId;
+    private String courseId;
 
     @ApiModelProperty(value = "课程名称")
-    private String curriculumName;
+    private String courseName;
 
     @ApiModelProperty(value = "学生ID")
     private String userId;

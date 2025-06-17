@@ -88,7 +88,7 @@ public class MessageController {
         message.setUserName(currUser.getNickname());
         message.setTime(DateUtil.now());
         message.setReplyContent("");
-        message.setReplyId("");
+        message.setReplyId(0);
         message.setReplyName("");
         message.setReplyTime("");
         iMessageService.saveOrUpdate(message);

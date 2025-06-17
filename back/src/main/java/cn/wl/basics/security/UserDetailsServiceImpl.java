@@ -14,10 +14,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
 @ApiOperation(value = "登录判断类")
 @Component
 public class UserDetailsServiceImpl implements UserDetailsService {

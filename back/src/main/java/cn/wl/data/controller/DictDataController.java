@@ -59,7 +59,7 @@ public class DictDataController {
     @ApiOperation(value = "查询数据字典值")
     public Result<IPage<DictData>> getByCondition(@ModelAttribute DictData dictData, @ModelAttribute PageVo page) {
         QueryWrapper<DictData> qw = new QueryWrapper<>();
-        if(!WlNullUtils.isNull(dictData.getDictId())) {
+        if(dictData.getDictId() != null) {
             qw.eq("dict_id",dictData.getDictId());
         }
         if(!Objects.equals(null,dictData.getStatus())) {

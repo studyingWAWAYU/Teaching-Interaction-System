@@ -15,10 +15,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
 @ApiOperation(value = "查询用户的角色和菜单权限")
 public class SecurityUserDetails extends User implements UserDetails {
 
@@ -54,7 +50,8 @@ public class SecurityUserDetails extends User implements UserDetails {
     @Override
     @ApiOperation(value = "账号是否启用")
     public boolean isEnabled() {
-        return Objects.equals(CommonConstant.USER_STATUS_NORMAL,this.getStatus());
+        //return Objects.equals(CommonConstant.USER_STATUS_NORMAL,this.getStatus());
+        return true;
     }
 
     @ApiOperation(value = "账号是否过期")
@@ -72,7 +69,8 @@ public class SecurityUserDetails extends User implements UserDetails {
     @Override
     @ApiOperation(value = "账号是否禁用")
     public boolean isAccountNonLocked() {
-        return !Objects.equals(CommonConstant.USER_STATUS_LOCK, this.getStatus());
+        //return !Objects.equals(CommonConstant.USER_STATUS_LOCK, this.getStatus());
+        return true;
     }
 
     /**
@@ -83,7 +81,6 @@ public class SecurityUserDetails extends User implements UserDetails {
         if(user != null) {
             this.setUsername(user.getUsername());
             this.setPassword(user.getPassword());
-            this.setStatus(user.getStatus());
             this.permissions  = user.getPermissions();
             this.roles = user.getRoles();
         }

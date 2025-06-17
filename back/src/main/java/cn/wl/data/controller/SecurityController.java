@@ -13,10 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
 @RestController
 @RequestMapping("/wl/common")
 @Api(tags = "公共接口")

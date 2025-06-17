@@ -56,7 +56,7 @@ public class WlLoginProperties {
 
     public static final String SAVE_LOGIN_PRE = "saveLogin";
 
-    public static final String HTTP_TOKEN_PRE = "ZWZ_TOKEN_PRE:";
+    public static final String HTTP_TOKEN_PRE = "WL_TOKEN_PRE:";
 
-    public static final String USER_TOKEN_PRE = "ZWZ_USER_TOKEN:";
+    public static final String USER_TOKEN_PRE = "WL_USER_TOKEN:";
 }

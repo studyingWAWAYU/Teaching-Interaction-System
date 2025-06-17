@@ -108,7 +108,7 @@ public class DepartmentController {
 
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     @ApiOperation(value = "编辑部门")
-    public Result<Object> edit(Department department,@RequestParam(required = false) String[] mainHeader,@RequestParam(required = false) String[] viceHeader){
+    public Result<Object> edit(Department department,@RequestParam(required = false) Integer[] mainHeader,@RequestParam(required = false) Integer[] viceHeader){
         Department oldDepartment = iDepartmentService.getById(department.getId());
         iDepartmentService.saveOrUpdate(department);
         QueryWrapper<DepartmentHeader> dhQw = new QueryWrapper<>();
@@ -116,13 +116,13 @@ public class DepartmentController {
         iDepartmentHeaderService.remove(dhQw);
         List<DepartmentHeader> departmentHeaderList = new ArrayList<>();
         if(mainHeader != null){
-            for(String mainHeaderId : mainHeader){
+            for(Integer mainHeaderId : mainHeader){
                 DepartmentHeader dh = new DepartmentHeader().setUserId(mainHeaderId).setDepartmentId(department.getId()).setType(0);
                 departmentHeaderList.add(dh);
             }
         }
         if(viceHeader != null){
-            for(String viceHeaderId : viceHeader){
+            for(Integer viceHeaderId : viceHeader){
                 DepartmentHeader dh = new DepartmentHeader().setUserId(viceHeaderId).setDepartmentId(department.getId()).setType(1);
                 departmentHeaderList.add(dh);
             }
@@ -133,7 +133,7 @@ public class DepartmentController {
             userQw.eq("department_id",department.getId());
             List<User> userList = iUserService.list(userQw);
             for (User user : userList) {
-                user.setDepartmentTitle(department.getTitle());
+                //user.setDepartmentTitle(department.getTitle());
                 iUserService.saveOrUpdate(user);
             }
             Set<String> keysUser = redisTemplateHelper.keys("user:" + "*");
@@ -193,9 +193,11 @@ public class DepartmentController {
         depQw.orderByAsc("sort_order");
         List<Department> departmentList = iDepartmentService.list(depQw);
         for(Department judgeDepartment : departmentList){
+            /*
             if(!CommonUtil.judgeIds(judgeDepartment.getId(), ids)){
                 deleteRecursion(judgeDepartment.getId(), ids);
             }
+            */
         }
     }
 
@@ -216,7 +218,7 @@ public class DepartmentController {
             dh1.eq("department_id",item.getId());
             dh1.eq("type",0);
             List<DepartmentHeader> headerList1 = iDepartmentHeaderService.list(dh1);
-            List<String> mainHeaderList = new ArrayList<>();
+            List<Integer> mainHeaderList = new ArrayList<>();
             for (DepartmentHeader dh : headerList1) {
                 mainHeaderList.add(dh.getUserId());
             }
@@ -226,7 +228,7 @@ public class DepartmentController {
             dh2.eq("department_id",item.getId());
             dh2.eq("type",1);
             List<DepartmentHeader> headerList2 = iDepartmentHeaderService.list(dh2);
-            List<String> viceHeaderList = new ArrayList<>();
+            List<Integer> viceHeaderList = new ArrayList<>();
             for (DepartmentHeader dh : headerList2) {
                 viceHeaderList.add(dh.getUserId());
             }

@@ -4,7 +4,6 @@
 /*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
 /*!40103 SET TIME_ZONE='+00:00' */;
 
-
 DROP DATABASE IF EXISTS wl;
 CREATE DATABASE IF NOT EXISTS wl;
 USE wl;
@@ -13,7 +12,7 @@ DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
   `id` integer primary key auto_increment,
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
-  `name` varchar(30) NOT NULL,
+  `username` varchar(30) NOT NULL,
   `password` varchar(255) NOT NULL,
   `nickname` varchar(20) DEFAULT NULL,
   `email` varchar(50) DEFAULT NULL,
@@ -26,8 +25,8 @@ CREATE TABLE IF NOT EXISTS `user` (
 );
 
 DELETE FROM `user`;
-INSERT INTO `user` (`id`, `create_time`, `name`, `password`, `nickname`,`email`, `mobile`, `number`,`sex`, `avatar`, `department`,`my_door`) VALUES
-	(1,'2025-06-10 09:46:20', 'admin','$2a$10$PS04ecXfknNd3V8d.ymLTObQciapMU4xU8.GADBZZsuTZr7ymnagy','admin', '916077357@qq.com','17857054388','20222012345','female', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of AI', 'user-adminWL666department-adminWL666file-adminWL666role-manageWL666menu-manageWL666log-manage'),
+INSERT INTO `user` (`id`, `create_time`, `username`, `password`, `nickname`,`email`, `mobile`, `number`,`sex`, `avatar`, `department`,`my_door`) VALUES
+	(1,'2025-06-10 09:46:20', 'admin','$2a$10$PS04ecXfknNd3V8d.ymLTObQciapMU4xU8.GADBZZsuTZr7ymnagy','admin', '916077357@qq.com','17857054388','20222012345','female', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of AI', 'user-adminWLdepartment-adminWLfile-adminWLrole-manageWLmenu-manageWLlog-manage'),
 	(2,'2025-06-10 09:46:20', 'Evan','$2a$10$E59nactOiILAzQvfcs0JFOYuZp06d4bLhugEadyQuygpmiLc0W.ha', 'Evan', '13600000001@qq.com','13600000001','20222012456','male', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of AI', ''),
 	(3,'2025-06-10 09:46:20', 'Airel','$2a$10$vJyLo1RhFORH/SAu3sc9aeb37I5JRy5UugaN7fIt/e2vvsz6JWJCm','Airel','13600000002@qq.com','13600000002','20222012678','female','https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png','School of AI', ''),
 	(4,'2025-06-11 09:54:05', 'Adam','$2a$10$oeP4aplYnswfQ44pK6lAO.Np9BuPYJGRwo17THO7CUNlIQoVGsPmy', 'Adam', '13600000003@qq.com', '13600000003','20222056789','male','https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of ','');
@@ -37,24 +36,29 @@ DROP TABLE IF EXISTS `student`;
 CREATE TABLE IF NOT EXISTS `student` (
   `id` integer primary key auto_increment,
   `grade` char(10) DEFAULT NULL,
-  `major` varchar(50) DEFAULT NULL
+  `major` varchar(50) DEFAULT NULL,
+    user_id integer,
+    foreign key (user_id) references user(id)
 );
 
 DELETE FROM `student`;
-INSERT INTO `student` (`id`, `grade`, `major`) VALUES
-	(3, '2022', 'Software Engineer'),
-	(4, '2022', 'Computer Science');
+INSERT INTO `student` (`id`, `grade`, `major`,user_id) VALUES
+	(1, '2022', 'Software Engineer',3),
+	(2, '2022', 'Computer Science',4);
+
 
 DROP TABLE IF EXISTS `teacher`;
 CREATE TABLE IF NOT EXISTS `teacher` (
   `id` Integer primary key auto_increment,
   `description` varchar(500) DEFAULT NULL,
-  `title` varchar(50) DEFAULT NULL
+  `title` varchar(50) DEFAULT NULL,
+    user_id integer,
+    foreign key (user_id) references user(id)
 );
 
 DELETE FROM `teacher`;
-INSERT INTO `teacher` (`id`, `description`, `title`) VALUES
-	(2, 'teacher description','professor');
+INSERT INTO `teacher` (`id`, `description`, `title`,user_id) VALUES
+	(1, 'teacher description','professor',2);
 	
 
 DROP TABLE IF EXISTS `role`;
@@ -282,9 +286,9 @@ CREATE TABLE IF NOT EXISTS `course` (
 );
 
 DELETE FROM `course`;
-INSERT INTO `course` (`id`, `create_by`, `update_time`, `content`, `image`, `status`, `title`) VALUES
-	(1, 2, '2025-06-09 16:27:41', 'Java Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071506217668608.png', 'Normal', 'Java Program Design'),
-	(2, 2, '2025-06-09 16:27:58', 'Python Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071540472549376.png', 'Normal', 'Python Program Design');
+INSERT INTO `course` (`id`, `create_by`, `start_time`,end_time, `content`, `image`, `status`, `title`) VALUES
+	(1, 2, '2025-06-09 16:27:41', '2025-06-012 16:27:41', 'Java Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071506217668608.png', 'Normal', 'Java Program Design'),
+	(2, 2, '2025-06-09 16:27:58', '2025-06-12 16:27:41', 'Python Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071540472549376.png', 'Normal', 'Python Program Design');
 
 
 DROP TABLE IF EXISTS `feedback`;
@@ -300,7 +304,7 @@ CREATE TABLE IF NOT EXISTS `feedback` (
 );
 
 DELETE FROM `feedback`;
-INSERT INTO `feedback` (`id`, `create_by`, `create_time`,`content`, `course_id`) VALUES
+INSERT INTO `feedback` (`id`, `create_by`, `create_time`,`content`, `course_id`, rating) VALUES
 	(1, 3, '2025-06-10 10:36:57', 'Very good.', 1,NULL),
 	(2, 3, '2025-06-10 11:01:46', '666', 2,NULL),
 	(3, 4, '2025-6-10 11:02:17', 'I like this course', 1,NULL),
@@ -476,7 +480,6 @@ INSERT INTO `file` (`id`, `create_by`, `update_time`, `name`, `size`, `type`, `u
 	(6, 1, '2025-06-08 14:37:02', '5.pdf', 334684, 'application/pdf', 'C:\\\\oa-file/20231028/37e7ac74575d4d619c1cc0eb8c2cba92.pdf', '37e7ac74575d4d619c1cc0eb8c2cba92.pdf', 0),
 	(7, 1, '2025-06-08 14:37:47', '5.pdf', 334684, 'application/pdf', 'C:\\\\oa-file/20231028/f1a50ade776b431f9d947839e34dc9ea.pdf', 'f1a50ade776b431f9d947839e34dc9ea.pdf', 0),
 	(8, 1, '2025-06-08 14:38:35', '5.pdf', 334684, 'application/pdf', 'C:\\\\oa-file/20231028/52464052ede6406e97a0e08a6726d528.pdf', '52464052ede6406e97a0e08a6726d528.pdf', 0);
-
 
 
 DROP TABLE IF EXISTS `file_setting`;

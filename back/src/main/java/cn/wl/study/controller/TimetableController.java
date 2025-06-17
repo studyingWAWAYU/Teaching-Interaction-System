@@ -8,12 +8,10 @@ import cn.wl.basics.utils.SecurityUtil;
 import cn.wl.data.entity.User;
 import cn.wl.data.service.IUserService;
 import cn.wl.data.utils.WlNullUtils;
-import cn.wl.study.entity.CourseResources;
-import cn.wl.study.entity.Curriculum;
 import cn.wl.study.entity.Timetable;
-import cn.wl.study.service.ICurriculumService;
+import cn.wl.study.entity.Course;
+import cn.wl.study.service.ICourseService;
 import cn.wl.study.service.ITimetableService;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
@@ -40,7 +38,7 @@ public class TimetableController {
     private ITimetableService iTimetableService;
 
     @Autowired
-    private ICurriculumService iCurriculumService;
+    private ICourseService iCourseService;
 
     @Autowired
     private IUserService iUserService;
@@ -62,9 +60,9 @@ public class TimetableController {
 
     @RequestMapping(value = "/getAll", method = RequestMethod.GET)
     @ApiOperation(value = "查询全部课表")
-    public Result<List<Timetable>> getAll(@RequestParam String curriculumId){
+    public Result<List<Timetable>> getAll(@RequestParam String courseId){
         QueryWrapper<Timetable> qw = new QueryWrapper<>();
-        qw.eq("curriculum_id",curriculumId);
+        qw.eq("course_id",courseId);
         return new ResultUtil<List<Timetable>>().setData(iTimetableService.list(qw));
     }
 
@@ -72,8 +70,8 @@ public class TimetableController {
     @ApiOperation(value = "查询课表")
     public Result<IPage<Timetable>> getByPage(@ModelAttribute Timetable timetable ,@ModelAttribute PageVo page){
         QueryWrapper<Timetable> qw = new QueryWrapper<>();
-        if(!WlNullUtils.isNull(timetable.getCurriculumName())) {
-            qw.like("curriculum_name",timetable.getCurriculumName());
+        if(!WlNullUtils.isNull(timetable.getCourseName())) {
+            qw.like("course_name",timetable.getCourseName());
         }
         if(!WlNullUtils.isNull(timetable.getUserName())) {
             qw.like("user_name",timetable.getUserName());
@@ -88,8 +86,8 @@ public class TimetableController {
         QueryWrapper<Timetable> qw = new QueryWrapper<>();
         User currUser = securityUtil.getCurrUser();
         qw.eq("user_id",currUser.getId());
-        if(!WlNullUtils.isNull(timetable.getCurriculumName())) {
-            qw.like("curriculum_name",timetable.getCurriculumName());
+        if(!WlNullUtils.isNull(timetable.getCourseName())) {
+            qw.like("course_name",timetable.getCourseName());
         }
         if(!WlNullUtils.isNull(timetable.getUserName())) {
             qw.like("user_name",timetable.getUserName());
@@ -110,11 +108,11 @@ public class TimetableController {
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
     @ApiOperation(value = "新增课表")
     public Result<Timetable> insert(Timetable timetable){
-        Curriculum c = iCurriculumService.getById(timetable.getCurriculumId());
+        Course c = iCourseService.getById(timetable.getCourseId());
         if(c == null) {
             return ResultUtil.error("课程不存在");
         }
-        timetable.setCurriculumName(c.getTitle());
+        timetable.setCourseName(c.getTitle());
         User u = iUserService.getById(timetable.getUserId());
         if(u == null) {
             return ResultUtil.error("学生不存在");
@@ -129,11 +127,11 @@ public class TimetableController {
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ApiOperation(value = "编辑课表")
     public Result<Timetable> update(Timetable timetable){
-        Curriculum c = iCurriculumService.getById(timetable.getCurriculumId());
+        Course c = iCourseService.getById(timetable.getCourseId());
         if(c == null) {
             return ResultUtil.error("课程不存在");
         }
-        timetable.setCurriculumName(c.getTitle());
+        timetable.setCourseName(c.getTitle());
         User u = iUserService.getById(timetable.getUserId());
         if(u == null) {
             return ResultUtil.error("学生不存在");
