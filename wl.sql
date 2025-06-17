@@ -64,16 +64,17 @@ INSERT INTO `teacher` (`id`, `description`, `title`,user_id) VALUES
 DROP TABLE IF EXISTS `role`;
 CREATE TABLE IF NOT EXISTS `role` (
   `id` integer primary key,
+  `create_time` datetime(0) DEFAULT CURRENT_TIMESTAMP,
   `description` varchar(255) DEFAULT NULL,
   `name` varchar(50) NOT NULL,
   `datatype` int NOT NULL
 );
 
 DELETE FROM `role`;
-INSERT INTO `role` (`id`, `description`, `name`, `datatype`) VALUES
-	(0, 'student', 'ROLE_STUDENT',  0),
-	(1, 'teacher', 'ROLE_TEACHER', 0),
-	(2, 'admin', 'ROLE_ADMIN', 0);
+INSERT INTO `role` (`id`,create_time, `description`, `name`, `datatype`) VALUES
+	(0, '2025-06-17 09:46:20', 'student', 'ROLE_STUDENT',  0),
+	(1, '2025-06-17 09:46:20', 'teacher', 'ROLE_TEACHER', 0),
+	(2, '2025-06-17 09:46:20', 'admin', 'ROLE_ADMIN', 0);
 
 DROP TABLE IF EXISTS `user_role`;
 CREATE TABLE IF NOT EXISTS `user_role` (
