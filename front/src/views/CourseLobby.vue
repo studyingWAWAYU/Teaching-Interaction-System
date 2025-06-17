@@ -172,7 +172,7 @@ export default {
 .banner-section {
   :deep(.ivu-carousel) {
     width: 100%;
-    max-width: 1350px;
+    max-width: 1500px;
     margin: 0 auto;
   }
 
