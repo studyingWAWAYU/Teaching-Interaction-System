@@ -1,3 +1,4 @@
+/*
 package cn.wl.data.serviceimpl;
 
 import cn.wl.data.dao.mapper.UserRoleMapper;
@@ -10,3 +11,5 @@ import org.springframework.stereotype.Service;
 public class IUserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> implements IUserRoleService {
 
 }
+
+ */
