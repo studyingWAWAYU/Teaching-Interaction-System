@@ -98,10 +98,12 @@ import Discussion from './components/discussion.vue'
 import CourseDetails from './components/details.vue'
 import CourseResources from './components/resources.vue'
 import CourseAssignments from './components/assignments.vue'
+import { getCourse, updateCourse } from '@/api/course'
+import { getAllUsers } from '@/views/roster/user/api'
 import Cookies from 'js-cookie'
 
 export default {
-  name: 'Lessons',
+  name: 'CourseManage',
   components: {
     Discussion,
     CourseDetails,
@@ -113,85 +115,17 @@ export default {
       isEnrolled: false,
       courseInfo: {
         id: null,
-        name: 'Java Program Design',
-        instructor: 'Ken',
-        Time: 'Spring 2024 Semester',
-        credits: 4,
-        image: require('@/assets/course1.png'),
-        introduction: 'This course mainly introduces the basic knowledge and practical application of Java programming, including object-oriented programming, collection framework, multithreading and other contents.',
-        objectives: '1. 掌握Java语言的基本语法和编程规范\n2. 深入理解面向对象编程的核心概念\n3. 熟练运用Java集合框架进行数据处理\n4. 掌握多线程编程的基本原理和应用'
+        name: '',
+        instructor: '',
+        Time: '',
+        credits: 0,
+        image: '',
+        introduction: '',
+        objectives: ''
       },
-      reviews: [
-        {
-          id: 1,
-          name: 'Ben',
-          rating: 5,
-          content: '老师讲课很生动，课程内容很实用。',
-          time: '2024-03-15'
-        },
-        {
-          id: 2,
-          name: 'Amy',
-          rating: 4,
-          content: '课程安排合理，实践机会多。',
-          time: '2024-03-14'
-        },
-        {
-          id: 3,
-          name: 'Emma',
-          rating: 0,
-          content: '不喜欢。',
-          time: '2024-03-14'
-        }
-
-      ],
-      discussions: [
-        {
-          id: 1,
-          title: '关于Java多线程的疑问',
-          author: 'Ken',
-          time: '2024-03-15 14:30',
-          content: '在实现多线程时，如何避免死锁问题？有没有一些最佳实践可以分享？',
-          replyCount: 2,
-          likes: 5,
-          showReplies: false,
-          replies: [
-            {
-              id: 1,
-              author: 'Ben',
-              time: '2024-03-15 15:00',
-              content: '建议使用tryLock()方法，并设置超时时间，这样可以避免死锁。',
-              likes: 3
-            },
-            {
-              id: 2,
-              author: 'Amy',
-              time: '2024-03-15 15:30',
-              content: '也可以使用ReentrantLock，它提供了更灵活的锁机制。',
-              likes: 2
-            }
-          ]
-        },
-        {
-          id: 2,
-          title: '课程项目建议',
-          author: 'Amy',
-          time: '2024-03-14 10:20',
-          content: '建议在课程项目中加入更多实际案例，这样可以帮助我们更好地理解知识点。',
-          replyCount: 2,
-          likes: 3,
-          showReplies: false,
-          replies: [
-            {
-              id: 3,
-              author: 'Ken',
-              time: '2024-03-14 11:00',
-              content: '很好的建议，我会在下一节课加入更多实际案例。',
-              likes: 1
-            }
-          ]
-        }
-      ],
+      reviews: [],
+      discussions: [],
+      users: [], // 存储用户信息
       createModalVisible: false,
       replyModalVisible: false,
       newTopic: {
@@ -205,19 +139,68 @@ export default {
     }
   },
   created() {
-    this.getCourseInfo();  // 获取课程信息
-    this.getCourseReviews();  // 获取课程评价
-    this.getDiscussions();  // 获取讨论列表
+    this.loadUsers();
+    this.getCourseInfo();
+    this.getCourseReviews();
+    this.getDiscussions();
   },
   methods: {
+    // 加载用户信息
+    async loadUsers() {
+      try {
+        const res = await getAllUsers();
+        if (res.success) {
+          this.users = res.data;
+        }
+      } catch (error) {
+        console.error('加载用户信息失败:', error);
+      }
+    },
+    
+    // 获取课程信息
     async getCourseInfo() {
       try {
-        // const response = await this.$api.course.getCourseInfo(this.$route.params.id);
-        // this.courseInfo = response.data;
-        // 暂时使用模拟数据
+        const res = await getCourse({ id: this.$route.params.id });
+        if (res.success) {
+          // 转换数据格式，确保字段匹配
+          this.courseInfo = {
+            id: res.data.id,
+            name: res.data.title || res.data.name,
+            instructor: this.getTeacherName(res.data.createBy),
+            Time: this.formatTimeRange(res.data.startTime, res.data.end_time),
+            credits: 3, // 默认学分
+            image: res.data.image,
+            introduction: res.data.content,
+            objectives: res.data.content,
+            status: res.data.status || 'Normal'
+          };
+          // 根据课程状态设置选课状态
+          this.isEnrolled = res.data.status === 'enrolled';
+        } else {
+          this.$Message.error('获取课程信息失败');
+        }
       } catch (error) {
-        this.$Message.error('Failed to get course information');
+        this.$Message.error('获取课程信息失败');
       }
+    },
+    
+    getTeacherName(createBy) {
+      if (!createBy) return '未知教师';
+      
+      // 从用户列表中查找对应的用户
+      const user = this.users.find(u => u.id === createBy);
+      if (user) {
+        return user.nickname || user.username || `教师${createBy}`;
+      }
+      
+      return `教师${createBy}`;
+    },
+    
+    formatTimeRange(startTime, endTime) {
+      if (!startTime || !endTime) return '时间待定';
+      const start = new Date(startTime).toLocaleDateString();
+      const end = new Date(endTime).toLocaleDateString();
+      return `${start} - ${end}`;
     },
     
     async getCourseReviews() {
@@ -242,18 +225,24 @@ export default {
     // 选课/退课
     async handleEnroll() {
       try {
-        if (this.isEnrolled) {
-          // await this.$api.course.dropCourse(this.$route.params.id);
-          this.$Message.success('Drop Successfully');
+        const courseData = {
+          ...this.courseInfo,
+          status: this.isEnrolled ? 'unenrolled' : 'enrolled'
+        };
+        const res = await updateCourse(courseData);
+        if (res.success) {
+          this.isEnrolled = !this.isEnrolled;
+          this.$Message.success(this.isEnrolled ? '选课成功' : '退课成功');
+          // 更新课程信息
+          this.getCourseInfo();
         } else {
-          // await this.$api.course.enrollCourse(this.$route.params.id);
-          this.$Message.success('Add Successfully');
+          this.$Message.error(this.isEnrolled ? '退课失败' : '选课失败');
         }
-        this.isEnrolled = !this.isEnrolled;
       } catch (error) {
-        this.$Message.error('Operation failed');
+        this.$Message.error(this.isEnrolled ? '退课失败' : '选课失败');
       }
     },
+    
     // 显示创建讨论主题的模态框
     showCreateModal() {
       this.createModalVisible = true;
@@ -262,6 +251,7 @@ export default {
         content: ''
       };
     },
+
     // 处理创建讨论主题
     async handleCreateTopic() {
       if (!this.newTopic.title || !this.newTopic.content) {
@@ -287,6 +277,7 @@ export default {
         this.$Message.error('Failed to create topic');
       }
     },
+
     // 显示回复模态框
     showReplyModal(topic) {
       this.replyModalVisible = true;
@@ -295,6 +286,7 @@ export default {
         topicIndex: this.discussions.indexOf(topic)
       };
     },
+
     // 处理回复
     async handleReply() {
       if (!this.newReply.content) {

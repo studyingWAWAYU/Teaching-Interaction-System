@@ -42,14 +42,14 @@
             <Col span="6" v-for="course in filteredCourses" :key="course.id">
               <Card class="course-card" @click.native="navigateToCourse(course.id)">
                 <div class="course-img-wrapper">
-                  <img :src="course.img" class="course-img" />
+                  <img :src="course.image" class="course-img" />
                 </div>
                 <div class="course-info">
                   <h3>{{ course.title }}</h3>
                   <div class="course-meta">
                     <p class="teacher">
                       <Icon type="ios-person" />
-                      {{ course.teacher }}
+                      {{ course.teacherName || '未知教师' }}
                     </p>
                     <div class="course-status" :class="course.status">
                       {{ course.status }}
@@ -66,50 +66,22 @@
 </template>
 
 <script>
+import { getAllCourses } from '@/api/course';
+import { getAllUsers } from '@/views/roster/user/api';
+
 export default {
   name: 'CourseLobby',
   data() {
     return {
       searchQuery: '',
       courseStatus: '',
-      courses: [
-        {
-          id: 1,
-          title: 'Java Program Design',
-          teacher: 'Ken',
-          img: require('@/assets/course1.png'),
-          status: 'open'
-        },
-        {
-          id: 2,
-          title: 'Python Program Design 2025',
-          teacher: 'Jenny',
-          img: require('@/assets/course2.png'),
-          status: 'ongoing'
-        },
-        {
-          id: 3,
-          title: '课程3',
-          teacher: '王老师',
-          img: require('@/assets/course3.jpg'),
-          status: 'closed'
-        },
-        {
-          id: 4,
-          title: '课程4',
-          teacher: '李老师',
-          img: require('@/assets/course2.png'),
-          status: 'ongoing'
-        },
-        {
-          id: 5,
-          title: '课程5',
-          teacher: '王老师',
-          img: require('@/assets/course3.jpg'),
-          status: 'closed'
-        }
-      ]
+      courses: [],
+      users: []
     }
+  },
+  created() {
+    this.loadCourses();
+    this.loadUsers();
   },
   computed: {
     filteredCourses() {
@@ -123,8 +95,47 @@ export default {
     }
   },
   methods: {
+    async loadCourses() {
+      try {
+        const res = await getAllCourses();
+        if (res.success) {
+          this.courses = res.data.map(course => ({
+            ...course,
+            teacherName: this.getTeacherName(course.createBy),
+            status: course.status || 'Normal'
+          }));
+        } else {
+          this.$Message.error('获取课程列表失败');
+        }
+      } catch (error) {
+        this.$Message.error('获取课程列表失败');
+      }
+    },
+    
+    async loadUsers() {
+      try {
+        const res = await getAllUsers();
+        if (res.success) {
+          this.users = res.data;
+        }
+      } catch (error) {
+        console.error('加载用户信息失败:', error);
+      }
+    },
+    
+    getTeacherName(createBy) {
+      if (!createBy) return '未知教师';
+      
+      const user = this.users.find(u => u.id === createBy);
+      if (user) {
+        return user.nickname || user.username || `教师${createBy}`;
+      }
+      
+      return `教师${createBy}`;
+    },
+    
     navigateToCourse(courseId) {
-      this.$router.push(`/course/${courseId}`)
+      this.$router.push({ name: 'course_manage', params: { id: courseId } });
     },
     handleSearch() {
       // 可以在这里添加搜索逻辑

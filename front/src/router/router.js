@@ -57,7 +57,7 @@ export const otherRouter = {
         { path: 'add', title: '添加', name: 'add', component: () => import('@/views/template/add.vue') },
         { path: 'edit', title: '编辑', name: 'edit', component: () => import('@/views/template/edit.vue')},
         { path: 'course-lobby', title: '课程大厅', name: 'course_lobby', component: () => import('@/views/CourseLobby.vue') },
-        { path: 'course', title: '课程管理', name: 'course', component: () => import('@/views/course/index.vue') }
+        { path: 'course', title: '课程管理', name: 'course_manage', component: () => import('@/views/course/index.vue') }
     ]
 };
 
