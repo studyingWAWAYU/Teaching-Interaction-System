@@ -65,44 +65,6 @@
             </Col>
         </Row>
     </Modal>
-    <Modal v-model="createAssignmentModal" title="作业生成" draggable :mask="false" footer-hide width="1000">
-        <Form :label-width="120" label-position="left">
-            <Row :gutter="16">
-                <Col span="24">
-                <FormItem label="作业名称">
-                    <Input v-model="createAssignmentTitle" clearable show-word-limit maxlength="240" placeholder="请输入作业名称..." style="width:100%" />
-                </FormItem>
-                </Col>
-                <Col span="24">
-                <FormItem label="作业文件">
-                    <upload-file-input v-model="createAssignmentFile" placeholder="请上传作业文件..." style="width:100%"></upload-file-input>
-                </FormItem>
-                </Col>
-                <Col span="24">
-                <Divider>
-                    <Button @click="createAssignmentFx" :loading="createAssignmentLoading" type="success">一键生成作业（替换原有）</Button>
-                </Divider>
-                </Col>
-            </Row>
-        </Form>
-    </Modal>
-
-    <Modal v-model="appraiseModal" title="作业生成" draggable :mask="false" footer-hide width="1000">
-        <Form :label-width="120" label-position="left">
-            <Row :gutter="16">
-                <Col span="24">
-                <FormItem label="评价内容">
-                    <Input v-model="appraiseContent" type="textarea" :rows="4" clearable show-word-limit maxlength="240" placeholder="请输入评价内容..." style="width:100%" />
-                </FormItem>
-                </Col>
-                <Col span="24">
-                <Divider>
-                    <Button @click="addAppraiseFx" :loading="appraiseLoading" type="success">提交评价</Button>
-                </Divider>
-                </Col>
-            </Row>
-        </Form>
-    </Modal>
 </div>
 </template>
 
@@ -110,9 +72,7 @@
 import {
     getCurriculumList,
     deleteCurriculum,
-    getCourseResourcesList,
-    createAssignment,
-    addAppraise
+    getCourseResourcesList
 } from "./api.js";
 import add from "./add.vue";
 import edit from "./edit.vue";
@@ -126,15 +86,6 @@ export default {
     },
     data() {
         return {
-            appraiseModal: false,
-            appraiseLoading: false,
-            appraiseObj: {},
-            appraiseContent: "",
-            createAssignmentLoading: false,
-            createAssignmentModal: false,
-            createAssignmentTitle: "",
-            createAssignmentFile: "",
-            createAssignmentObj: {},
             resModal: false,
             resList: [],
             resLoading: false,
@@ -377,50 +328,6 @@ export default {
                                     },
                                     on: {
                                         click: () => {
-                                            this.appraiseObj = params.row;
-                                            this.appraiseContent = "";
-                                            this.appraiseModal = true;
-                                        }
-                                    }
-                                },
-                                "评价"
-                            ),
-                            h(
-                                "Button", {
-                                    props: {
-                                        type: "info",
-                                        size: "small",
-                                        icon: "ios-create-outline",
-                                        ghost: true,
-                                        disabled: !(that.$route.meta.permTypes && that.$route.meta.permTypes.includes("disable"))
-                                    },
-                                    style: {
-                                        marginRight: "5px"
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.createAssignmentObj = params.row;
-                                            this.createAssignmentTitle = "";
-                                            this.createAssignmentFile = "";
-                                            this.createAssignmentModal = true;
-                                        }
-                                    }
-                                },
-                                "作业生成"
-                            ),
-                            h(
-                                "Button", {
-                                    props: {
-                                        type: "success",
-                                        size: "small",
-                                        icon: "ios-create-outline",
-                                        ghost: true
-                                    },
-                                    style: {
-                                        marginRight: "5px"
-                                    },
-                                    on: {
-                                        click: () => {
                                             this.resTitle = params.row.title + " 资源明细";
                                             this.getCourseResourcesListFx(params.row);
                                             this.resModal = true;
@@ -480,21 +387,6 @@ export default {
     methods: {
         init() {
             this.getDataList();
-        },
-        addAppraiseFx() {
-            var that = this;
-            that.appraiseLoading = true;
-            addAppraise({
-                id: that.appraiseObj.id,
-                content: that.appraiseContent
-            }).then(res => {
-                that.appraiseLoading = false;
-                that.appraiseModal = false;
-                if (res.success) {
-                    this.$Message.success("评价成功");
-                    that.getDataList();
-                }
-            })
         },
         getCourseResourcesListFx(e) {
             var that = this;
@@ -587,22 +479,6 @@ export default {
             let data = JSON.parse(str);
             this.formData = data;
             this.currView = "edit";
-        },
-        createAssignmentFx() {
-            var that = this;
-            that.createAssignmentLoading = true;
-            createAssignment({
-                id: that.createAssignmentObj.id,
-                title: that.createAssignmentTitle,
-                file: that.createAssignmentFile
-            }).then(res => {
-                that.createAssignmentLoading = false;
-                that.createAssignmentModal = false;
-                if (res.success) {
-                    this.$Message.success("一键生成作业成功");
-                    that.getDataList();
-                }
-            });
         },
         remove(v) {
             this.$Modal.confirm({

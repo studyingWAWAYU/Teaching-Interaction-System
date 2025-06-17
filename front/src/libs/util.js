@@ -1,8 +1,17 @@
+/**
+ * 工具类 - 静态菜单配置模式
+ * 
+ * 本文件已适配静态菜单配置模式，主要变更：
+ * 1. 直接使用 menuConfig 静态配置，无需API调用
+ * 2. 简化了菜单初始化逻辑，移除复杂缓存机制
+ * 3. 保留了权限过滤接口，便于后续扩展
+ */
+
 import axios from 'axios';
-import { getMenuList } from '@/api/index';
 import lazyLoading from './lazyLoading.js';
 import router from '@/router/index';
 import Cookies from "js-cookie";
+import menuConfig from './menuConfig.js';
 
 let util = {
 
@@ -315,44 +324,36 @@ util.initRouter = function (vm) {
         },
         component: 'template/404'
     }];
+    
     // 判断用户是否登录
     let userInfo = Cookies.get('userInfo')
     if (!userInfo) {
         // 未登录
         return;
     }
-    if (!vm.$store.state.app.added) {
-        // 第一次加载 读取数据
-        let accessToken = window.localStorage.getItem('accessToken');
-        // 加载菜单
-        axios.get(getMenuList, { headers: { 'accessToken': accessToken } }).then(res => {
-            let menuData = res.result;
-            if (!menuData) {
-                return;
-            }
-            util.initAllMenuData(constRoutes, menuData);
-            util.initRouterNode(otherRoutes, otherRouter);
-            // 添加所有主界面路由
-            vm.$store.commit('updateAppRouter', constRoutes.filter(item => item.children.length > 0));
-            // 添加全局路由
-            vm.$store.commit('updateDefaultRouter', otherRoutes);
-            // 添加菜单路由
-            util.initMenuData(vm, menuData);
-            // 缓存数据 修改加载标识
-            window.localStorage.setItem('menuData', JSON.stringify(menuData));
-            vm.$store.commit('setAdded', true);
-        });
-    } else {
-        // 读取缓存数据
-        let data = window.localStorage.getItem('menuData');
-        if (!data) {
-            vm.$store.commit('setAdded', false);
-            return;
-        }
-        let menuData = JSON.parse(data);
-        // 添加菜单路由
-        util.initMenuData(vm, menuData);
+    
+    // 静态配置模式：直接使用菜单配置，无需复杂缓存逻辑
+    let userInfoObj = JSON.parse(userInfo);
+    let userRoles = userInfoObj.roles || [];
+    
+    // 直接使用静态菜单配置
+    let menuData = util.filterMenuByPermission(menuConfig, userRoles);
+    if (!menuData) {
+        return;
     }
+    
+    util.initAllMenuData(constRoutes, menuData);
+    util.initRouterNode(otherRoutes, otherRouter);
+    
+    // 添加所有主界面路由
+    vm.$store.commit('updateAppRouter', constRoutes.filter(item => item.children.length > 0));
+    // 添加全局路由
+    vm.$store.commit('updateDefaultRouter', otherRoutes);
+    // 添加菜单路由
+    util.initMenuData(vm, menuData);
+    
+    // 标记路由已初始化
+    vm.$store.commit('setAdded', true);
 };
 
 // 添加所有顶部导航栏下的菜单路由
@@ -446,6 +447,21 @@ util.initRouterNode = function (routers, data) {
 
         routers.push(menu);
     }
+};
+
+// 根据用户权限过滤菜单
+util.filterMenuByPermission = function (menuData, userRoles = []) {
+    // 静态配置模式下的权限控制
+    // 如果用户是管理员，返回所有菜单
+    if (userRoles.includes('admin') || userRoles.includes('ROLE_ADMIN')) {
+        return menuData;
+    }
+    
+    // 静态配置模式下，默认返回所有菜单
+    // 如需实现细粒度权限控制，可以在这里添加逻辑
+    // 例如：根据用户角色过滤特定菜单项
+    
+    return menuData;
 };
 
 export default util;

@@ -515,8 +515,6 @@ export default {
                 this.submitPermLoading = false;
                 if (res.success) {
                     this.$Message.success("操作成功");
-                    this.$store.commit("setAdded", false);
-                    util.initRouter(this);
                     this.getRoleList();
                     this.permModalVisible = false;
                 }

@@ -26,10 +26,8 @@
 </template>
 
 <script>
-import axios from "axios";
-import {
-    getMenuList
-} from "@/api/index";
+import menuConfig from '@/libs/menuConfig.js';
+
 export default {
     name: "search",
     props: {
@@ -51,25 +49,8 @@ export default {
     computed: {},
     methods: {
         init() {
-            let menuData = this.getStore("menuData");
-            if (!menuData) {
-                // 第一次加载 读取数据
-                let accessToken = this.getStore("accessToken");
-                // 加载菜单
-                axios
-                    .get(getMenuList, {
-                        headers: {
-                            accessToken: accessToken
-                        }
-                    })
-                    .then((res) => {
-                        menuData = res.result;
-                        this.list = this.getList(menuData);
-                    });
-            } else {
-                menuData = JSON.parse(menuData);
-                this.list = this.getList(menuData);
-            }
+            // 静态配置模式：直接使用菜单配置
+            this.list = this.getList(menuConfig);
         },
         getList(menuData) {
             let list = [];

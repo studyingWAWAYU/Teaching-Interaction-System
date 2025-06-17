@@ -198,7 +198,8 @@ import {
     deletePermission,
     searchPermission,
     getDictDataByType,
-    getUserByPermission
+    getUserByPermission,
+    getAllPermissionList
 } from "./api.js";
 import IconChoose from "@/views/template/icon-choose";
 import util from "@/libs/util.js";
@@ -363,7 +364,7 @@ export default {
         },
         getPermissionList() {
             this.loading = true;
-            this.getRequest("/permission/getAllList").then(res => {
+            getAllPermissionList().then(res => {
                 this.loading = false;
                 if (res.success) {
                     this.data = res.result;
@@ -454,9 +455,7 @@ export default {
                 this.submitLoading = false;
                 if (res.success) {
                     this.$Message.success("编辑成功");
-                    // 标记重新获取菜单数据
-                    this.$store.commit("setAdded", false);
-                    util.initRouter(this);
+                    // 静态配置模式：无需重新加载菜单
                     this.init();
                     this.menuModalVisible = false;
                 }
@@ -475,8 +474,7 @@ export default {
                         this.submitLoading = false;
                         if (res.success) {
                             this.$Message.success("添加成功");
-                            this.$store.commit("setAdded", false);
-                            util.initRouter(this);
+                            // 静态配置模式：无需重新加载菜单
                             this.init();
                             this.menuModalVisible = false;
                         }
@@ -557,8 +555,7 @@ export default {
                         this.$Modal.remove();
                         if (res.success) {
                             this.$Message.success("删除成功");
-                            this.$store.commit("setAdded", false);
-                            util.initRouter(this);
+                            // 静态配置模式：无需重新加载菜单
                             this.selectList = [];
                             this.selectCount = 0;
                             this.cancelEdit();

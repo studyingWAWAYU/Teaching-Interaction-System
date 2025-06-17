@@ -22,7 +22,6 @@ router.beforeEach((to, from, next) => {
     ViewUI.LoadingBar.start();
     Util.title(to.meta.title);
     var name = to.name;
-    console.log("Current route name:", to.name)
     if (!Cookies.get('userInfo') && (name != 'login' && name != 'regist')) {
         next({
             name: 'login'

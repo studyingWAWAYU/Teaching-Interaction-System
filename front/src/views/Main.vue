@@ -218,13 +218,7 @@ export default {
                 }
             });
             if (!openpageHasTag) {
-                //  解决关闭当前标签后再点击回退按钮会退到当前页时没有标签的问题
-                util.openNewPage(
-                    this,
-                    name,
-                    this.$route.params || {},
-                    this.$route.query || {}
-                );
+                util.openNewPage(this, name, this.$route.params, this.$route.query);
             }
         },
         handleSubmenuChange(val) {},
@@ -243,6 +237,17 @@ export default {
                 this.sliceNum = 3;
                 this.shrink = false;
             }
+        },
+        
+        // 重置路由状态
+        resetRoutes() {
+            console.log('=== 重置路由状态 ===');
+            // 静态配置模式：直接重新初始化路由，无需清除缓存
+            this.$store.commit('setAdded', false);
+            this.$store.commit('updateMenulist', []);
+            this.$store.commit('setNavList', []);
+            // 重新初始化路由
+            util.initRouter(this);
         }
     },
     watch: {

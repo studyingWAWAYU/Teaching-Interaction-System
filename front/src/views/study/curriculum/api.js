@@ -24,12 +24,3 @@ export const deleteCurriculum = (params) => {
 export const getCourseResourcesList = (params) => {
     return getRequest('/courseResources/getAll', params)
 }
-export const getTimetableList = (params) => {
-    return getRequest('/timetable/getAll', params)
-}
-export const createAssignment = (params) => {
-    return getRequest('/assignment/create', params)
-}
-export const addAppraise = (params) => {
-    return getRequest('/appraise/addOne', params)
-}

@@ -1,8 +1,9 @@
 import { getRequest, postRequest, putRequest, postBodyRequest, getNoAuthRequest, postNoAuthRequest } from '@/libs/axios';
+import { getMenuList as getStaticMenuList } from './menuApi.js';
 
-export const uploadFile = "/wl/upload/file"
-export const drawCodeImage = "/wl/common/draw/"
-export const getMenuList = "/wl/permission/getMenuList"
+export const uploadFile = "/upload/file"
+export const drawCodeImage = "/common/draw/"
+export const getMenuList = getStaticMenuList;
 
 
 export const login = (params) => {
