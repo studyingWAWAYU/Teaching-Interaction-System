@@ -48,6 +48,11 @@
       <div class="topic-detail" v-if="selectedTopic" @click.stop>
         <div class="detail-header">
             <h2 class="detail-title">{{ selectedTopic.title }}</h2>
+            <div class="similar-topic">
+              <span class="similar-topic-label">Possible Similar Topic:</span>
+              <Icon type="ios-link" size="small" />
+              <a href="#" class="similar-topic-link">Is Python Platform Independent if then how?</a>
+            </div>
             <div class="detail-meta">
               <span class="author">
                 <Icon type="ios-person" size="small" />
@@ -181,14 +186,12 @@ export default {
       return user ? (user.nickname || user.username) : `User${userId}`;
     },
 
-    // 格式化时间
     formatTime(timeStr) {
       if (!timeStr) return '';
       const date = new Date(timeStr);
       return date.toLocaleString('zh-CN');
     },
 
-    // 获取讨论列表
     async fetchCourseDiscussions() {
       try {
         this.loading = true;
@@ -228,7 +231,6 @@ export default {
       }
     },
 
-    // 创建讨论主题
     async createDiscussion(topicData) {
       try {
         const params = {
@@ -249,7 +251,6 @@ export default {
       }
     },
 
-    // 回复讨论
     async replyToDiscussion(topicId, replyData) {
       try {
         const params = {
@@ -269,22 +270,11 @@ export default {
       }
     },
 
-    // 加载主题回复
     async loadTopicReplies(topicId) {
       try {
         const response = await getAllPosts(topicId);
         if (response.success) {
-          // 临时调试信息
           console.log('Posts response:', response.result);
-          response.result.forEach((post, index) => {
-            console.log(`Post ${index}:`, {
-              id: post.id,
-              createBy: post.createBy,
-              content: post.content,
-              topicId: post.topicId
-            });
-          });
-          
           const topic = this.filteredDiscussions.find(t => t.id === topicId);
           if (topic) {
             topic.replies = response.result;
@@ -540,6 +530,38 @@ export default {
           font-weight: 600;
           color: #515a6e;
           margin-bottom: 12px;
+        }
+
+        .similar-topic {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin-bottom: 12px;
+          padding: 8px 12px;
+          background: rgba(45, 140, 240, 0.05);
+          border-radius: 16px;
+
+          .similar-topic-label {
+            color: #515a6e;
+            font-size: 13px;
+            font-weight: 500;
+          }
+
+          .ivu-icon {
+            color: #2d8cf0;
+            font-size: 14px;
+          }
+
+          .similar-topic-link {
+            color: #2d8cf0;
+            text-decoration: none;
+            font-size: 14px;
+
+            &:hover {
+              color: #1c6bb8;
+              text-decoration: underline;
+            }
+          }
         }
 
         .detail-meta {
