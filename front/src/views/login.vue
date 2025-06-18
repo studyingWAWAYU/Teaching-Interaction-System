@@ -49,7 +49,7 @@
                 <Row>
                   <Button class="login-btn" type="primary" size="large" :loading="loading" @click="submitLogin" long>
                     <span v-if="!loading" style=" font-weight:bold">Login</span>
-                    <span v-else>Logging in... Please wait}</span>
+                    <span v-else>Logging in... Please wait</span>
                   </Button>
                 </Row>
               </div>
@@ -122,11 +122,15 @@ export default {
     };
   },
   methods: {
+    /*
     afterLogin(res) {
       let accessToken = res.result;
       this.setStore("accessToken", accessToken);
       userInfo().then((res) => {
+        console.log("✅ 后端 userInfo 返回数据：", res);
         if (res.success) {
+          const user = res.result;
+          console.log("✅ 后端 userInfo 的 result 字段：", user);
           delete res.result.permissions;
           let roles = [];
           res.result.roles.forEach((e) => {
@@ -153,6 +157,42 @@ export default {
         }
       });
     },
+
+     */
+    afterLogin(res) {
+      const accessToken = res.result;
+      this.setStore("accessToken", accessToken);
+
+      userInfo().then((res) => {
+        if (res.success) {
+          const user = res.result;
+          delete user.permissions;
+          //  单角色模式获取角色名
+          const roles = [user.roleName]; // 或 Array.isArray(user.roles) ? user.roles.map(e => e.name) : [user.roleName];
+          this.setStore("roles", roles);
+          this.setStore("saveLogin", this.saveLogin);
+
+          if (this.saveLogin) {
+            Cookies.set("userInfo", JSON.stringify(user), { expires: 100 });
+          } else {
+            Cookies.set("userInfo", JSON.stringify(user));
+          }
+
+          this.setStore("userInfo", user);
+          this.$store.commit("setAvatarPath", user.avatar);
+
+          util.initRouter(this);
+          this.$router.push({ name: "home_index" });
+        } else {
+          this.loading = false;
+          this.$message.error(res.message || "Fail to get the user info.");
+        }
+      }).catch(() => {
+        this.loading = false;
+        this.$message.error("There's a network error. Fail to get the user info.");
+      });
+    },
+
     submitLogin() {
       this.$refs.usernameLoginForm.validate(valid => {
         if (valid) {
