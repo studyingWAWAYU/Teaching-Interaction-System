@@ -67,7 +67,7 @@ export default {
       try {
         this.loading = true
         // TODO: 替换为实际的API调用
-        // const response = await this.$api.getCourseFiles(this.$route.params.courseId)
+        // const response = await this.$api.getCourseFiles(this.$route.params.id)
         // this.files = response.data
         
         // 临时使用模拟数据
