@@ -80,8 +80,7 @@ export default {
     }
   },
   created() {
-    this.loadCourses();
-    this.loadUsers();
+    this.loadData();
   },
   computed: {
     filteredCourses() {
@@ -95,11 +94,17 @@ export default {
     }
   },
   methods: {
+    async loadData() {
+      // 先加载用户数据，再加载课程数据
+      await this.loadUsers();
+      await this.loadCourses();
+    },
+    
     async loadCourses() {
       try {
         const res = await getAllCourses();
         if (res.success) {
-          this.courses = res.data.map(course => ({
+          this.courses = res.result.map(course => ({
             ...course,
             teacherName: this.getTeacherName(course.createBy),
             status: course.status || 'Normal'
@@ -116,19 +121,29 @@ export default {
       try {
         const res = await getAllUsers();
         if (res.success) {
-          this.users = res.data;
+          this.users = res.result;
         }
       } catch (error) {
         console.error('加载用户信息失败:', error);
+        // 用户信息加载失败不影响课程显示，只是教师名称会显示为默认值
       }
     },
     
     getTeacherName(createBy) {
-      if (!createBy) return '未知教师';
+      if (!createBy) return 'Unknown teacher';
       
-      const user = this.users.find(u => u.id === createBy);
+      // 如果用户列表为空，直接返回默认名称
+      if (!this.users || this.users.length === 0) {
+        return `教师${createBy}`;
+      }
+      
+      // 确保数据类型匹配，将createBy转换为数字进行比较
+      const createById = parseInt(createBy);
+      const user = this.users.find(u => u.id === createById);
+      
       if (user) {
-        return user.nickname || user.username || `教师${createBy}`;
+        // 优先使用nickname，如果没有则使用username
+        return user.username || user.nickname || `教师${createBy}`;
       }
       
       return `教师${createBy}`;

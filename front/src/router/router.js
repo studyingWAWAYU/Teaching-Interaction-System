@@ -56,12 +56,8 @@ export const otherRouter = {
         { path: 'password', title: '修改密码', name: 'password', component: () => import('@/views/password/password.vue') },
         { path: 'add', title: '添加', name: 'add', component: () => import('@/views/template/add.vue') },
         { path: 'edit', title: '编辑', name: 'edit', component: () => import('@/views/template/edit.vue')},
-        { path: 'course-lobby', title: '课程大厅', name: 'course_lobby', component: () => import('@/views/CourseLobby.vue') },
-        { path: 'course', title: '课程管理', name: 'course_manage', component: () => import('@/views/course/index.vue') },
-        { path: 'user', title: '用户管理', name: 'user-admin', component:() => import('@/views/roster/user/user')},
-        { path: 'role', title: '角色管理', name: 'role-manage', component:() => import('@/views/role/role/index')},
-        { path: 'menu', title: '菜单管理', name: 'menu-manage', component:() => import('@/views/menu/menu/index')},
-        { path: 'file', title: '文件管理', name: 'file-admin', component:() => import('@/views/file/file/index')}
+        { path: 'course-lobby', title: 'Course Lobby', name: 'course_lobby', component: () => import('@/views/CourseLobby.vue') },
+        { path: 'course', title: 'Course Content', name: 'course_manage', component: () => import('@/views/course/index.vue') }
 
     ]
 };

@@ -1,23 +1,23 @@
-import { getRequest, postRequest } from '@/libs/axios';
+import { getRequest, postRequest, getNoAuthRequest } from '@/libs/axios';
 
 // 获取单个课程
 export const getCourse = (params) => {
-    return getRequest('/course/getOne', params);
+    return getNoAuthRequest('/course/getOne', params);
 };
 
 // 获取课程总数
 export const getCourseCount = () => {
-    return getRequest('/course/count');
+    return getNoAuthRequest('/course/count');
 };
 
 // 获取所有课程
 export const getAllCourses = () => {
-    return getRequest('/course/getAll');
+    return getNoAuthRequest('/course/getAll');
 };
 
 // 分页获取课程
 export const getCoursesByPage = (params) => {
-    return getRequest('/course/getByPage', params);
+    return getNoAuthRequest('/course/getByPage', params);
 };
 
 // 增改课程
