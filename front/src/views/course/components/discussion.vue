@@ -21,7 +21,7 @@
         <div 
           class="topic-item" 
           v-for="(topic, index) in sortedDiscussions" 
-          :key="index"
+          :key="topic.id"
           :class="{ active: selectedTopic === topic }"
           @click.stop="selectTopic(topic)">
           <div class="topic-brief">
@@ -29,17 +29,17 @@
             <div class="topic-meta">
               <span class="author">
                 <Icon type="ios-person" size="small" />
-                {{ topic.author }}
+                {{ getAuthorName(topic.createBy) }}
               </span>
               <span class="replies">
                 <Icon type="ios-chatbubbles" :class="{ active: hasUserReplied(topic) }" />
-                {{ topic.replyCount }}
+                {{ topic.replyCount || 0 }}
               </span>
               <span class="likes" @click.stop="handleTopicLike(topic)">
                 <Icon type="ios-thumbs-up" :class="{ active: topic.isLiked }" />
-                {{ topic.likes }}
+                {{ topic.likes || 0 }}
               </span>
-              <span class="time">{{ topic.time }}</span>
+              <span class="time">{{ formatTime(topic.updateTime) }}</span>
             </div>
           </div>
         </div>
@@ -51,29 +51,29 @@
             <div class="detail-meta">
               <span class="author">
                 <Icon type="ios-person" size="small" />
-                {{ selectedTopic.author }}
+                {{ getAuthorName(selectedTopic.createBy) }}
               </span>
               <span class="time">
                 <Icon type="ios-time" />
-                {{ selectedTopic.time }}
+                {{ formatTime(selectedTopic.updateTime) }}
               </span>
               <span class="content-likes" @click="handleTopicLike(selectedTopic)">
                 <Icon type="ios-thumbs-up" :class="{ active: selectedTopic.isLiked }" />
-                {{ selectedTopic.likes }}
+                {{ selectedTopic.likes || 0 }}
               </span>
             </div>
         </div>
         
         <div class="detail-content">
           <div class="content-wrapper">
-            {{ selectedTopic.content }}
+            {{ selectedTopic.description }}
           </div>
         </div>
 
         <div class="reply-section">
           <div class="reply-header">
             <div class="reply-title">
-              <h3>Replies ({{ selectedTopic.replyCount }})</h3>
+              <h3>Reply ({{ selectedTopic.replyCount || 0 }})</h3>
               <a class="reply-btn" @click="$emit('show-reply-modal', selectedTopic)">
                 <Icon type="ios-chatbubbles" />
                 Reply
@@ -82,26 +82,26 @@
           </div>
 
           <div class="reply-list">
-            <div class="reply-item" v-for="(reply, rIndex) in sortedReplies" :key="rIndex">
+            <div class="reply-item" v-for="(reply, rIndex) in sortedReplies" :key="reply.id">
               <div class="reply-avatar">
                 <Avatar icon="ios-person" size="large" />
               </div>
               <div class="reply-content-wrapper">
                 <div class="reply-header">
                   <div class="reply-info">
-                    <span class="reply-author">{{ reply.author }}</span>
-                    <span class="reply-time">{{ reply.time }}</span>
+                    <span class="reply-author">{{ getAuthorName(reply.createBy) }}</span>
+                    <span class="reply-time">{{ formatTime(reply.createTime) }}</span>
                   </div>
                 </div>
                 <div class="reply-content">{{ reply.content }}</div>
               </div>
               <div class="reply-actions">
-                <Button type="text" v-if="reply.author === currentUser" @click="handleDeleteReply(rIndex)">
+                <Button type="text" v-if="reply.createBy === currentUserId" @click="handleDeleteReply(reply)">
                   <Icon type="md-trash" />
                 </Button>
                 <span class="reply-likes" @click="handleReplyLike(reply)">
                   <Icon type="ios-thumbs-up" :class="{ active: reply.isLiked }" />
-                  {{ reply.likes }}
+                  {{ reply.likes || 0 }}
                 </span>
               </div>
             </div>
@@ -114,6 +114,9 @@
 
 <script>
 import Cookies from 'js-cookie';
+import { getAllTopics, getAllTopicsSorted, addTopics, updateTopics, deleteTopics } from '@/api/discussion';
+import { getAllPosts, getAllPostsSorted, addPosts, deletePosts } from '@/api/discussion';
+import { getAllUsers } from '@/views/roster/user/api';
 
 export default {
   name: 'Discussion',
@@ -128,24 +131,26 @@ export default {
       searchQuery: '',
       filteredDiscussions: [],
       selectedTopic: null,
+      currentUserId: JSON.parse(Cookies.get('userInfo')).id,
       currentUser: JSON.parse(Cookies.get('userInfo')).nickname,
       courseId: null,
       loading: false,
-      error: null
+      error: null,
+      users: []
     }
   },
   computed: {
     sortedDiscussions() {
-      return [...this.filteredDiscussions].sort((a, b) => b.likes - a.likes);
+      return [...this.filteredDiscussions].sort((a, b) => (b.likes || 0) - (a.likes || 0));
     },
     sortedReplies() {
-      if (!this.selectedTopic) return [];
-      return [...this.selectedTopic.replies].sort((a, b) => b.likes - a.likes);
+      if (!this.selectedTopic || !this.selectedTopic.replies) return [];
+      return [...this.selectedTopic.replies].sort((a, b) => (b.likes || 0) - (a.likes || 0));
     }
   },
   created() {
     this.courseId = this.$route.params.id;
-    console.log('Discussion component - Course ID:', this.courseId);
+    this.initData();
   },
   watch: {
     discussions: {
@@ -156,19 +161,68 @@ export default {
     }
   },
   methods: {
-    // 获取课程讨论列表
+    async loadUsers() {
+      try {
+        const res = await getAllUsers();
+        if (res.success) {
+          this.users = res.result;
+        }
+      } catch (error) {
+        console.error('加载用户信息失败:', error);
+      }
+    },
+
+
+    getAuthorName(userId) {
+      if (userId === null || userId === undefined) {
+        return 'Unknown User';
+      }
+      const user = this.users.find(u => u.id === userId);
+      return user ? (user.nickname || user.username) : `User${userId}`;
+    },
+
+    // 格式化时间
+    formatTime(timeStr) {
+      if (!timeStr) return '';
+      const date = new Date(timeStr);
+      return date.toLocaleString('zh-CN');
+    },
+
+    // 获取讨论列表
     async fetchCourseDiscussions() {
       try {
         this.loading = true;
-        // TODO: 替换为实际的API调用
-        // const response = await this.$api.getCourseDiscussions(this.courseId);
-        // this.discussions = response.data;
-        
-        console.log('Fetching discussions for course ID:', this.courseId);
-        // 暂时使用props传入的数据
+        const response = await getAllTopicsSorted(this.courseId);
+        if (response.success) {
+          const topicsWithReplies = await Promise.all(
+            response.result.map(async (topic) => {
+              try {
+                const postsResponse = await getAllPosts(topic.id);
+                const replyCount = postsResponse.success ? postsResponse.result.length : 0;
+                return {
+                  ...topic,
+                  replyCount,
+                  replies: postsResponse.success ? postsResponse.result : []
+                };
+              } catch (error) {
+                console.error(`获取主题 ${topic.id} 的回复失败:`, error);
+                return {
+                  ...topic,
+                  replyCount: 0,
+                  replies: []
+                };
+              }
+            })
+          );
+          
+          this.filteredDiscussions = topicsWithReplies;
+          this.$emit('discussions-loaded', topicsWithReplies);
+        } else {
+          this.$Message.error('Failed to fetch discussion list.');
+        }
       } catch (error) {
         this.error = error.message;
-        this.$Message.error('Failed to fetch course discussions.');
+        this.$Message.error('Failed to fetch discussion list.');
       } finally {
         this.loading = false;
       }
@@ -177,19 +231,19 @@ export default {
     // 创建讨论主题
     async createDiscussion(topicData) {
       try {
-        // TODO: 替换为实际的API调用
-        // const response = await this.$api.createDiscussion({
-        //   courseId: this.courseId,
-        //   title: topicData.title,
-        //   content: topicData.content
-        // });
+        const params = {
+          course_id: this.courseId,
+          title: topicData.title,
+          description: topicData.content
+        };
         
-        console.log('Creating discussion for course ID:', this.courseId, topicData);
-        // 暂时通过emit通知父组件处理
-        this.$emit('discussion-created', {
-          courseId: this.courseId,
-          ...topicData
-        });
+        const response = await addTopics(this.courseId, params);
+        if (response.success) {
+          this.$Message.success('Succeed to create discussion.');
+          await this.fetchCourseDiscussions();
+        } else {
+          this.$Message.error('Failed to create discussion.');
+        }
       } catch (error) {
         this.$Message.error('Failed to create discussion.');
       }
@@ -198,22 +252,47 @@ export default {
     // 回复讨论
     async replyToDiscussion(topicId, replyData) {
       try {
-        // TODO: 替换为实际的API调用
-        // const response = await this.$api.replyToDiscussion({
-        //   courseId: this.courseId,
-        //   topicId: topicId,
-        //   content: replyData.content
-        // });
-        
-        console.log('Replying to discussion for course ID:', this.courseId, 'topic ID:', topicId, replyData);
-        // 暂时通过emit通知父组件处理
-        this.$emit('reply-created', {
-          courseId: this.courseId,
+        const params = {
           topicId: topicId,
-          ...replyData
-        });
+          content: replyData.content
+        };
+        
+        const response = await addPosts(topicId, params);
+        if (response.success) {
+          this.$Message.success('回复发布成功');
+          await this.loadTopicReplies(topicId);
+        } else {
+          this.$Message.error('回复发布失败');
+        }
       } catch (error) {
-        this.$Message.error('Failed to create reply.');
+        this.$Message.error('回复发布失败');
+      }
+    },
+
+    // 加载主题回复
+    async loadTopicReplies(topicId) {
+      try {
+        const response = await getAllPosts(topicId);
+        if (response.success) {
+          // 临时调试信息
+          console.log('Posts response:', response.result);
+          response.result.forEach((post, index) => {
+            console.log(`Post ${index}:`, {
+              id: post.id,
+              createBy: post.createBy,
+              content: post.content,
+              topicId: post.topicId
+            });
+          });
+          
+          const topic = this.filteredDiscussions.find(t => t.id === topicId);
+          if (topic) {
+            topic.replies = response.result;
+            topic.replyCount = response.result.length;
+          }
+        }
+      } catch (error) {
+        console.error('加载回复失败:', error);
       }
     },
 
@@ -226,39 +305,62 @@ export default {
       const query = this.searchQuery.toLowerCase();
       this.filteredDiscussions = this.discussions.filter(topic => {
         return topic.title.toLowerCase().includes(query) || 
-               topic.content.toLowerCase().includes(query);
+               (topic.description && topic.description.toLowerCase().includes(query));
       });
     },
+    
     selectTopic(topic) {
       this.selectedTopic = topic;
+      this.loadTopicReplies(topic.id);
     },
+    
     handleContentClick(event) {
       if (event.target.classList.contains('discussion-content') || 
           event.target.classList.contains('discussion-main')) {
         this.selectedTopic = null;
       }
     },
+    
     handleTopicLike(topic) {
+      // TODO: 实现点赞功能
       topic.isLiked = !topic.isLiked;
-      topic.likes += topic.isLiked ? 1 : -1;
+      topic.likes = (topic.likes || 0) + (topic.isLiked ? 1 : -1);
     },
+    
     handleReplyLike(reply) {
+      // TODO: 实现回复点赞功能
       reply.isLiked = !reply.isLiked;
-      reply.likes += reply.isLiked ? 1 : -1;
+      reply.likes = (reply.likes || 0) + (reply.isLiked ? 1 : -1);
     },
-    handleDeleteReply(replyIndex) {
+    
+    async handleDeleteReply(reply) {
       this.$Modal.confirm({
         title: '确认删除',
         content: '确定要删除这条回复吗？',
-        onOk: () => {
-          this.selectedTopic.replies.splice(replyIndex, 1);
-          this.selectedTopic.replyCount = this.selectedTopic.replies.length;
-          this.$Message.success('回复已删除');
+        onOk: async () => {
+          try {
+            const response = await deletePosts(reply.topicId, { ids: [reply.id] });
+            if (response.success) {
+              this.$Message.success('回复已删除');
+              await this.loadTopicReplies(reply.topicId);
+            } else {
+              this.$Message.error('删除回复失败');
+            }
+          } catch (error) {
+            this.$Message.error('删除回复失败');
+          }
         }
       });
     },
+    
     hasUserReplied(topic) {
-      return topic.replies.some(reply => reply.author === this.currentUser);
+      if (!topic.replies) return false;
+      return topic.replies.some(reply => reply.createBy === this.currentUserId);
+    },
+
+    async initData() {
+      await this.loadUsers();
+      await this.fetchCourseDiscussions();
     }
   }
 }
@@ -560,6 +662,7 @@ export default {
                   .reply-time {
                     color: #808695;
                     font-size: 13px;
+                    margin-top: 2px;
                   }
                 }
               }

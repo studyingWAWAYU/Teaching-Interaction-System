@@ -58,9 +58,11 @@
 
         <TabPane label="Discussion">
           <Discussion 
+            ref="discussion"
             :discussions="discussions"
             @show-create-modal="showCreateModal"
-            @show-reply-modal="showReplyModal"/>
+            @show-reply-modal="showReplyModal"
+            @discussions-loaded="handleDiscussionsLoaded"/>
         </TabPane>
       </Tabs>
     </Card>
@@ -253,16 +255,15 @@ export default {
     
     async getDiscussions() {
       try {
-        // TODO: 替换为实际的API调用，使用课程ID获取对应课程的讨论
-        // const response = await this.$api.getDiscussions(this.$route.params.id);
-        // this.discussions = response.data;
-        
-        console.log('Fetching discussions for course ID:', this.$route.params.id);
-        // 暂时使用模拟数据，后续可以替换为API调用
       } catch (error) {
         this.$Message.error('Failed to get discussions');
       }
     },
+
+    handleDiscussionsLoaded(discussions) {
+      this.discussions = discussions;
+    },
+
     // 选课/退课
     async handleEnroll() {
       try {
@@ -296,32 +297,19 @@ export default {
     // 处理创建讨论主题
     async handleCreateTopic() {
       if (!this.newTopic.title || !this.newTopic.content) {
-        this.$Message.warning('Please fill in all fields');
+        this.$Message.warning('请填写所有字段');
         return;
       }
       try {
-        const userInfo = JSON.parse(Cookies.get('userInfo'));
-        const newTopic = {
-          id: Date.now(),
-          courseId: this.$route.params.id, // 添加课程ID
-          title: this.newTopic.title,
-          author: userInfo.nickname,
-          time: new Date().toLocaleString(),
-          content: this.newTopic.content,
-          replyCount: 0,
-          likes: 0,
-          showReplies: false,
-          replies: []
+        // 通过Discussion组件的方法创建主题
+        await this.$refs.discussion.createDiscussion(this.newTopic);
+        this.createModalVisible = false;
+        this.newTopic = {
+          title: '',
+          content: ''
         };
-        
-        console.log('Creating discussion for course ID:', this.$route.params.id, newTopic);
-        // TODO: 这里可以调用API保存到后端
-        // await this.$api.createDiscussion(newTopic);
-        
-        this.discussions.unshift(newTopic);
-        this.$Message.success('Topic created successfully');
       } catch (error) {
-        this.$Message.error('Failed to create topic');
+        this.$Message.error('创建主题失败');
       }
     },
 
@@ -337,32 +325,20 @@ export default {
     // 处理回复
     async handleReply() {
       if (!this.newReply.content) {
-        this.$Message.warning('Please enter your reply');
+        this.$Message.warning('请输入回复内容');
         return;
       }
       try {
         const topic = this.discussions[this.newReply.topicIndex];
-        const userInfo = JSON.parse(Cookies.get('userInfo'));
-        const newReply = {
-          id: Date.now(), // 临时ID
-          courseId: this.$route.params.id, // 添加课程ID
-          topicId: topic.id, // 添加主题ID
-          author: userInfo.nickname,
-          time: new Date().toLocaleString(),
-          content: this.newReply.content,
-          likes: 0
+        // 通过Discussion组件的方法创建回复
+        await this.$refs.discussion.replyToDiscussion(topic.id, this.newReply);
+        this.replyModalVisible = false;
+        this.newReply = {
+          content: '',
+          topicIndex: -1
         };
-        
-        console.log('Creating reply for course ID:', this.$route.params.id, 'topic ID:', topic.id, newReply);
-        // TODO: 这里可以调用API保存到后端
-        // await this.$api.createReply(newReply);
-        
-        topic.replies.push(newReply);
-        topic.replyCount = topic.replies.length;
-        topic.showReplies = true;
-        this.$Message.success('Reply posted successfully');
       } catch (error) {
-        this.$Message.error('Failed to post reply');
+        this.$Message.error('发布回复失败');
       }
     }
   }

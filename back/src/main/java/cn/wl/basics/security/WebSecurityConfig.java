@@ -70,6 +70,14 @@ public class WebSecurityConfig {
                         "/wl/feedback/getOne",
                         "/wl/feedback/count",
                         "/wl/feedback/getByPage",
+                        "/wl/course/*/topics/getAll",
+                        "/wl/course/*/topics/getAll/sorted_by_likes",
+                        "/wl/course/*/topics/count",
+                        "/wl/course/*/topics/getOne",
+                        "/wl/course/*/posts/getAll",
+                        "/wl/course/*/posts/getAll/sorted_by_likes",
+                        "/wl/course/*/posts/count",
+                        "/wl/course/*/posts/getOne",
                         "/*/*.js","/*/*.css","/*/*.png","/*/*.ico",
                         "/swagger-ui.html").permitAll()
                 // 如果token校验失败就跳转到登录界面
