@@ -44,7 +44,8 @@
         <TabPane label="Details">
           <CourseDetails 
             :courseInfo="courseInfo"
-            :reviews="reviews"/>
+            :reviews="reviews"
+            @refresh-reviews="refreshReviews"/>
         </TabPane>
 
         <TabPane label="Resources">
@@ -99,6 +100,7 @@ import CourseDetails from './components/details.vue'
 import CourseResources from './components/resources.vue'
 import CourseAssignments from './components/assignments.vue'
 import { getCourse, updateCourse } from '@/api/course'
+import { getAllFeedbacks } from '@/api/feedback'
 import { getAllUsers } from '@/views/roster/user/api'
 import Cookies from 'js-cookie'
 
@@ -121,7 +123,6 @@ export default {
         credits: 0,
         image: '',
         introduction: '',
-        objectives: ''
       },
       reviews: [],
       discussions: [],
@@ -143,13 +144,12 @@ export default {
   },
   methods: {
     async loadData() {
-      // 先加载用户数据，再加载其他数据
       await this.loadUsers();
       await this.getCourseInfo();
       await this.getCourseReviews();
       await this.getDiscussions();
     },
-    // 加载用户信息
+    
     async loadUsers() {
       try {
         const res = await getAllUsers();
@@ -180,8 +180,6 @@ export default {
             objectives: res.result.content,
             status: res.result.status || 'Normal'
           };
-          console.log('格式化后的时间:', this.courseInfo.Time);
-          // 根据课程状态设置选课状态
           this.isEnrolled = res.result.status === 'enrolled';
         } else {
           this.$Message.error('获取课程信息失败');
@@ -193,8 +191,6 @@ export default {
     
     getTeacherName(createBy) {
       if (!createBy) return 'Unknown teacher';
-      
-      // 从用户列表中查找对应的用户
       const createById = parseInt(createBy);
       const user = this.users.find(u => u.id === createById);
       if (user) {
@@ -205,15 +201,13 @@ export default {
     
     formatTimeRange(startTime, endTime) {
       if (!startTime || !endTime) {
-        console.log('时间字段为空，返回时间待定');
-        return '时间待定';
+        return 'Time to be comfirmed';
       }
       
       try {
         const start = new Date(startTime);
         const end = new Date(endTime);
         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-          console.log('日期无效');
           return '时间格式错误';
         }
         // 只显示年月日，格式：YYYY-MM-DD
@@ -227,12 +221,34 @@ export default {
     
     async getCourseReviews() {
       try {
-        // const response = await this.$api.course.getCourseReviews(this.$route.params.id);
-        // this.reviews = response.data;
-        // 暂时使用模拟数据
+        const res = await getAllFeedbacks();
+        if (res.success) {
+          // 过滤出当前课程的评价
+          const courseFeedbacks = res.result.filter(feedback => 
+            feedback.courseId === parseInt(this.$route.params.id)
+          );
+          
+          // 为每个评价添加用户信息
+          this.reviews = courseFeedbacks.map(feedback => {
+            const user = this.users.find(u => u.id === feedback.createBy);
+            return {
+              id: feedback.id,
+              content: feedback.content,
+              rating: feedback.rating || 0,
+              createTime: feedback.createTime,
+              reviewerName: user ? (user.nickname || user.username) : `User${feedback.createBy}`
+            };
+          });
+        } else {
+          this.$Message.error('获取课程评价失败');
+        }
       } catch (error) {
-        this.$Message.error('Failed to get course reviews');
+        this.$Message.error('获取课程评价失败');
       }
+    },
+
+    async refreshReviews() {
+      await this.getCourseReviews();
     },
     
     async getDiscussions() {

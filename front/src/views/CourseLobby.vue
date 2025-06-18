@@ -95,7 +95,6 @@ export default {
   },
   methods: {
     async loadData() {
-      // 先加载用户数据，再加载课程数据
       await this.loadUsers();
       await this.loadCourses();
     },
@@ -131,8 +130,6 @@ export default {
     
     getTeacherName(createBy) {
       if (!createBy) return 'Unknown teacher';
-      
-      // 如果用户列表为空，直接返回默认名称
       if (!this.users || this.users.length === 0) {
         return `教师${createBy}`;
       }
@@ -142,10 +139,8 @@ export default {
       const user = this.users.find(u => u.id === createById);
       
       if (user) {
-        // 优先使用nickname，如果没有则使用username
         return user.username || user.nickname || `教师${createBy}`;
       }
-      
       return `教师${createBy}`;
     },
     
