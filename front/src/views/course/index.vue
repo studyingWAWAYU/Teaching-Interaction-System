@@ -253,9 +253,12 @@ export default {
     
     async getDiscussions() {
       try {
-        // const response = await this.$api.course.getDiscussions(this.$route.params.id);
+        // TODO: 替换为实际的API调用，使用课程ID获取对应课程的讨论
+        // const response = await this.$api.getDiscussions(this.$route.params.id);
         // this.discussions = response.data;
-        // 暂时使用模拟数据
+        
+        console.log('Fetching discussions for course ID:', this.$route.params.id);
+        // 暂时使用模拟数据，后续可以替换为API调用
       } catch (error) {
         this.$Message.error('Failed to get discussions');
       }
@@ -300,6 +303,7 @@ export default {
         const userInfo = JSON.parse(Cookies.get('userInfo'));
         const newTopic = {
           id: Date.now(),
+          courseId: this.$route.params.id, // 添加课程ID
           title: this.newTopic.title,
           author: userInfo.nickname,
           time: new Date().toLocaleString(),
@@ -309,6 +313,11 @@ export default {
           showReplies: false,
           replies: []
         };
+        
+        console.log('Creating discussion for course ID:', this.$route.params.id, newTopic);
+        // TODO: 这里可以调用API保存到后端
+        // await this.$api.createDiscussion(newTopic);
+        
         this.discussions.unshift(newTopic);
         this.$Message.success('Topic created successfully');
       } catch (error) {
@@ -334,13 +343,21 @@ export default {
       try {
         const topic = this.discussions[this.newReply.topicIndex];
         const userInfo = JSON.parse(Cookies.get('userInfo'));
-        topic.replies.push({
+        const newReply = {
           id: Date.now(), // 临时ID
+          courseId: this.$route.params.id, // 添加课程ID
+          topicId: topic.id, // 添加主题ID
           author: userInfo.nickname,
           time: new Date().toLocaleString(),
           content: this.newReply.content,
           likes: 0
-        });
+        };
+        
+        console.log('Creating reply for course ID:', this.$route.params.id, 'topic ID:', topic.id, newReply);
+        // TODO: 这里可以调用API保存到后端
+        // await this.$api.createReply(newReply);
+        
+        topic.replies.push(newReply);
         topic.replyCount = topic.replies.length;
         topic.showReplies = true;
         this.$Message.success('Reply posted successfully');

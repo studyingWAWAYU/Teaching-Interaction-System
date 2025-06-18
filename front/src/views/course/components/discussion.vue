@@ -128,7 +128,10 @@ export default {
       searchQuery: '',
       filteredDiscussions: [],
       selectedTopic: null,
-      currentUser: JSON.parse(Cookies.get('userInfo')).nickname
+      currentUser: JSON.parse(Cookies.get('userInfo')).nickname,
+      courseId: null,
+      loading: false,
+      error: null
     }
   },
   computed: {
@@ -140,6 +143,10 @@ export default {
       return [...this.selectedTopic.replies].sort((a, b) => b.likes - a.likes);
     }
   },
+  created() {
+    this.courseId = this.$route.params.id;
+    console.log('Discussion component - Course ID:', this.courseId);
+  },
   watch: {
     discussions: {
       immediate: true,
@@ -149,6 +156,67 @@ export default {
     }
   },
   methods: {
+    // 获取课程讨论列表
+    async fetchCourseDiscussions() {
+      try {
+        this.loading = true;
+        // TODO: 替换为实际的API调用
+        // const response = await this.$api.getCourseDiscussions(this.courseId);
+        // this.discussions = response.data;
+        
+        console.log('Fetching discussions for course ID:', this.courseId);
+        // 暂时使用props传入的数据
+      } catch (error) {
+        this.error = error.message;
+        this.$Message.error('Failed to fetch course discussions.');
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    // 创建讨论主题
+    async createDiscussion(topicData) {
+      try {
+        // TODO: 替换为实际的API调用
+        // const response = await this.$api.createDiscussion({
+        //   courseId: this.courseId,
+        //   title: topicData.title,
+        //   content: topicData.content
+        // });
+        
+        console.log('Creating discussion for course ID:', this.courseId, topicData);
+        // 暂时通过emit通知父组件处理
+        this.$emit('discussion-created', {
+          courseId: this.courseId,
+          ...topicData
+        });
+      } catch (error) {
+        this.$Message.error('Failed to create discussion.');
+      }
+    },
+
+    // 回复讨论
+    async replyToDiscussion(topicId, replyData) {
+      try {
+        // TODO: 替换为实际的API调用
+        // const response = await this.$api.replyToDiscussion({
+        //   courseId: this.courseId,
+        //   topicId: topicId,
+        //   content: replyData.content
+        // });
+        
+        console.log('Replying to discussion for course ID:', this.courseId, 'topic ID:', topicId, replyData);
+        // 暂时通过emit通知父组件处理
+        this.$emit('reply-created', {
+          courseId: this.courseId,
+          topicId: topicId,
+          ...replyData
+        });
+      } catch (error) {
+        this.$Message.error('Failed to create reply.');
+      }
+    },
+
     handleSearch() {
       if (!this.searchQuery) {
         this.filteredDiscussions = [...this.discussions];
