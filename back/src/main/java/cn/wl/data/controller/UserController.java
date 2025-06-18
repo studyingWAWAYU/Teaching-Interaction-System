@@ -47,8 +47,8 @@ public class UserController {
     @Autowired
     private IRoleService iRoleService;
 
-    @Autowired
-    private IUserRoleService iUserRoleService;
+    //@Autowired
+    //private IUserRoleService iUserRoleService;
 
     @Autowired
     private IDepartmentHeaderService iDepartmentHeaderService;
@@ -75,7 +75,7 @@ public class UserController {
 
     private static final String REDIS_PRE_2 = "userRole::depIds:";
 
-    private static final String REDIS_PRE_3 = "permission::userMenuList:";
+    private static final String REDIS_PRE_3 = "permission::userMenu:";
 
     private static final String REDIS_PRE_4 = "user::";
 
@@ -90,7 +90,7 @@ public class UserController {
 
     @RequestMapping(value = "/regist", method = RequestMethod.POST)
     @ApiOperation(value = "注册用户")
-    public Result<Object> regist(@Valid User u){
+    public Result<Object> regist(@Valid User u, @RequestParam Integer identity){
 
         QueryWrapper<User> userQw = new QueryWrapper<>();
         userQw.and(wrapper -> wrapper.eq("username", u.getUsername()).or().eq("mobile",u.getMobile()));
@@ -98,7 +98,10 @@ public class UserController {
             return ResultUtil.error("登录账号/手机号重复");
         }
         String encryptPass = new BCryptPasswordEncoder().encode(u.getPassword());
-        iUserService.saveOrUpdate(u);
+        u.setPassword(encryptPass);
+        u.setRoleId(identity);      // 直接设置用户的角色字段
+        iUserService.saveOrUpdate(u);  // 保存用户 + 角色信息
+        /*
         QueryWrapper<Role> roleQw = new QueryWrapper<>();
         roleQw.eq("default_role",true);
         List<Role> roleList = iRoleService.list(roleQw);
@@ -107,6 +110,13 @@ public class UserController {
                 iUserRoleService.saveOrUpdate(new UserRole().setUserId(u.getId()).setRoleId(role.getId()));
             }
         }
+
+        // 关联用户和角色，给用户分配角色
+        UserRole userRole = new UserRole().setUserId(u.getId()).setRoleId(identity);
+        iUserRoleService.save(userRole);
+
+
+         */
         return ResultUtil.data(u);
     }
 
@@ -171,6 +181,7 @@ public class UserController {
             userQw.eq("department_id",user.getDepartmentId());
         }
         IPage<User> userData = iUserService.page(PageUtil.initMpPage(page),userQw);
+        /*
         for(User u: userData.getRecords()) {
             QueryWrapper<Role> roleQw = new QueryWrapper<>();
             roleQw.inSql("id","SELECT role_id FROM user_role WHERE user_id = " + u.getId());
@@ -182,6 +193,44 @@ public class UserController {
             entityManager.detach(u);
             u.setPassword(null);
         }
+
+         */
+        for(User u: userData.getRecords()) {
+            // 直接从 User 获取 roleId
+            Integer roleId = u.getRoleId(); // 假设 User 实体里有 roleId 字段
+
+            if (roleId != null) {
+                Role role = iRoleService.getById(roleId);
+                if (role != null) {
+                    RoleDTO roleDTO = new RoleDTO()
+                            .setId(role.getId())
+                            .setName(role.getName())
+                            .setDescription(role.getDescription());
+                    u.setRole(roleDTO); // 赋值单个角色
+                } else {
+                    u.setRole(null); // 如果找不到角色，清空
+                }
+            } else {
+                u.setRole(null); // 没有角色ID，也清空
+            }
+            /*
+            QueryWrapper<UserRole> userRoleQw = new QueryWrapper<>();
+            userRoleQw.eq("user_id", u.getId());
+            UserRole userRole = iUserRoleService.getOne(userRoleQw);
+            if(userRole != null) {
+                Role role = iRoleService.getById(userRole.getRoleId());
+                if(role != null){
+                    RoleDTO roleDTO = new RoleDTO().setId(role.getId()).setName(role.getName()).setDescription(role.getDescription());
+                    u.setRole(roleDTO); // 注意：User里要改成单个Role字段而非列表
+                }
+            }
+            u.setRole(null); // 清空旧的多角色字段
+
+             */
+            entityManager.detach(u);// 取消实体管理，防止脏数据，脱离持久化上下文
+            u.setPassword(null);// 清理密码字段
+        }
+
         return new ResultUtil<IPage<User>>().setData(userData);
     }
 
@@ -226,7 +275,7 @@ public class UserController {
     @RequestMapping(value = "/admin/edit", method = RequestMethod.POST)
     @ApiOperation(value = "管理员修改资料")
     @CacheEvict(key = "#u.username")
-    public Result<Object> edit(User u,@RequestParam(required = false) Integer[] roleIds){
+    public Result<Object> edit(User u,@RequestParam(required = false) Integer roleId){
         User customaryUser = iUserService.getById(u.getId());
         // 登录账号和密码不能发生变更
         u.setUsername(customaryUser.getUsername());
@@ -251,8 +300,9 @@ public class UserController {
             u.setDepartmentTitle("");
         }
         */
-
+        u.setRoleId(roleId);
         iUserService.saveOrUpdate(u);
+        /*
         QueryWrapper<UserRole> userRoleQw = new QueryWrapper<>();
         userRoleQw.eq("user_id",u.getId());
         iUserRoleService.remove(userRoleQw);
@@ -264,6 +314,22 @@ public class UserController {
                 iUserRoleService.saveOrUpdate(ur);
             }
         }
+
+         */
+/*
+        QueryWrapper<UserRole> userRoleQw = new QueryWrapper<>();
+        userRoleQw.eq("user_id", u.getId());
+        iUserRoleService.remove(userRoleQw);
+
+        if(roleId != null) { // 参数改为单个Integer roleId
+            UserRole ur = new UserRole();
+            ur.setUserId(u.getId());
+            ur.setRoleId(roleId);
+            iUserRoleService.saveOrUpdate(ur);
+        }
+
+ */
+
         redisTemplate.delete(REDIS_PRE_1 + u.getId());
         redisTemplate.delete(REDIS_PRE_2 + u.getId());
         redisTemplate.delete(REDIS_PRE_3 + u.getId());
@@ -272,7 +338,7 @@ public class UserController {
 
     @RequestMapping(value = "/admin/add", method = RequestMethod.POST)
     @ApiOperation(value = "添加用户")
-    public Result<Object> add(@Valid User u,@RequestParam(required = false) Integer[] roleIds) {
+    public Result<Object> add(@Valid User u,@RequestParam(required = false) Integer roleId) {
         QueryWrapper<User> userQw = new QueryWrapper<>();
         userQw.and(wrapper -> wrapper.eq("username", u.getUsername()).or().eq("mobile",u.getMobile()));
         if(iUserService.count(userQw) > 0L) {
@@ -291,7 +357,9 @@ public class UserController {
          */
 
         u.setPassword(new BCryptPasswordEncoder().encode(u.getPassword()));
+        u.setRoleId(roleId);
         iUserService.saveOrUpdate(u);
+        /*
         if(roleIds != null) {
             for (Integer roleId : roleIds) {
                 UserRole userRole = new UserRole();
@@ -300,6 +368,17 @@ public class UserController {
                 iUserRoleService.saveOrUpdate(userRole);
             }
         }
+
+
+        if(roleId != null) {
+            UserRole userRole = new UserRole();
+            userRole.setUserId(u.getId());
+            userRole.setRoleId(roleId);
+            iUserRoleService.saveOrUpdate(userRole);
+        }
+
+         */
+
         return ResultUtil.success();
     }
 
@@ -341,9 +420,12 @@ public class UserController {
             Set<String> keys = redisTemplateHelper.keys("department::*");
             redisTemplate.delete(keys);
             iUserService.removeById(id);
+            /*
             QueryWrapper<UserRole> urQw = new QueryWrapper<>();
             urQw.eq("user_id",id);
             iUserRoleService.remove(urQw);
+
+             */
             QueryWrapper<DepartmentHeader> dhQw = new QueryWrapper<>();
             dhQw.eq("user_id",id);
             iDepartmentHeaderService.remove(dhQw);
@@ -411,7 +493,104 @@ public class UserController {
         }
         return ResultUtil.success(message);
     }
+    @ApiOperation(value = "添加用户的角色和菜单信息")
+    public User userToDTO(User user) {
+        if (user == null) {
+            return null;
+        }
 
+        // 查找该用户的角色（单角色）
+        // 基于 user.roleId 获取角色和权限信息
+        if (user.getRoleId() != null) {
+            Role role = iRoleService.getById(user.getRoleId());
+            if (role != null) {
+                user.setRole(new RoleDTO().setId(role.getId()).setName(role.getName()));
+
+                // 获取角色权限关系
+                QueryWrapper<RolePermission> rpQw = new QueryWrapper<>();
+                rpQw.eq("role_id", role.getId());
+                List<RolePermission> rpList = iRolePermissionService.list(rpQw);
+
+                List<Integer> permissionIdList = rpList.stream()
+                        .map(RolePermission::getPermissionId)
+                        .distinct()
+                        .collect(Collectors.toList());
+
+                // 获取权限详情，排除操作权限
+                List<PermissionDTO> permissionDTOList = permissionIdList.stream()
+                        .map(iPermissionService::getById)
+                        .filter(Objects::nonNull)
+                        .filter(p -> !CommonConstant.PERMISSION_OPERATION.equals(p.getType()))
+                        .map(p -> new PermissionDTO().setTitle(p.getTitle()).setPath(p.getPath()))
+                        .collect(Collectors.toList());
+
+                user.setPermissions(permissionDTOList);
+            } else {
+                user.setRole(null);
+                user.setPermissions(new ArrayList<>());
+            }
+        } else {
+            user.setRole(null);
+            user.setPermissions(new ArrayList<>());
+        }
+
+        /*
+        QueryWrapper<UserRole> urQw = new QueryWrapper<>();
+        urQw.eq("user_id", user.getId());
+        UserRole userRole = iUserRoleService.getOne(urQw);
+
+        if (userRole != null) {
+            Role role = iRoleService.getById(userRole.getRoleId());
+            if (role != null) {
+                // 设置单个角色
+                user.setRoleId(role.getId());
+                user.setRole(new RoleDTO().setId(role.getId()).setName(role.getName()));
+
+                // 查找该角色的权限ID列表
+                QueryWrapper<RolePermission> rpQw = new QueryWrapper<>();
+                rpQw.eq("role_id", role.getId());
+                List<RolePermission> rpList = iRolePermissionService.list(rpQw);
+
+                List<Integer> permissionIdList = new ArrayList<>();
+                for (RolePermission rp : rpList) {
+                    if (!permissionIdList.contains(rp.getPermissionId())) {
+                        permissionIdList.add(rp.getPermissionId());
+                    }
+                }
+
+                // 根据权限ID查询权限信息，过滤掉操作类型权限
+                List<PermissionDTO> permissionDTOList = new ArrayList<>();
+                for (Integer id : permissionIdList) {
+                    Permission permission = iPermissionService.getById(id);
+                    if (permission != null) {
+                        if (Objects.equals(permission.getType(), CommonConstant.PERMISSION_OPERATION)) {
+                            continue;
+                        }
+                        permissionDTOList.add(new PermissionDTO()
+                                .setTitle(permission.getTitle())
+                                .setPath(permission.getPath()));
+                    }
+                }
+                user.setPermissions(permissionDTOList);
+            } else {
+                // 如果角色没找到，清空角色和权限信息
+                user.setRoleId(null);
+                user.setRole(null);
+                user.setPermissions(new ArrayList<>());
+            }
+        } else {
+            // 用户无角色，清空相关信息
+            user.setRoleId(null);
+            user.setRole(null);
+            user.setPermissions(new ArrayList<>());
+        }
+
+         */
+
+        return user;
+    }
+
+/*
     @ApiOperation(value = "添加用户的角色和菜单信息")
     public User userToDTO(User user) {
         if(user == null) {
@@ -461,4 +640,6 @@ public class UserController {
         user.setPermissions(permissionDTOList);
         return user;
     }
+
+ */
 }

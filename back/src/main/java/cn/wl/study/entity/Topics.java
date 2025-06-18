@@ -40,14 +40,14 @@ public class Topics{
     @CreatedBy
     @TableField(fill = FieldFill.INSERT)
     @ApiModelProperty(value="留言人ID")
-    private Integer create_by;
+    private Integer createBy;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @TableField(fill = FieldFill.UPDATE)
     @LastModifiedDate
     @ApiModelProperty(value = "最后一次更新时间")
-    private Date update_time;
+    private Date updateTime;
 
     @ApiModelProperty(value="标题")
     private String title;
@@ -60,4 +60,7 @@ public class Topics{
 
     @ApiModelProperty(value="点赞数")
     private Integer likes;
+
+    @ApiModelProperty(value = "相似主题")
+    private String similarTopic;
 }

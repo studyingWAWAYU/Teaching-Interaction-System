@@ -3,6 +3,7 @@ package cn.wl.study.serviceimpl;
 import cn.wl.study.entity.Topics;
 import cn.wl.study.mapper.TopicsMapper;
 import cn.wl.study.service.ITopicsService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,37 @@ public class ITopicsServiceImpl extends ServiceImpl<TopicsMapper, Topics> implem
     @Autowired
     private TopicsMapper topicsMapper;
 
+    // 根据主题id和课程id查询主题
     @Override
-    public List<Topics> getAllOrderByLikesDesc() {
-        return List.of();
+    public Topics getByIdAndCourseId(Integer id, Integer courseId){
+        QueryWrapper<Topics> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("id", id)
+                .eq("course_id", courseId);
+        return this.getOne(queryWrapper);
+    }
+
+    // 根据课程id查询该课程的主题数量
+    @Override
+    public Long countByCourseId(Integer courseId){
+        QueryWrapper<Topics> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("course_id", courseId);
+        return this.count(queryWrapper);
+    }
+
+    // 根据课程id查询该课程下的所有主题
+    @Override
+    public List<Topics> listByCourseId(Integer courseId){
+        QueryWrapper<Topics> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("course_id", courseId);
+        return this.list(queryWrapper);
+    }
+
+    // 根据课程id查询该课程下的所有主题，按likes降序排列
+    @Override
+    public List<Topics> getAllByCourseIdOrderByLikesDesc(Integer courseId) {
+        QueryWrapper<Topics> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("course_id", courseId)
+                .orderByDesc("likes");
+        return this.list(queryWrapper);
     }
 }

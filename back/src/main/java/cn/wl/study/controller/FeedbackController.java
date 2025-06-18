@@ -42,7 +42,8 @@ public class FeedbackController {
 
     @RequestMapping(value = "/addOne", method = RequestMethod.GET)
     @ApiOperation(value = "添加课程评价")
-    public Result<Object> addOne(@RequestParam String id, @RequestParam String content, @RequestParam(required = false) Integer rating){
+
+    public Result<Object> addOne(@RequestParam Integer id, @RequestParam String content, @RequestParam(required = false) Integer rating){
         Course course = iCourseService.getById(id);
         if(course == null) {
             return ResultUtil.error("课程不存在");
@@ -60,7 +61,7 @@ public class FeedbackController {
 
     @RequestMapping(value = "/getOne", method = RequestMethod.GET)
     @ApiOperation(value = "查询单条课程评价")
-    public Result<Feedback> get(@RequestParam String id){
+    public Result<Feedback> get(@RequestParam Integer id){
         return new ResultUtil<Feedback>().setData(iFeedbackService.getById(id));
     }
 

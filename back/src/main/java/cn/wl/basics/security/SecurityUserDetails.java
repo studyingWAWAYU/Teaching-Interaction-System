@@ -20,8 +20,8 @@ public class SecurityUserDetails extends User implements UserDetails {
 
     private static final long serialVersionUID = 1L;
 
-    private List<RoleDTO> roles;
-
+    //private List<RoleDTO> roles;
+    private RoleDTO role;
     private List<PermissionDTO> permissions;
 
     @Override
@@ -29,7 +29,7 @@ public class SecurityUserDetails extends User implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<GrantedAuthority> grantedAuthorityList = new ArrayList<>();
         // 菜单权限
-        if(permissions!=null && permissions.size() > 0){
+        if(permissions!=null && !permissions.isEmpty()){
             for (PermissionDTO dto : permissions) {
                 if(!WlNullUtils.isNull(dto.getTitle()) && !WlNullUtils.isNull(dto.getPath())) {
                     grantedAuthorityList.add(new SimpleGrantedAuthority(dto.getTitle()));
@@ -37,13 +37,19 @@ public class SecurityUserDetails extends User implements UserDetails {
             }
         }
         // 角色
-        if(roles != null && roles.size() > 0){
+        if (role != null && !WlNullUtils.isNull(role.getName())) {
+            grantedAuthorityList.add(new SimpleGrantedAuthority(role.getName()));
+        }
+        /*
+        if(role != null && roles.size() > 0){
             roles.forEach(role -> {
                 if(!WlNullUtils.isNull(role.getName())){
                     grantedAuthorityList.add(new SimpleGrantedAuthority(role.getName()));
                 }
             });
         }
+
+         */
         return grantedAuthorityList;
     }
 
@@ -79,10 +85,25 @@ public class SecurityUserDetails extends User implements UserDetails {
      */
     public SecurityUserDetails(User user) {
         if(user != null) {
+            //this.setUsername(user.getUsername());
+            //this.setPassword(user.getPassword());
+            this.permissions  = user.getPermissions();
+            //this.roles = user.getRoles();
+            this.setId(user.getId());
             this.setUsername(user.getUsername());
             this.setPassword(user.getPassword());
-            this.permissions  = user.getPermissions();
-            this.roles = user.getRoles();
+            this.setEmail(user.getEmail());
+            this.setMobile(user.getMobile());
+            this.setRoleId(user.getRoleId());
+            this.setRole(user.getRole());
+            this.setPermissions(user.getPermissions());
+            this.setNumber(user.getNumber());
+            this.setSex(user.getSex());
+            this.setNickname(user.getNickname());
+            this.setAvatar(user.getAvatar());
+            this.setDepartmentId(user.getDepartmentId());
+            this.setMyDoor(user.getMyDoor());
+            this.setCreate_time(user.getCreate_time());
         }
     }
 }
