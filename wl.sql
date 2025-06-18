@@ -373,7 +373,8 @@ CREATE TABLE IF NOT EXISTS `topics` (
   description varchar(5000) DEFAULT NULL,
   course_id integer,
   foreign key (course_id) references course(id),
-  likes integer DEFAULT 0
+  likes integer DEFAULT 0,
+  similar_topic varchar(255) DEFAULT NULL,
 );
 
 DELETE FROM `topics`;
