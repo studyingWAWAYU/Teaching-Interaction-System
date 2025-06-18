@@ -1,7 +1,5 @@
 package cn.wl.data.controller;
 
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.redis.RedisTemplateHelper;
 import cn.wl.basics.utils.PageUtil;
 import cn.wl.basics.utils.ResultUtil;
@@ -10,8 +8,9 @@ import cn.wl.basics.baseVo.Result;
 import cn.wl.data.entity.*;
 import cn.wl.data.service.IRolePermissionService;
 import cn.wl.data.service.IRoleService;
-import cn.wl.data.service.IUserRoleService;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.service.IUserService;
+//import cn.wl.data.service.IUserRoleService;
+import cn.wl.data.utils.WlNullUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
@@ -25,10 +24,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
 @RestController
 @Api(tags = "角色管理接口")
 @RequestMapping("/wl/role")
@@ -38,8 +33,10 @@ public class RoleController {
     @Autowired
     private IRoleService iRoleService;
 
+    //@Autowired
+    //private IUserRoleService iUserRoleService;
     @Autowired
-    private IUserRoleService iUserRoleService;
+    private IUserService iUserService;
 
     @Autowired
     private IRolePermissionService iRolePermissionService;
@@ -50,22 +47,20 @@ public class RoleController {
     @Autowired
     private RedisTemplateHelper redisTemplateHelper;
 
-    @SystemLog(about = "查询全部角色", type = LogType.DATA_CENTER,doType = "ROLE-01")
     @RequestMapping(value = "/getAllList", method = RequestMethod.GET)
     @ApiOperation(value = "查询全部角色")
     public Result<Object> getAllList(){
         return ResultUtil.data(iRoleService.list());
     }
 
-    @SystemLog(about = "查询角色", type = LogType.DATA_CENTER,doType = "ROLE-02")
     @RequestMapping(value = "/getAllByPage", method = RequestMethod.GET)
     @ApiOperation(value = "查询角色")
     public Result<IPage<Role>> getRoleByPage(@ModelAttribute Role role,@ModelAttribute PageVo page) {
         QueryWrapper<Role> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(role.getName())) {
+        if(!WlNullUtils.isNull(role.getName())) {
             qw.like("name",role.getName());
         }
-        if(!ZwzNullUtils.isNull(role.getDescription())) {
+        if(!WlNullUtils.isNull(role.getDescription())) {
             qw.like("description",role.getDescription());
         }
         IPage<Role> roleList = iRoleService.page(PageUtil.initMpPage(page),qw);
@@ -77,7 +72,7 @@ public class RoleController {
         return new ResultUtil<IPage<Role>>().setData(roleList);
     }
 
-    @SystemLog(about = "配置默认角色", type = LogType.DATA_CENTER,doType = "ROLE-03")
+    /*
     @RequestMapping(value = "/setDefault", method = RequestMethod.POST)
     @ApiOperation(value = "配置默认角色")
     public Result<Object> setDefault(@RequestParam String id,@RequestParam Boolean isDefault){
@@ -91,23 +86,23 @@ public class RoleController {
         }
         return ResultUtil.error("不存在");
     }
+    */
 
-    @SystemLog(about = "修改菜单权限", type = LogType.DATA_CENTER,doType = "ROLE-04")
     @RequestMapping(value = "/editRolePerm", method = RequestMethod.POST)
     @ApiOperation(value = "修改菜单权限")
-    public Result<Object> editRolePerm(@RequestParam String roleId,@RequestParam(required = false) String[] permIds){
+    public Result<Object> editRolePerm(@RequestParam String roleId,@RequestParam(required = false) Integer[] permIds){
         Role role = iRoleService.getById(roleId);
         if(role == null) {
             return ResultUtil.error("角色已被删除");
         }
         if(permIds == null) {
-            permIds = new String[0];
+            permIds = new Integer[0];
         }
         QueryWrapper<RolePermission> oldQw = new QueryWrapper<>();
         oldQw.eq("role_id",role.getId());
         List<RolePermission> oldPermissionList = iRolePermissionService.list(oldQw);
         // 判断新增 = oldPermissionList没有 permIds有
-        for (String permId : permIds) {
+        for (Integer permId : permIds) {
             boolean flag = true;
             for (RolePermission rp : oldPermissionList) {
                 if(Objects.equals(permId,rp.getPermissionId())) {
@@ -125,7 +120,7 @@ public class RoleController {
         // 判断删除 = oldPermissionList有 permIds没有
         for (RolePermission rp : oldPermissionList) {
             boolean flag = true;
-            for (String permId : permIds) {
+            for (Integer permId : permIds) {
                 if(Objects.equals(permId,rp.getPermissionId())) {
                     flag = false;
                     break;
@@ -144,7 +139,6 @@ public class RoleController {
         return ResultUtil.data();
     }
 
-    @SystemLog(about = "新增角色", type = LogType.DATA_CENTER,doType = "ROLE-05")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @ApiOperation(value = "新增角色")
     public Result<Role> save(Role role){
@@ -152,7 +146,6 @@ public class RoleController {
         return new ResultUtil<Role>().setData(role);
     }
 
-    @SystemLog(about = "编辑角色", type = LogType.DATA_CENTER,doType = "ROLE-06")
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     @ApiOperation(value = "编辑角色")
     public Result<Role> edit(Role role){
@@ -164,14 +157,14 @@ public class RoleController {
         return new ResultUtil<Role>().setData(role);
     }
 
-    @SystemLog(about = "删除角色", type = LogType.DATA_CENTER,doType = "ROLE-07")
     @RequestMapping(value = "/delByIds", method = RequestMethod.POST)
     @ApiOperation(value = "删除角色")
     public Result<Object> delByIds(@RequestParam String[] ids){
         for(String id : ids) {
-            QueryWrapper<UserRole> urQw = new QueryWrapper<>();
-            urQw.eq("role_id", id);
-            long urCount = iUserRoleService.count(urQw);
+            QueryWrapper<User> userQw = new QueryWrapper<>();
+            //QueryWrapper<UserRole> urQw = new QueryWrapper<>();
+            userQw.eq("role_id", id);
+            long urCount = iUserService.count(userQw);
             if(urCount > 0L){
                 return ResultUtil.error("不能删除正在使用的角色");
             }

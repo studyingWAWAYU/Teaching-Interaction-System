@@ -4,7 +4,7 @@ import cn.wl.basics.utils.PageUtil;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.baseVo.PageVo;
 import cn.wl.basics.baseVo.Result;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import cn.wl.study.entity.BaseData;
 import cn.wl.study.service.IBaseDataService;
 import cn.hutool.core.util.StrUtil;
@@ -55,10 +55,10 @@ public class BaseDataController {
     @ApiOperation(value = "查询基本信息")
     public Result<IPage<BaseData>> getByPage(@ModelAttribute BaseData baseData ,@ModelAttribute PageVo page){
         QueryWrapper<BaseData> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(baseData.getTitle())) {
+        if(!WlNullUtils.isNull(baseData.getTitle())) {
             qw.like("title",baseData.getTitle());
         }
-        if(!ZwzNullUtils.isNull(baseData.getContent())) {
+        if(!WlNullUtils.isNull(baseData.getContent())) {
             qw.like("content",baseData.getContent());
         }
         IPage<BaseData> data = iBaseDataService.page(PageUtil.initMpPage(page),qw);

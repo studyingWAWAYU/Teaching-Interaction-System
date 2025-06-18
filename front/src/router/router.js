@@ -55,7 +55,10 @@ export const otherRouter = {
         { path: 'myHome', title: '个人中心', name: 'my_home_index', component: () => import('@/views/home/myHome.vue') },
         { path: 'password', title: '修改密码', name: 'password', component: () => import('@/views/password/password.vue') },
         { path: 'add', title: '添加', name: 'add', component: () => import('@/views/template/add.vue') },
-        { path: 'edit', title: '编辑', name: 'edit', component: () => import('@/views/template/edit.vue')}
+        { path: 'edit', title: '编辑', name: 'edit', component: () => import('@/views/template/edit.vue')},
+        { path: 'course-lobby', title: 'Course Lobby', name: 'course_lobby', component: () => import('@/views/CourseLobby.vue') },
+        { path: 'course/:id', title: 'Course Content', name: 'course_manage', component: () => import('@/views/course/index.vue') }
+
     ]
 };
 

@@ -1,6 +1,6 @@
 package cn.wl.study.entity;
 
-import cn.wl.basics.baseClass.ZwzBaseEntity;
+import cn.wl.basics.baseClass.WlBaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiModel;
@@ -21,7 +21,7 @@ import jakarta.persistence.Table;
 @Table(name = "a_message")
 @TableName("a_message")
 @ApiModel(value = "留言")
-public class Message extends ZwzBaseEntity {
+public class Message extends WlBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,7 +29,7 @@ public class Message extends ZwzBaseEntity {
     private String content;
 
     @ApiModelProperty(value = "留言人ID")
-    private String userId;
+    private Integer userId;
 
     @ApiModelProperty(value = "留言人")
     private String userName;
@@ -41,7 +41,7 @@ public class Message extends ZwzBaseEntity {
     private String replyContent;
 
     @ApiModelProperty(value = "回复人ID")
-    private String replyId;
+    private Integer replyId;
 
     @ApiModelProperty(value = "回复人")
     private String replyName;

@@ -1,7 +1,5 @@
 package cn.wl.data.controller;
 
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.parameter.CommonConstant;
 import cn.wl.basics.redis.RedisTemplateHelper;
 import cn.wl.basics.utils.ResultUtil;
@@ -10,7 +8,7 @@ import cn.wl.basics.baseVo.Result;
 import cn.wl.data.entity.*;
 import cn.wl.data.service.*;
 import cn.wl.data.utils.VoUtil;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import cn.wl.data.vo.MenuVo;
 import cn.wl.data.vo.UserByPermissionVo;
 import com.alibaba.fastjson2.JSON;
@@ -51,8 +49,8 @@ public class PermissionController {
     @Autowired
     private IPermissionService iPermissionService;
 
-    @Autowired
-    private IUserRoleService iUserRoleService;
+    //@Autowired
+    //private IUserRoleService iUserRoleService;
 
     @Autowired
     private RedisTemplateHelper redisTemplateHelper;
@@ -63,7 +61,6 @@ public class PermissionController {
     @Autowired
     private IUserService iUserService;
 
-    @SystemLog(about = "查询菜单权限拥有者", type = LogType.DATA_CENTER,doType = "PERMISSION-01")
     @ApiOperation(value = "查询菜单权限拥有者")
     @RequestMapping(value = "/getUserByPermission", method = RequestMethod.GET)
     public Result<List<UserByPermissionVo>> getUserByPermission(@RequestParam String permissionId){
@@ -79,11 +76,18 @@ public class PermissionController {
         for (RolePermission rp : rolePermissionList) {
             Role role = iRoleService.getById(rp.getRoleId());
             if(role != null) {
+                /*
                 QueryWrapper<UserRole> urQw = new QueryWrapper<>();
                 urQw.eq("role_id",role.getId());
                 List<UserRole> userRoleList = iUserRoleService.list(urQw);
                 for (UserRole ur : userRoleList) {
-                    User user = iUserService.getById(ur.getUserId());
+
+                 */
+                QueryWrapper<User> userQw = new QueryWrapper<>();
+                userQw.eq("role_id", role.getId());
+                List<User> userList = iUserService.list(userQw);
+                for (User user : userList) {
+                    //User user = iUserService.getById(ur.getUserId());
                     if(user != null) {
                         boolean flag = false;
                         for (UserByPermissionVo vo : ansList) {
@@ -117,7 +121,6 @@ public class PermissionController {
         return iPermissionService.list(qw);
     }
 
-    @SystemLog(about = "查询菜单", type = LogType.DATA_CENTER,doType = "PERMISSION-02")
     @RequestMapping(value = "/getMenuList", method = RequestMethod.GET)
     @ApiOperation(value = "查询菜单")
     public Result<List<MenuVo>> getMenuList(){
@@ -125,7 +128,7 @@ public class PermissionController {
         User currUser = securityUtil.getCurrUser();
         String keyInRedis = "permission::userMenuList:" + currUser.getId();
         String valueInRedis = redisTemplateHelper.get(keyInRedis);
-        if(!ZwzNullUtils.isNull(valueInRedis)){
+        if(!WlNullUtils.isNull(valueInRedis)){
             return new ResultUtil<List<MenuVo>>().setData(JSON.parseArray(valueInRedis,MenuVo.class));
         }
         // 拥有的菜单列表
@@ -192,7 +195,6 @@ public class PermissionController {
         return new ResultUtil<List<MenuVo>>().setData(menuList);
     }
 
-    @SystemLog(about = "搜索菜单", type = LogType.DATA_CENTER,doType = "PERMISSION-03")
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     @ApiOperation(value = "搜索菜单")
     public Result<List<Permission>> searchPermissionList(@RequestParam String title){
@@ -203,14 +205,13 @@ public class PermissionController {
     }
 
     @ApiOperation(value = "根据父ID查询菜单")
-    private List<Permission> getPermissionListByParentId(String parentId) {
+    private List<Permission> getPermissionListByParentId(Integer parentId) {
         QueryWrapper<Permission> qw = new QueryWrapper<>();
         qw.eq("parent_id",parentId);
         qw.orderByAsc("sort_order");
         return iPermissionService.list(qw);
     }
 
-    @SystemLog(about = "查询全部菜单", type = LogType.DATA_CENTER,doType = "PERMISSION-04")
     @RequestMapping(value = "/getAllList", method = RequestMethod.GET)
     @ApiOperation(value = "查询全部菜单")
     @Cacheable(key = "'allList'")
@@ -235,14 +236,13 @@ public class PermissionController {
         return new ResultUtil<List<Permission>>().setData(list0);
     }
 
-    @SystemLog(about = "删除菜单", type = LogType.DATA_CENTER,doType = "PERMISSION-05")
     @RequestMapping(value = "/delByIds", method = RequestMethod.POST)
     @ApiOperation(value = "删除菜单")
     @CacheEvict(key = "'menuList'")
     public Result<Object> delByIds(@RequestParam String[] ids){
         for(String id : ids){
             QueryWrapper<RolePermission> qw = new QueryWrapper<>();
-            qw.like("permission_id",id);
+            qw.eq("permission_id",id);
             long rolePermissionCount = iRolePermissionService.count(qw);
             if(rolePermissionCount > 0L) {
                 Permission permission = iPermissionService.getById(id);
@@ -259,7 +259,6 @@ public class PermissionController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "添加菜单", type = LogType.DATA_CENTER,doType = "PERMISSION-06")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ApiOperation(value = "添加菜单")
     @CacheEvict(key = "'menuList'")
@@ -274,8 +273,8 @@ public class PermissionController {
         }
         if(Objects.equals(CommonConstant.PERMISSION_NAV,permission.getType())) {
             // 顶级菜单添加标识
-            permission.setParentId("0");
-            if(ZwzNullUtils.isNull(permission.getPath())) {
+            permission.setParentId(0);
+            if(WlNullUtils.isNull(permission.getPath())) {
                 permission.setPath(permission.getName());
             }
             permission.setDescription("");
@@ -286,7 +285,6 @@ public class PermissionController {
         return new ResultUtil<Permission>().setData(permission);
     }
 
-    @SystemLog(about = "编辑菜单", type = LogType.DATA_CENTER,doType = "PERMISSION-07")
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     @ApiOperation(value = "编辑菜单")
     public Result<Permission> edit(Permission permission){
@@ -310,7 +308,8 @@ public class PermissionController {
         return new ResultUtil<Permission>().setData(permission);
     }
 
-    private List<Permission> getPermissionByUserId(String userId) {
+    private List<Permission> getPermissionByUserId(Integer userId) {
+        /*
         QueryWrapper<UserRole> urQw = new QueryWrapper<>();
         urQw.eq("user_id",userId);
         List<UserRole> userRoleList = iUserRoleService.list(urQw);
@@ -332,6 +331,29 @@ public class PermissionController {
                 }
             }
         }
+
+         */
+        User user = iUserService.getById(userId);
+        if (user == null || user.getRoleId() == null) {
+            return new ArrayList<>();
+        }
+        QueryWrapper<RolePermission> rpQw = new QueryWrapper<>();
+        rpQw.eq("role_id", user.getRoleId());
+        List<RolePermission> rolePermissionList = iRolePermissionService.list(rpQw);
+        List<Permission> permissionList = new ArrayList<>();
+        for (RolePermission rolePermission : rolePermissionList) {
+            boolean flag = true;
+            for (Permission permission : permissionList) {
+                if (Objects.equals(permission.getId(), rolePermission.getPermissionId())) {
+                    flag = false;
+                    break;
+                }
+            }
+            if (flag) {
+                permissionList.add(iPermissionService.getById(rolePermission.getPermissionId()));
+            }
+        }
+
         return permissionList;
     }
 }

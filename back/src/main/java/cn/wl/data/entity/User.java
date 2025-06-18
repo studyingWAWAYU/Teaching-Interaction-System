@@ -1,105 +1,113 @@
 package cn.wl.data.entity;
 
-import cn.wl.basics.baseClass.ZwzBaseEntity;
 import cn.wl.basics.parameter.CommonConstant;
 import cn.wl.data.vo.PermissionDTO;
 import cn.wl.data.vo.RoleDTO;
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 import java.util.List;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
 @Data
 @Accessors(chain = true)
 @Entity
 @DynamicInsert
 @DynamicUpdate
-@Table(name = "a_user")
-@TableName("a_user")
+@Table(name = "user")
+@TableName("user")
 @ApiModel(value = "用户")
-public class User extends ZwzBaseEntity {
+@EntityListeners(AuditingEntityListener.class)
+public class User {
 
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "姓名")
-    @NotNull(message = "姓名不能为空")
-    @Size(max = 20, message = "姓名长度不能超过20")
-    private String nickname;
+    @ApiModelProperty(value = "ID")
+    @Id
+    @TableId
+    private Integer id;
 
-    @ApiModelProperty(value = "账号")
-    @Column(unique = true, nullable = false)
-    @Pattern(regexp = "^[a-zA-Z0-9_\\u4e00-\\u9fa5]{4,16}$", message = "账号长度不合法")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @TableField(fill = FieldFill.INSERT)
+    @CreatedDate
+    @ApiModelProperty(value = "创建时间")
+    private Date create_time;
+
+    @ApiModelProperty(value = "真实姓名")
+    @NotNull(message = "Real name cannot be emtpy")
+    @Size(max = 30, message = "Name length cannot exceed 30 characters.")
     private String username;
 
     @ApiModelProperty(value = "密码")
-    @NotNull(message = "密码不能为空")
+    @NotNull(message = "Password cannot be empty.")
     private String password;
 
-    @ApiModelProperty(value = "密码强度")
-    @Column(length = 2)
-    private String passStrength;
-
-    @ApiModelProperty(value = "手机号")
-    @Pattern(regexp = "^[1][3,4,5,6,7,8,9][0-9]{9}$", message = "手机号格式错误")
-    private String mobile;
-
-    @ApiModelProperty(value = "部门ID")
-    private String departmentId;
-
-    @ApiModelProperty(value = "部门")
-    private String departmentTitle;
+    @ApiModelProperty(value = "网名")
+    @Size(max = 20, message = "Nickname length cannot exceed 20 characters.")
+    private String nickname;
 
     @ApiModelProperty(value = "邮箱")
-    @Pattern(regexp = "^(([^<>()\\[\\]\\\\.,;:\\s@\"]+(\\.[^<>()\\[\\]\\\\.,;:\\s@\"]+)*)|(\".+\"))@((\\[[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}])|(([a-zA-Z\\-0-9]+\\.)+[a-zA-Z]{2,}))$", message = "邮箱格式错误")
+    @Pattern(regexp = "^[a-zA-Z0-9_+&*-]+(?:\\\\.[a-zA-Z0-9_+&*-]+)*@[a-zA-Z0-9-]+(?:\\\\.[a-zA-Z0-9-]+)*\\\\.[a-zA-Z]{2,}$", message = "Email format is incorrect.")
     private String email;
+
+    @ApiModelProperty(value = "手机号")
+    @Pattern(regexp = "^(?:\\\\+86)?1[3-9]\\\\d{9}$", message = "Phone number format is incorrect.")
+    private String mobile;
+
+
+    @ApiModelProperty(value = "学工号")
+    @NotNull(message = "Teacher/Student ID cannot be empty.")
+    private String number;
 
     @ApiModelProperty(value = "性别")
     private String sex;
 
-    @ApiModelProperty(value = "区县")
-    private String address;
-
-    @ApiModelProperty(value = "用户类型")
-    private Integer type;
-
-    @ApiModelProperty(value = "个人门户")
-    private String myDoor;
-
-    @ApiModelProperty(value = "启用状态")
-    private Integer status = CommonConstant.USER_STATUS_NORMAL;
-
     @ApiModelProperty(value = "头像")
     private String avatar = CommonConstant.USER_DEFAULT_AVATAR;
 
-    @Transient
-    @TableField(exist=false)
-    @ApiModelProperty(value = "是否默认角色")
-    private Integer defaultRole;
+    @ApiModelProperty(value = "部门ID")
+    private String departmentId;
+
+    @ApiModelProperty(value = "个人门户")
+    private String myDoor;
 
     @Transient
     @TableField(exist=false)
     @ApiModelProperty(value = "用户拥有的菜单列表")
     private List<PermissionDTO> permissions;
-
+/*
     @Transient
     @TableField(exist=false)
-    @ApiModelProperty(value = "用户拥有的角色列表")
+    @ApiModelProperty(value = "用户拥有的角色")
     private List<RoleDTO> roles;
+
+
+ */
+    @ApiModelProperty(value = "用户角色")
+    private Integer roleId;
+
+    @Transient
+    @TableField(exist = false)
+    @ApiModelProperty(value = "角色对象")
+    private RoleDTO role;
+
+
 }

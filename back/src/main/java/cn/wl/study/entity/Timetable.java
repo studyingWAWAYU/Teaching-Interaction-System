@@ -1,6 +1,6 @@
 package cn.wl.study.entity;
 
-import cn.wl.basics.baseClass.ZwzBaseEntity;
+import cn.wl.basics.baseClass.WlBaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiModel;
@@ -21,15 +21,15 @@ import jakarta.persistence.Table;
 @Table(name = "a_timetable")
 @TableName("a_timetable")
 @ApiModel(value = "课表")
-public class Timetable extends ZwzBaseEntity {
+public class Timetable extends WlBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
     @ApiModelProperty(value = "课程ID")
-    private String curriculumId;
+    private String courseId;
 
     @ApiModelProperty(value = "课程名称")
-    private String curriculumName;
+    private String courseName;
 
     @ApiModelProperty(value = "学生ID")
     private String userId;

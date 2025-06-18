@@ -1,9 +1,10 @@
 package cn.wl.data.entity;
 
-import cn.wl.basics.baseClass.ZwzBaseEntity;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import jakarta.persistence.Id;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.hibernate.annotations.DynamicInsert;
@@ -12,25 +13,26 @@ import org.hibernate.annotations.DynamicUpdate;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
 @Data
 @Accessors(chain = true)
 @Entity
 @DynamicInsert
 @DynamicUpdate
-@Table(name = "a_role_permission")
-@TableName("a_role_permission")
+@Table(name = "role_permission")
+@TableName("role_permission")
 @ApiModel(value = "角色权限")
-public class RolePermission extends ZwzBaseEntity {
+public class RolePermission{
 
     private static final long serialVersionUID = 1L;
 
+    @ApiModelProperty(value = "ID")
+    @Id
+    @TableId
+    private Integer id;
+
     @ApiModelProperty(value = "权限ID")
-    private String permissionId;
+    private Integer permissionId;
 
     @ApiModelProperty(value = "角色ID")
-    private String roleId;
+    private Integer roleId;
 }

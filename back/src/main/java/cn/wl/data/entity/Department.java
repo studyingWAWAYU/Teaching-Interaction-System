@@ -1,6 +1,6 @@
 package cn.wl.data.entity;
 
-import cn.wl.basics.baseClass.ZwzBaseEntity;
+import cn.wl.basics.baseClass.WlBaseEntity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
@@ -27,7 +27,7 @@ import java.util.List;
 @Table(name = "a_department")
 @TableName("a_department")
 @ApiModel(value = "部门")
-public class Department extends ZwzBaseEntity {
+public class Department extends WlBaseEntity {
 
     private static final long serialVersionUID = 1L;
 
@@ -50,12 +50,12 @@ public class Department extends ZwzBaseEntity {
     @Transient
     @TableField(exist=false)
     @ApiModelProperty(value = "领导人")
-    private List<String> mainHeader;
+    private List<Integer> mainHeader;
 
     @Transient
     @TableField(exist=false)
     @ApiModelProperty(value = "副领导人")
-    private List<String> viceHeader;
+    private List<Integer> viceHeader;
 
     @Transient
     @TableField(exist=false)

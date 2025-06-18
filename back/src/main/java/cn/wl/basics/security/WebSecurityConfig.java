@@ -3,7 +3,7 @@ package cn.wl.basics.security;
 import cn.wl.basics.redis.RedisTemplateHelper;
 import cn.wl.basics.security.jwt.*;
 import cn.wl.basics.utils.SecurityUtil;
-import cn.wl.basics.parameter.ZwzLoginProperties;
+import cn.wl.basics.parameter.WlLoginProperties;
 import cn.wl.basics.security.validate.ImageValidateFilter;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
     @Autowired
-    private ZwzLoginProperties zwzLoginProperties;
+    private WlLoginProperties WlLoginProperties;
 
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
@@ -41,7 +41,7 @@ public class WebSecurityConfig {
     private AuthenticationFailHandler authenticationFailHandler;
 
     @Autowired
-    private ZwzAccessDeniedHandler zwzAccessDeniedHandler;
+    private WlAccessDeniedHandler wlAccessDeniedHandler;
 
     @Autowired
     private ImageValidateFilter imageValidateFilter;
@@ -57,32 +57,48 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         // 这里配置了免登录接口（白名单），不需要校验token值也能访问这些接口
-        http.authorizeHttpRequests().requestMatchers("/wl/dictData/getByType/**","/wl/file/view/**","/wl/user/regist","/wl/common/**","/*/*.js","/*/*.css","/*/*.png","/*/*.ico", "/swagger-ui.html").permitAll()
+        http.authorizeHttpRequests().requestMatchers("/wl/dictData/getByType/**",
+                        "/wl/file/view/**",
+                        "/wl/user/regist",
+                        "/wl/user/getAll",
+                        "/wl/common/**",
+                        "/wl/course/getAll",
+                        "/wl/course/getOne",
+                        "/wl/course/count",
+                        "/wl/course/getByPage",
+                        "/wl/feedback/getAll",
+                        "/wl/feedback/getOne",
+                        "/wl/feedback/count",
+                        "/wl/feedback/getByPage",
+                        "/*/*.js","/*/*.css","/*/*.png","/*/*.ico",
+                        "/swagger-ui.html").permitAll()
                 // 如果token校验失败就跳转到登录界面
-                .and().formLogin().loginPage("/wl/common/needLogin")
+                .and().formLogin()
+                .loginPage("/wl/common/needLogin")
                 // 配置登录接口
                 .loginProcessingUrl("/wl/login").permitAll()
                 // 配置登录成功的处理类 和 登录失败的处理类
-                .successHandler(authenticationSuccessHandler).failureHandler(authenticationFailHandler).and()
-                .headers().frameOptions().disable().and()
-                .logout()
-                .permitAll()
-                .and()
-                .authorizeHttpRequests()
-                .anyRequest()
-                .authenticated()
-                .and()
-                .cors().and()
-                .csrf().disable()
+                .successHandler(authenticationSuccessHandler).failureHandler(authenticationFailHandler)
+                // 允许iframe嵌套
+                .and().headers().frameOptions().disable()
+                // 配置注销
+                .and().logout().permitAll()
+                // 其他请求需要认证
+                .and().authorizeHttpRequests()
+                .anyRequest().authenticated()
+                // 跨域配置
+                .and().cors()
+                // 禁用CSRF防护
+                .and().csrf().disable()
+
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .exceptionHandling().accessDeniedHandler(zwzAccessDeniedHandler)
-                .and()
-                .authenticationProvider(authenticationProvider())
+
+                .and().exceptionHandling().accessDeniedHandler(wlAccessDeniedHandler)
+                .and().authenticationProvider(authenticationProvider())
                 // 自定义限流过滤器。防止白名单网站请求量太大导致服务器垮掉
-                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
                 // 图形验证码的过滤器
-                .addFilterBefore(imageValidateFilter, UsernamePasswordAuthenticationFilter.class);
+                //.addFilterBefore(imageValidateFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
@@ -111,6 +127,6 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtTokenOncePerRequestFilter authenticationJwtTokenFilter() throws Exception {
-        return new JwtTokenOncePerRequestFilter(redisTemplate, securityUtil, zwzLoginProperties);
+        return new JwtTokenOncePerRequestFilter(redisTemplate, securityUtil, WlLoginProperties);
     }
 }

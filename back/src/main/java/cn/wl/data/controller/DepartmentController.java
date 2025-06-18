@@ -1,9 +1,7 @@
 package cn.wl.data.controller;
 
-import cn.wl.basics.log.LogType;
-import cn.wl.basics.log.SystemLog;
 import cn.wl.basics.parameter.CommonConstant;
-import cn.wl.basics.exception.ZwzException;
+import cn.wl.basics.exception.WlException;
 import cn.wl.basics.redis.RedisTemplateHelper;
 import cn.wl.basics.utils.CommonUtil;
 import cn.wl.basics.utils.ResultUtil;
@@ -15,7 +13,7 @@ import cn.wl.data.entity.User;
 import cn.wl.data.service.IDepartmentHeaderService;
 import cn.wl.data.service.IDepartmentService;
 import cn.wl.data.service.IUserService;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.annotations.Api;
@@ -63,7 +61,6 @@ public class DepartmentController {
 
     private static final String REDIS_STEP_STR = ":";
 
-    @SystemLog(about = "查询子部门", type = LogType.DATA_CENTER,doType = "DEP-01")
     @RequestMapping(value = "/getByParentId", method = RequestMethod.GET)
     @ApiOperation(value = "查询子部门")
     public Result<List<Department>> getByParentId(@RequestParam(required = false,defaultValue = "0") String parentId){
@@ -71,7 +68,7 @@ public class DepartmentController {
         User nowUser = securityUtil.getCurrUser();
         String key = REDIS_DEPARTMENT_PRE_STR + parentId + REDIS_STEP_STR + nowUser.getId();
         String value = redisTemplateHelper.get(key);
-        if(!ZwzNullUtils.isNull(value)){
+        if(!WlNullUtils.isNull(value)){
             return new ResultUtil<List<Department>>().setData(JSON.parseArray(value,Department.class));
         }
         QueryWrapper<Department> depQw = new QueryWrapper<>();
@@ -83,7 +80,6 @@ public class DepartmentController {
         return new ResultUtil<List<Department>>().setData(list);
     }
 
-    @SystemLog(about = "模糊搜索部门", type = LogType.DATA_CENTER,doType = "DEP-02")
     @RequestMapping(value = "/search", method = RequestMethod.GET)
     @ApiOperation(value = "模糊搜索部门")
     public Result<List<Department>> search(@RequestParam String title){
@@ -94,7 +90,6 @@ public class DepartmentController {
         return new ResultUtil<List<Department>>().setData(setInfo(departmentList));
     }
 
-    @SystemLog(about = "添加部门", type = LogType.DATA_CENTER,doType = "DEP-03")
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     @ApiOperation(value = "添加部门")
     public Result<Object> add(Department department){
@@ -111,10 +106,9 @@ public class DepartmentController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "编辑部门", type = LogType.DATA_CENTER,doType = "DEP-04")
     @RequestMapping(value = "/edit", method = RequestMethod.POST)
     @ApiOperation(value = "编辑部门")
-    public Result<Object> edit(Department department,@RequestParam(required = false) String[] mainHeader,@RequestParam(required = false) String[] viceHeader){
+    public Result<Object> edit(Department department,@RequestParam(required = false) Integer[] mainHeader,@RequestParam(required = false) Integer[] viceHeader){
         Department oldDepartment = iDepartmentService.getById(department.getId());
         iDepartmentService.saveOrUpdate(department);
         QueryWrapper<DepartmentHeader> dhQw = new QueryWrapper<>();
@@ -122,13 +116,13 @@ public class DepartmentController {
         iDepartmentHeaderService.remove(dhQw);
         List<DepartmentHeader> departmentHeaderList = new ArrayList<>();
         if(mainHeader != null){
-            for(String mainHeaderId : mainHeader){
+            for(Integer mainHeaderId : mainHeader){
                 DepartmentHeader dh = new DepartmentHeader().setUserId(mainHeaderId).setDepartmentId(department.getId()).setType(0);
                 departmentHeaderList.add(dh);
             }
         }
         if(viceHeader != null){
-            for(String viceHeaderId : viceHeader){
+            for(Integer viceHeaderId : viceHeader){
                 DepartmentHeader dh = new DepartmentHeader().setUserId(viceHeaderId).setDepartmentId(department.getId()).setType(1);
                 departmentHeaderList.add(dh);
             }
@@ -139,7 +133,7 @@ public class DepartmentController {
             userQw.eq("department_id",department.getId());
             List<User> userList = iUserService.list(userQw);
             for (User user : userList) {
-                user.setDepartmentTitle(department.getTitle());
+                //user.setDepartmentTitle(department.getTitle());
                 iUserService.saveOrUpdate(user);
             }
             Set<String> keysUser = redisTemplateHelper.keys("user:" + "*");
@@ -152,7 +146,6 @@ public class DepartmentController {
         return ResultUtil.success();
     }
 
-    @SystemLog(about = "删除部门", type = LogType.DATA_CENTER,doType = "DEP-05")
     @RequestMapping(value = "/delByIds", method = RequestMethod.POST)
     @ApiOperation(value = "删除部门")
     public Result<Object> delByIds(@RequestParam String[] ids){
@@ -174,11 +167,11 @@ public class DepartmentController {
         userQw.eq("department_id",id);
         long userCountInDepartment = iUserService.count(userQw);
         if(userCountInDepartment > 0L){
-            throw new ZwzException("不能删除包含员工的部门");
+            throw new WlException("不能删除包含员工的部门");
         }
         Department department = iDepartmentService.getById(id);
         Department parentDepartment = null;
-        if(department != null && !ZwzNullUtils.isNull(department.getParentId())){
+        if(department != null && !WlNullUtils.isNull(department.getParentId())){
             parentDepartment = iDepartmentService.getById(department.getParentId());
         }
         iDepartmentService.removeById(id);
@@ -200,9 +193,11 @@ public class DepartmentController {
         depQw.orderByAsc("sort_order");
         List<Department> departmentList = iDepartmentService.list(depQw);
         for(Department judgeDepartment : departmentList){
+            /*
             if(!CommonUtil.judgeIds(judgeDepartment.getId(), ids)){
                 deleteRecursion(judgeDepartment.getId(), ids);
             }
+            */
         }
     }
 
@@ -223,7 +218,7 @@ public class DepartmentController {
             dh1.eq("department_id",item.getId());
             dh1.eq("type",0);
             List<DepartmentHeader> headerList1 = iDepartmentHeaderService.list(dh1);
-            List<String> mainHeaderList = new ArrayList<>();
+            List<Integer> mainHeaderList = new ArrayList<>();
             for (DepartmentHeader dh : headerList1) {
                 mainHeaderList.add(dh.getUserId());
             }
@@ -233,7 +228,7 @@ public class DepartmentController {
             dh2.eq("department_id",item.getId());
             dh2.eq("type",1);
             List<DepartmentHeader> headerList2 = iDepartmentHeaderService.list(dh2);
-            List<String> viceHeaderList = new ArrayList<>();
+            List<Integer> viceHeaderList = new ArrayList<>();
             for (DepartmentHeader dh : headerList2) {
                 viceHeaderList.add(dh.getUserId());
             }

@@ -22,26 +22,17 @@ router.beforeEach((to, from, next) => {
     ViewUI.LoadingBar.start();
     Util.title(to.meta.title);
     var name = to.name;
-    if (Cookies.get('locking') == '1' && name !== 'locking') {
+    if (!Cookies.get('userInfo') && (name != 'login' && name != 'regist')) {
         next({
-            replace: true,
-            name: 'locking'
+            name: 'login'
         });
-    } else if (Cookies.get('locking') == '0' && name == 'locking') {
-        next(false);
+    } else if (Cookies.get('userInfo') && name == 'login') {
+        Util.title();
+        next({
+            name: 'home_index'
+        });
     } else {
-        if (!Cookies.get('userInfo') && (name != 'login' && name != 'regist')) {
-            next({
-                name: 'login'
-            });
-        } else if (Cookies.get('userInfo') && name == 'login') {
-            Util.title();
-            next({
-                name: 'home_index'
-            });
-        } else {
-            Util.toDefaultPage([...routers], name, router, next);
-        }
+        Util.toDefaultPage([...routers], name, router, next);
     }
 });
 

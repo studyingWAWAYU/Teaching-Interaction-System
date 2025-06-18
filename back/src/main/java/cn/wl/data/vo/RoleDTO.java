@@ -22,7 +22,7 @@ public class RoleDTO {
     private String name;
 
     @ApiModelProperty(value = "角色ID")
-    private String id;
+    private Integer id;
 
     @ApiModelProperty(value = "角色备注")
     private String description;

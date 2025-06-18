@@ -43,8 +43,16 @@ const app = {
     mutations: {
         // 动态添加主界面路由，需要缓存
         updateAppRouter(state, routes) {
-            state.routers.push(...routes);
-            router.addRoutes(routes);
+            // 检查路由是否已经存在，避免重复添加
+            const newRoutes = routes.filter(route => {
+                const existingRoute = state.routers.find(r => r.name === route.name);
+                return !existingRoute;
+            });
+            
+            if (newRoutes.length > 0) {
+                state.routers.push(...newRoutes);
+                router.addRoutes(newRoutes);
+            }
         },
         // 动态添加全局路由404、500等页面，不需要缓存
         updateDefaultRouter(state, routes) {

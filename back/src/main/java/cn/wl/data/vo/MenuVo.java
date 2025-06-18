@@ -18,13 +18,13 @@ public class MenuVo {
     private String title;
 
     @ApiModelProperty(value = "菜单ID")
-    private String id;
+    private Integer id;
 
     @ApiModelProperty(value = "菜单名称")
     private String name;
 
     @ApiModelProperty(value = "父菜单ID")
-    private String parentId;
+    private Integer parentId;
 
     @ApiModelProperty(value = "菜单层级")
     private Integer level;

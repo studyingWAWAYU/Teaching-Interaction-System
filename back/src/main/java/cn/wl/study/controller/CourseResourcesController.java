@@ -4,12 +4,12 @@ import cn.wl.basics.utils.PageUtil;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.baseVo.PageVo;
 import cn.wl.basics.baseVo.Result;
-import cn.wl.data.utils.ZwzNullUtils;
+import cn.wl.data.utils.WlNullUtils;
 import cn.wl.study.entity.CourseResources;
-import cn.wl.study.entity.Curriculum;
+import cn.wl.study.entity.Course;
 import cn.wl.study.service.ICourseResourcesService;
 import cn.hutool.core.util.StrUtil;
-import cn.wl.study.service.ICurriculumService;
+import cn.wl.study.service.ICourseService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
@@ -36,7 +36,7 @@ public class CourseResourcesController {
     private ICourseResourcesService iCourseResourcesService;
 
     @Autowired
-    private ICurriculumService iCurriculumService;
+    private ICourseService iCourseService;
 
     @RequestMapping(value = "/getOne", method = RequestMethod.GET)
     @ApiOperation(value = "查询单条资源")
@@ -52,9 +52,9 @@ public class CourseResourcesController {
 
     @RequestMapping(value = "/getAll", method = RequestMethod.GET)
     @ApiOperation(value = "查询全部资源")
-    public Result<List<CourseResources>> getAll(@RequestParam String curriculumId){
+    public Result<List<CourseResources>> getAll(@RequestParam String courseId){
         QueryWrapper<CourseResources> qw = new QueryWrapper<>();
-        qw.eq("curriculum_id",curriculumId);
+        qw.eq("course_id",courseId);
         return new ResultUtil<List<CourseResources>>().setData(iCourseResourcesService.list(qw));
     }
 
@@ -62,12 +62,14 @@ public class CourseResourcesController {
     @ApiOperation(value = "查询资源")
     public Result<IPage<CourseResources>> getByPage(@ModelAttribute CourseResources courseResources ,@ModelAttribute PageVo page){
         QueryWrapper<CourseResources> qw = new QueryWrapper<>();
-        if(!ZwzNullUtils.isNull(courseResources.getCurriculumName())) {
-            qw.like("curriculum_name",courseResources.getCurriculumName());
+        /*
+        if(!WlNullUtils.isNull(courseResources.getCourseName())) {
+            qw.like("course_name",courseResources.getCourseName());
         }
-        if(!ZwzNullUtils.isNull(courseResources.getTitle())) {
+        if(!WlNullUtils.isNull(courseResources.getTitle())) {
             qw.like("title",courseResources.getTitle());
         }
+         */
         IPage<CourseResources> data = iCourseResourcesService.page(PageUtil.initMpPage(page),qw);
         return new ResultUtil<IPage<CourseResources>>().setData(data);
     }
@@ -84,11 +86,11 @@ public class CourseResourcesController {
     @RequestMapping(value = "/insert", method = RequestMethod.POST)
     @ApiOperation(value = "新增资源")
     public Result<CourseResources> insert(CourseResources courseResources){
-        Curriculum c = iCurriculumService.getById(courseResources.getCurriculumId());
+        Course c = iCourseService.getById(courseResources.getCourseId());
         if(c == null) {
             return ResultUtil.error("课程不存在");
         }
-        courseResources.setCurriculumName(c.getTitle());
+        // courseResources.setCourseName(c.getTitle());
         iCourseResourcesService.saveOrUpdate(courseResources);
         return new ResultUtil<CourseResources>().setData(courseResources);
     }
@@ -96,11 +98,11 @@ public class CourseResourcesController {
     @RequestMapping(value = "/update", method = RequestMethod.POST)
     @ApiOperation(value = "编辑资源")
     public Result<CourseResources> update(CourseResources courseResources){
-        Curriculum c = iCurriculumService.getById(courseResources.getCurriculumId());
+        Course c = iCourseService.getById(courseResources.getCourseId());
         if(c == null) {
             return ResultUtil.error("课程不存在");
         }
-        courseResources.setCurriculumName(c.getTitle());
+        // courseResources.setCourseName(c.getTitle());
         iCourseResourcesService.saveOrUpdate(courseResources);
         return new ResultUtil<CourseResources>().setData(courseResources);
     }
