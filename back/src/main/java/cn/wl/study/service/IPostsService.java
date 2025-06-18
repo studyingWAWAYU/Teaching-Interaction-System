@@ -6,5 +6,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.List;
 
 public interface IPostsService extends IService<Posts> {
-    List<Posts> getAllOrderByLikesDesc();
+
+    Posts getByIdAndTopicId(Integer id, Integer topicId);
+    Long countByTopicId(Integer topicId);
+    List<Posts> listByTopicId(Integer topicId);
+    List<Posts> getAllByTopicIdOrderByLikesDesc(Integer topicId);
 }

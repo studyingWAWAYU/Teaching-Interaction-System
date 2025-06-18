@@ -20,10 +20,39 @@ public class IPostsServiceImpl extends ServiceImpl<PostsMapper, Posts> implement
     @Autowired
     private PostsMapper postsMapper;
 
+    // 根据post_id和topic_id查询单个post
     @Override
-    public List<Posts> getAllOrderByLikesDesc() {
+    public Posts getByIdAndTopicId(Integer id, Integer topicId) {
         QueryWrapper<Posts> queryWrapper = new QueryWrapper<>();
-        queryWrapper.orderByDesc("likes");
+        queryWrapper.eq("id",id)
+                .eq("topic_id", topicId);
+        return this.getOne(queryWrapper);
+    }
+
+    // 根据topic_id查询回复数量
+    @Override
+    public Long countByTopicId(Integer topicId) {
+        QueryWrapper<Posts> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("topic_id", topicId);
+        return this.count(queryWrapper);
+    }
+
+    // 根据topic_id查询该课程下的所有回复
+    @Override
+    public List<Posts> listByTopicId(Integer topicId){
+        QueryWrapper<Posts> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("topic_id", topicId);
         return this.list(queryWrapper);
     }
+
+    // 根据topic_id查询该课程下的所有回复，按likes降序排序
+    @Override
+    public List<Posts> getAllByTopicIdOrderByLikesDesc(Integer topicId) {
+        QueryWrapper<Posts> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("topic_id", topicId)
+                .orderByDesc("likes");
+        return this.list(queryWrapper);
+    }
+
+
 }

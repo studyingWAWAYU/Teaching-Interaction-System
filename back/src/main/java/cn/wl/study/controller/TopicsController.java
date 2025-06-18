@@ -23,7 +23,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @Api(tags = "留言管理接口")
-@RequestMapping("/wl/topics")
+@RequestMapping("/wl/course/{courseId}/topics")
 @Transactional
 public class TopicsController {
     @Autowired
@@ -34,29 +34,30 @@ public class TopicsController {
 
     @RequestMapping(value = "/getOne", method = RequestMethod.GET)
     @ApiOperation(value = "查询单条主题")
-    public Result<Topics> get(@RequestParam String id){
-        return new ResultUtil<Topics>().setData(iTopicsService.getById(id));
+    public Result<Topics> get(@PathVariable Integer courseId,@RequestParam Integer id){
+        return new ResultUtil<Topics>().setData(iTopicsService.getByIdAndCourseId(id,courseId));
     }
 
     @RequestMapping(value = "/count", method = RequestMethod.GET)
-    @ApiOperation(value = "查询全部主题个数")
-    public Result<Long> getCount(){
-        return new ResultUtil<Long>().setData(iTopicsService.count());
+    @ApiOperation(value = "查询该课程主题个数")
+    public Result<Long> getCount(@PathVariable Integer courseId){
+        return new ResultUtil<Long>().setData(iTopicsService.countByCourseId(courseId));
     }
 
     @RequestMapping(value = "/getAll", method = RequestMethod.GET)
     @ApiOperation(value = "查询全部主题")
-    public Result<List<Topics>> getAll(){
-        return new ResultUtil<List<Topics>>().setData(iTopicsService.list());
+    public Result<List<Topics>> getAll(@PathVariable Integer courseId){
+        return new ResultUtil<List<Topics>>().setData(iTopicsService.listByCourseId(courseId));
     }
 
     @RequestMapping(value="/getAll/sorted_by_likes")
     @ApiOperation(value="查询全部topics，以likes降序排序")
-    public Result<List<Topics>> getAllSorted(){
-        List<Topics> topics = iTopicsService.getAllOrderByLikesDesc();
+    public Result<List<Topics>> getAllSorted(@PathVariable Integer courseId){
+        List<Topics> topics = iTopicsService.getAllByCourseIdOrderByLikesDesc(courseId);
         return new ResultUtil<List<Topics>>().setData(topics);
     }
 
+    /*
     @RequestMapping(value = "/getByPage", method = RequestMethod.GET)
     @ApiOperation(value = "分页查询主题")
     public Result<IPage<Topics>> getByPage(@ModelAttribute Topics topics , @ModelAttribute PageVo page){
@@ -67,15 +68,13 @@ public class TopicsController {
         if(!WlNullUtils.isNull(topics.getDescription())){
             qw.like("description",topics.getDescription());
         }
-        /*
-        if(!WlNullUtils.isNull(topics.getCreateBy())) {
-            qw.like("user_id",topics.getCreate_by());
+        if(topics.getCreateBy() != null) {
+            qw.like("user_id",topics.getCreateBy());
         }
-        */
-
         IPage<Topics> data = iTopicsService.page(PageUtil.initMpPage(page),qw);
         return new ResultUtil<IPage<Topics>>().setData(data);
     }
+     */
 
     @RequestMapping(value = "/insertOrUpdate", method = RequestMethod.POST)
     @ApiOperation(value = "增改主题")
@@ -90,7 +89,7 @@ public class TopicsController {
     @ApiOperation(value = "新增主题")
     public Result<Topics> insert(Topics topics){
         User currUser = securityUtil.getCurrUser();
-        //topics.setCreateBy(currUser.getId());
+        topics.setCreateBy(currUser.getId());
         topics.setTitle("");
         topics.setDescription("");
         iTopicsService.saveOrUpdate(topics);
