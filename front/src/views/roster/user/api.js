@@ -5,7 +5,7 @@ export const getUserList = (params) => {
 }
 
 export const getAllUsers = (params) => {
-    return getRequest('/user/getAll', params)
+    return getNoAuthRequest('/user/getAll', params)
 }
 
 export const enableUser = (params) => {

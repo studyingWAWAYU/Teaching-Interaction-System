@@ -139,18 +139,22 @@ export default {
     }
   },
   created() {
-    this.loadUsers();
-    this.getCourseInfo();
-    this.getCourseReviews();
-    this.getDiscussions();
+    this.loadData();
   },
   methods: {
+    async loadData() {
+      // 先加载用户数据，再加载其他数据
+      await this.loadUsers();
+      await this.getCourseInfo();
+      await this.getCourseReviews();
+      await this.getDiscussions();
+    },
     // 加载用户信息
     async loadUsers() {
       try {
         const res = await getAllUsers();
         if (res.success) {
-          this.users = res.data;
+          this.users = res.result;
         }
       } catch (error) {
         console.error('加载用户信息失败:', error);
@@ -162,20 +166,23 @@ export default {
       try {
         const res = await getCourse({ id: this.$route.params.id });
         if (res.success) {
+          console.log('完整课程数据:', res.result);
+
           // 转换数据格式，确保字段匹配
           this.courseInfo = {
-            id: res.data.id,
-            name: res.data.title || res.data.name,
-            instructor: this.getTeacherName(res.data.createBy),
-            Time: this.formatTimeRange(res.data.startTime, res.data.end_time),
+            id: res.result.id,
+            name: res.result.title || res.result.name,
+            instructor: this.getTeacherName(res.result.createBy),
+            Time: this.formatTimeRange(res.result.startTime, res.result.endTime),
             credits: 3, // 默认学分
-            image: res.data.image,
-            introduction: res.data.content,
-            objectives: res.data.content,
-            status: res.data.status || 'Normal'
+            image: res.result.image,
+            introduction: res.result.content,
+            objectives: res.result.content,
+            status: res.result.status || 'Normal'
           };
+          console.log('格式化后的时间:', this.courseInfo.Time);
           // 根据课程状态设置选课状态
-          this.isEnrolled = res.data.status === 'enrolled';
+          this.isEnrolled = res.result.status === 'enrolled';
         } else {
           this.$Message.error('获取课程信息失败');
         }
@@ -185,22 +192,37 @@ export default {
     },
     
     getTeacherName(createBy) {
-      if (!createBy) return '未知教师';
+      if (!createBy) return 'Unknown teacher';
       
       // 从用户列表中查找对应的用户
-      const user = this.users.find(u => u.id === createBy);
+      const createById = parseInt(createBy);
+      const user = this.users.find(u => u.id === createById);
       if (user) {
-        return user.nickname || user.username || `教师${createBy}`;
+        return user.username || user.nickname ||  `教师${createBy}`;
       }
-      
       return `教师${createBy}`;
     },
     
     formatTimeRange(startTime, endTime) {
-      if (!startTime || !endTime) return '时间待定';
-      const start = new Date(startTime).toLocaleDateString();
-      const end = new Date(endTime).toLocaleDateString();
-      return `${start} - ${end}`;
+      if (!startTime || !endTime) {
+        console.log('时间字段为空，返回时间待定');
+        return '时间待定';
+      }
+      
+      try {
+        const start = new Date(startTime);
+        const end = new Date(endTime);
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+          console.log('日期无效');
+          return '时间格式错误';
+        }
+        // 只显示年月日，格式：YYYY-MM-DD
+        const startStr = start.toISOString().split('T')[0];
+        const endStr = end.toISOString().split('T')[0];
+        return `${startStr} - ${endStr}`;
+      } catch (error) {
+        return '时间格式错误';
+      }
     },
     
     async getCourseReviews() {

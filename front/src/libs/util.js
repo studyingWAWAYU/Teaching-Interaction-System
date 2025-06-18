@@ -312,6 +312,12 @@ export const getTableDataFromArray = (array) => {
 }
 
 util.initRouter = function (vm) {
+    // 检查路由是否已经初始化过
+    if (vm.$store.state.app.added) {
+        console.log('路由已经初始化过，跳过重复初始化');
+        return;
+    }
+    
     const constRoutes = [];
     const otherRoutes = [];
 
