@@ -56,7 +56,7 @@ public class Topics{
     private String description;
 
     @ApiModelProperty(value="隶属的课程")
-    private Integer course_id;
+    private Integer courseId;
 
     @ApiModelProperty(value="点赞数")
     private Integer likes;
