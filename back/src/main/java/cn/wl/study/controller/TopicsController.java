@@ -87,9 +87,7 @@ public class TopicsController {
     public Result<Topics> insert(Topics topics){
         User currUser = securityUtil.getCurrUser();
         topics.setCreateBy(currUser.getId());
-        topics.setTitle("");
-        topics.setDescription("");
-        iTopicsService.saveOrUpdate(topics);
+        iTopicsService.saveOrUpdateTopics(topics);
         return new ResultUtil<Topics>().setData(topics);
     }
 
