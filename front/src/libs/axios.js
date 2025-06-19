@@ -5,6 +5,7 @@ import { Message } from 'view-design';
 import Cookies from 'js-cookie';
 let base = '/wl';
 
+
 // 在这里加上全局配置
 axios.defaults.withCredentials = true;
 axios.defaults.timeout = 15000;
