@@ -33,6 +33,7 @@ INSERT INTO `user` (`id`, `create_time`, `username`, `password`, `nickname`,`ema
 	(4,'2025-06-11 09:54:05', 'Adam','$2a$10$oeP4aplYnswfQ44pK6lAO.Np9BuPYJGRwo17THO7CUNlIQoVGsPmy', 'Adam', '13600000003@qq.com', '13600000003','20222056789','male','https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of ','',0);
 
 
+
 DROP TABLE IF EXISTS `student`;
 CREATE TABLE IF NOT EXISTS `student` (
   `id` integer primary key auto_increment,
