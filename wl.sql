@@ -30,7 +30,8 @@ INSERT INTO `user` (`id`, `create_time`, `username`, `password`, `nickname`,`ema
 	(1,'2025-06-10 09:46:20', 'admin','$2a$10$PS04ecXfknNd3V8d.ymLTObQciapMU4xU8.GADBZZsuTZr7ymnagy','admin', '916077357@qq.com','17857054388','20222012345','female', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of AI', 'user-adminWLdepartment-adminWLfile-adminWLrole-manageWLmenu-manage',2),
 	(2,'2025-06-10 09:46:20', 'Evan','$2a$10$E59nactOiILAzQvfcs0JFOYuZp06d4bLhugEadyQuygpmiLc0W.ha', 'Evan', '13600000001@qq.com','13600000001','20222012456','male', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of AI', '',1),
 	(3,'2025-06-10 09:46:20', 'Airel','$2a$10$vJyLo1RhFORH/SAu3sc9aeb37I5JRy5UugaN7fIt/e2vvsz6JWJCm','Airel','13600000002@qq.com','13600000002','20222012678','female','https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png','School of AI', '',0),
-	(4,'2025-06-11 09:54:05', 'Adam','$2a$10$oeP4aplYnswfQ44pK6lAO.Np9BuPYJGRwo17THO7CUNlIQoVGsPmy', 'Adam', '13600000003@qq.com', '13600000003','20222056789','male','https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of ','',0);
+	(4,'2025-06-11 09:54:05', 'Adam','$2a$10$oeP4aplYnswfQ44pK6lAO.Np9BuPYJGRwo17THO7CUNlIQoVGsPmy', 'Adam', '13600000003@qq.com', '13600000003','20222056789','male','https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of','',0);
+
 
 
 DROP TABLE IF EXISTS `student`;
