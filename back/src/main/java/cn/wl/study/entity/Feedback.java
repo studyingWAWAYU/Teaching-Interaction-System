@@ -34,8 +34,7 @@ public class Feedback {
     @TableId
     private Integer id;
 
-    @CreatedBy
-    @TableField(fill = FieldFill.INSERT)
+
     @ApiModelProperty(value="创建人的ID")
     private Integer createBy;
 

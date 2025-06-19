@@ -162,18 +162,19 @@ export default {
             identity: this.form.identity
           }).then(res => {
             this.loading = false;
-            if (res.success) {
-              this.$router.push({
-                name: "login"
-              });
-            } 
+            if (res && res.success) {  // 明确检查res是否存在
+              alert("注册成功！");
+              this.$router.push("/login"); // 只有成功时才跳转
+            } else {
+              alert(res?.message || "注册失败");
+            }
+          }).catch(err => {
+            this.loading = false;
+            alert("请求失败：" + err.message);
           });
         }
       });
     }
-  },
-
-  mounted() {
   }
 };
 </script>
