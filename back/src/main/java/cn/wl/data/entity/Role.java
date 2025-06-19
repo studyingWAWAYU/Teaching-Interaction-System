@@ -14,6 +14,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class Role{
     @TableId
     private Integer id;
 
-    private Date createTime;
+    private LocalDate createTime;
 
     @ApiModelProperty(value = "角色名称")
     private String name;
