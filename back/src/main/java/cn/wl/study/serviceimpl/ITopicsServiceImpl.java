@@ -1,5 +1,6 @@
 package cn.wl.study.serviceimpl;
 
+import cn.wl.basics.utils.ResultUtil;
 import cn.wl.study.entity.Topics;
 import cn.wl.study.mapper.TopicsMapper;
 import cn.wl.study.service.ITopicsService;
@@ -9,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import cn.wl.basics.baseVo.Result;
+import org.xm.Similarity;
 
 import java.util.List;
 
@@ -51,5 +54,33 @@ public class ITopicsServiceImpl extends ServiceImpl<TopicsMapper, Topics> implem
         queryWrapper.eq("course_id", courseId)
                 .orderByDesc("likes");
         return this.list(queryWrapper);
+    }
+
+    @Override
+    public Result<Topics> saveOrUpdateTopics(Topics topics) {
+        findSimilarTopics(topics);
+        if(saveOrUpdate(topics)){
+            return new ResultUtil<Topics>().setData(topics);
+        }
+        return ResultUtil.error();
+    }
+
+    private void findSimilarTopics(Topics topics){
+        String CurTitle = topics.getTitle();
+        QueryWrapper<Topics> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("courseId", topics.getCourseId());
+        queryWrapper.ne("id",topics.getId());
+        List<Topics> allTopics = this.list(queryWrapper);
+
+        double MaxSimilarty = 0.70;
+        Integer MaxSimilarityTopicId = null;
+        for(Topics topic:allTopics){
+            double morphoSimilarityResult = Similarity.morphoSimilarity(CurTitle, topic.getTitle());
+            if(morphoSimilarityResult > MaxSimilarty){
+                MaxSimilarityTopicId = topic.getId();
+            }
+        }
+        String similarUrl = "http://127.0.0.1:8080/#/wl/course/" + topics.getCourseId() + "/topics" + MaxSimilarityTopicId;
+        topics.setSimilarTopic(similarUrl);
     }
 }

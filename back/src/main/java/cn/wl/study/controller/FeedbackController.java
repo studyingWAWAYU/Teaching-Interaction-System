@@ -10,9 +10,11 @@ import cn.wl.data.entity.User;
 import cn.wl.data.utils.WlNullUtils;
 import cn.wl.study.entity.Feedback;
 import cn.wl.study.entity.Course;
+import cn.wl.study.mapper.FeedbackMapper;
 import cn.wl.study.service.IFeedbackService;
 import cn.wl.study.service.ICourseService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -39,6 +41,8 @@ public class FeedbackController {
 
     @Autowired
     private SecurityUtil securityUtil;
+    @Autowired
+    private FeedbackMapper feedbackMapper;
 
     @RequestMapping(value = "/addOne", method = RequestMethod.GET)
     @ApiOperation(value = "添加课程评价")
@@ -54,7 +58,8 @@ public class FeedbackController {
         a.setCreateBy(currUser.getId());
         a.setContent(content);
         a.setRating(rating != null ? rating : 0);
-        a.setCreateTime(new Date(DateUtil.now()));
+//        a.setCreateTime(new Date());
+
         iFeedbackService.saveOrUpdate(a);
         return ResultUtil.success();
     }

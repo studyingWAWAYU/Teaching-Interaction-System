@@ -9,12 +9,14 @@ import cn.wl.data.entity.*;
 import cn.wl.data.service.*;
 import cn.wl.data.utils.WlNullUtils;
 import cn.wl.data.vo.PermissionDTO;
+import cn.wl.data.vo.RegistDTO;
 import cn.wl.data.vo.RoleDTO;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
@@ -28,6 +30,8 @@ import jakarta.persistence.PersistenceContext;
 import jakarta.validation.Valid;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,9 +50,6 @@ public class UserController {
 
     @Autowired
     private IRoleService iRoleService;
-
-    //@Autowired
-    //private IUserRoleService iUserRoleService;
 
     @Autowired
     private IDepartmentHeaderService iDepartmentHeaderService;
@@ -90,17 +91,25 @@ public class UserController {
 
     @RequestMapping(value = "/regist", method = RequestMethod.POST)
     @ApiOperation(value = "注册用户")
-    public Result<Object> regist(@Valid User u, @RequestParam Integer identity){
+    public Result<Object> regist(@Valid  RegistDTO userDTO){
 
         QueryWrapper<User> userQw = new QueryWrapper<>();
-        userQw.and(wrapper -> wrapper.eq("username", u.getUsername()).or().eq("mobile",u.getMobile()));
+        userQw.and(wrapper -> wrapper.eq("username", userDTO.getUsername()).or().eq("mobile",userDTO.getMobile()));
         if(iUserService.count(userQw) > 0L) {
             return ResultUtil.error("登录账号/手机号重复");
         }
-        String encryptPass = new BCryptPasswordEncoder().encode(u.getPassword());
-        u.setPassword(encryptPass);
-        u.setRoleId(identity);      // 直接设置用户的角色字段
-        iUserService.saveOrUpdate(u);  // 保存用户 + 角色信息
+        String encryptPass = new BCryptPasswordEncoder().encode(userDTO.getPassword());
+        User user = new User();
+        BeanUtils.copyProperties(userDTO, user);
+        user.setPassword(encryptPass);
+        LocalDateTime now = LocalDateTime.now();
+        String formattedDateTime = now.format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+
+        // 生成一个随机UUID
+
+        user.setNumber(formattedDateTime);
+        user.setRoleId(userDTO.getIdentity());      // 直接设置用户的角色字段
+        iUserService.saveOrUpdate(user);  // 保存用户 + 角色信息
         /*
         QueryWrapper<Role> roleQw = new QueryWrapper<>();
         roleQw.eq("default_role",true);
@@ -117,7 +126,7 @@ public class UserController {
 
 
          */
-        return ResultUtil.data(u);
+        return ResultUtil.data(user);
     }
 
     @RequestMapping(value = "/unlock", method = RequestMethod.POST)
