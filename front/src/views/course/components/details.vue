@@ -1,16 +1,24 @@
 <template>
   <div class="detail-content">
     <div class="section">
-      <h2><Icon type="ios-book"/>Course Introduction</h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <h2><Icon type="ios-book"/>Course Introduction</h2>
+        <Button v-if="isTeacher" type="primary" size="middle" class="edit-intro-btn" @click="toggleEditIntro">{{ editIntroMode ? 'Save' : 'Edit' }}</Button>
+      </div>
       <div class="card-boxs">
-        <p style="font-size: 16px">{{ courseInfo.introduction }}</p>
+        <div v-if="!editIntroMode">
+          <p style="font-size: 16px">{{ courseInfo.introduction }}</p>
+        </div>
+        <div v-else>
+          <Input type="textarea" v-model="editIntroduction" :rows="4" style="font-size:16px;" />
+        </div>
       </div>
     </div>
 
     <div class="section">
       <div class="section-header">
         <h2><Icon type="ios-star"/>Course Feedback</h2>
-        <Button type="primary" @click="showFeedbackForm = true" v-if="!showFeedbackForm">
+        <Button type="primary" @click="showFeedbackForm = true" v-if="!showFeedbackForm && !isTeacher">
           Add Feedback
         </Button>
       </div>
@@ -32,7 +40,7 @@
       </div>
       
 <!--      添加评价表单-->
-      <div class="card-boxs feedback-form" v-if="showFeedbackForm">
+      <div class="card-boxs feedback-form" v-if="showFeedbackForm && !isTeacher">
         <h3>Add Your Feedback</h3>
         <Form :model="feedbackForm" :label-width="80">
           <FormItem label="Rating">
@@ -89,6 +97,10 @@ export default {
     reviews: {
       type: Array,
       required: true
+    },
+    isTeacher: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -98,7 +110,9 @@ export default {
       feedbackForm: {
         rating: 0,
         content: ''
-      }
+      },
+      editIntroMode: false,
+      editIntroduction: ''
     }
   },
   computed: {
@@ -163,6 +177,16 @@ export default {
       } catch (error) {
         return time;
       }
+    },
+
+    toggleEditIntro() {
+      if (this.editIntroMode) {
+        // 保存
+        this.$emit('update-introduction', this.editIntroduction)
+      } else {
+        this.editIntroduction = this.courseInfo.introduction
+      }
+      this.editIntroMode = !this.editIntroMode
     }
   }
 }
@@ -338,6 +362,15 @@ export default {
         margin: 0;
       }
     }
+  }
+
+  .edit-intro-btn {
+    border-radius: 22px;
+    min-width: 70px;
+    font-size: 14px;
+    height: 32px;
+    padding: 0 18px;
+    box-sizing: border-box;
   }
 }
 </style> 
