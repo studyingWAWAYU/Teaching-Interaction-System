@@ -1,5 +1,6 @@
 package cn.wl.study.controller;
 
+import cn.hutool.core.date.DateUtil;
 import cn.wl.basics.utils.PageUtil;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.baseVo.PageVo;
@@ -55,14 +56,14 @@ public class AssignmentAnsController {
     @RequestMapping(value = "/create", method = RequestMethod.GET)
     @ApiOperation(value = "生成课程作业")
     public Result<AssignmentAns> create(@RequestParam Integer reqId, @RequestParam String title,
-                                        @RequestParam String file, @RequestParam Integer studentId,
-                                        @RequestParam Date uploadTime){
+                                        @RequestParam String file){
 
         AssignmentAns a = new AssignmentAns();
+        User currUser = securityUtil.getCurrUser();
         a.setTitle(title);
         a.setFile(file);
-        a.setStudentId(studentId);
-        a.setUploadTime(uploadTime);
+        a.setStudentId(currUser.getId());
+        a.setUploadTime(new Date(DateUtil.now()));
         a.setReqId(reqId);
         iAssignmentAnsService.saveOrUpdate(a);
         return ResultUtil.success();

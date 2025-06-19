@@ -1,5 +1,6 @@
 package cn.wl.study.controller;
 
+import cn.hutool.core.date.DateUtil;
 import cn.wl.basics.utils.PageUtil;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.baseVo.PageVo;
@@ -58,7 +59,7 @@ public class AssignmentReqController {
     @RequestMapping(value = "/create", method = RequestMethod.GET)
     @ApiOperation(value = "生成课程作业")
     public Result<AssignmentReq> create(@RequestParam String title, @RequestParam String status,
-                                        @RequestParam String file,  @RequestParam Date uploadTime,
+                                        @RequestParam String file,
                                         @RequestParam Date startTime, @RequestParam Date endTime,
                                         @RequestParam Integer courseId, @RequestParam String description){
         Course course = iCourseService.getById(courseId);
@@ -83,7 +84,7 @@ public class AssignmentReqController {
             a.setDescription(description);
             a.setStartTime(startTime);
             a.setEnd_time(endTime);
-            a.setUploadTime(uploadTime);
+            a.setUploadTime(new Date(DateUtil.now()));
             a.setStatus(status);
             iAssignmentReqService.saveOrUpdate(a);
         }
