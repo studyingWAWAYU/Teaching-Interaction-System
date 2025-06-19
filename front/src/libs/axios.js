@@ -14,6 +14,11 @@ axios.defaults.headers.common['accessToken'] = `Bearer ${accessToken}`;
 axios.defaults.withCredentials = true;
 axios.defaults.timeout = 15000;
 axios.interceptors.request.use(config => {
+    // 每次请求前动态获取最新token
+    const accessToken = localStorage.getItem('accessToken') || Cookies.get('accessToken');
+    if (accessToken) {
+        config.headers['accessToken'] = accessToken;
+    }
     return config;
 }, err => {
     Message.error('请求超时');

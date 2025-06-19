@@ -86,6 +86,7 @@
 <script>
 import { addFeedback } from '@/api/feedback'
 import Cookies from 'js-cookie'
+import { saveOrUpdateCourse } from '@/api/course'
 
 export default {
   name: 'CourseDetails',
@@ -179,14 +180,32 @@ export default {
       }
     },
 
-    toggleEditIntro() {
+    async toggleEditIntro() {
       if (this.editIntroMode) {
-        // 保存
-        this.$emit('update-introduction', this.editIntroduction)
+        if (!this.editIntroduction.trim()) {
+          this.$Message.warning('Course introduction cannot be empty');
+          return;
+        }
+        try {
+          const params = {
+            id: this.courseInfo.id,
+            content: this.editIntroduction.trim()
+          };
+          const res = await saveOrUpdateCourse(params);
+          if (res.success) {
+            this.$Message.success('Course introduction updated successfully!');
+            this.$emit('update-introduction', this.editIntroduction.trim());
+            this.editIntroMode = false;
+          } else {
+            this.$Message.error(res.message || 'Failed to update introduction');
+          }
+        } catch (error) {
+          this.$Message.error('Failed to update introduction');
+        }
       } else {
         this.editIntroduction = this.courseInfo.introduction
+        this.editIntroMode = true;
       }
-      this.editIntroMode = !this.editIntroMode
     }
   }
 }
