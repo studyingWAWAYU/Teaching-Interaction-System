@@ -12,7 +12,7 @@
         </Input>
       </div>
       <div class="create-btn">
-        <Button type="primary" @click="$emit('show-create-modal')">Create Topic</Button>
+        <Button type="primary" @click="showCreateModal">Create Topic</Button>
       </div>
     </div>
 
@@ -47,26 +47,31 @@
 
       <div class="topic-detail" v-if="selectedTopic" @click.stop>
         <div class="detail-header">
+          <div class="title-row">
             <h2 class="detail-title">{{ selectedTopic.title }}</h2>
-            <div class="similar-topic">
-              <span class="similar-topic-label">Possible Similar Topic:</span>
-              <Icon type="ios-link" size="small" />
-              <a href="#" class="similar-topic-link">Is Python Platform Independent if then how?</a>
+            <div v-if="selectedTopic.createBy === currentUserId" class="edit-topic-btn-wrapper">
+              <Button type="primary" size="middle" class="edit-topic-btn" @click="showEditTopicModal">Edit</Button>
             </div>
-            <div class="detail-meta">
-              <span class="author">
-                <Icon type="ios-person" size="small" />
-                {{ getAuthorName(selectedTopic.createBy) }}
-              </span>
-              <span class="time">
-                <Icon type="ios-time" />
-                {{ formatTime(selectedTopic.updateTime) }}
-              </span>
-              <span class="content-likes" @click="handleTopicLike(selectedTopic)">
-                <Icon type="ios-thumbs-up" :class="{ active: selectedTopic.isLiked }" />
-                {{ selectedTopic.likes || 0 }}
-              </span>
-            </div>
+          </div>
+          <div class="similar-topic">
+            <span class="similar-topic-label">Possible Similar Topic:</span>
+            <Icon type="ios-link" size="small" />
+            <a href="#" class="similar-topic-link">Is Python Platform Independent if then how?</a>
+          </div>
+          <div class="detail-meta">
+            <span class="author">
+              <Icon type="ios-person" size="small" />
+              {{ getAuthorName(selectedTopic.createBy) }}
+            </span>
+            <span class="time">
+              <Icon type="ios-time" />
+              {{ formatTime(selectedTopic.updateTime) }}
+            </span>
+            <span class="content-likes" @click="handleTopicLike(selectedTopic)">
+              <Icon type="ios-thumbs-up" :class="{ active: selectedTopic.isLiked }" />
+              {{ selectedTopic.likes || 0 }}
+            </span>
+          </div>
         </div>
         
         <div class="detail-content">
@@ -79,7 +84,7 @@
           <div class="reply-header">
             <div class="reply-title">
               <h3>Reply ({{ selectedTopic.replyCount || 0 }})</h3>
-              <a class="reply-btn" @click="$emit('show-reply-modal', selectedTopic)">
+              <a class="reply-btn" @click="showReplyModal(selectedTopic)">
                 <Icon type="ios-chatbubbles" />
                 Reply
               </a>
@@ -114,12 +119,48 @@
         </div>
       </div>
     </div>
+
+    <Modal v-model="editTopicModalVisible" title="Edit Your Topic" @on-ok="handleEditTopicSave" ok-text="OK" cancel-text="Cancel">
+      <Form :model="editTopicForm" :label-width="80">
+        <FormItem label="Topic Title">
+          <Input v-model="editTopicForm.title" />
+        </FormItem>
+        <FormItem label="Description">
+          <Input v-model="editTopicForm.description" type="textarea" :rows="4"/>
+        </FormItem>
+      </Form>
+    </Modal>
+    <Modal v-model="createModalVisible" title="Create Topic" @on-ok="handleCreateTopic" ok-text="OK" cancel-text="Cancel">
+      <Form :model="newTopic" :label-width="80">
+        <FormItem label="Title">
+          <Input v-model="newTopic.title" placeholder="Enter topic title" />
+        </FormItem>
+        <FormItem label="Content">
+          <Input
+            v-model="newTopic.content"
+            type="textarea"
+            :rows="4"
+            placeholder="Enter topic content" />
+        </FormItem>
+      </Form>
+    </Modal>
+    <Modal v-model="replyModalVisible" title="Reply to Topic" @on-ok="handleReply" ok-text="OK" cancel-text="Cancel">
+      <Form :model="newReply" :label-width="80">
+        <FormItem label="Content">
+          <Input
+            v-model="newReply.content"
+            type="textarea"
+            :rows="4"
+            placeholder="Enter your reply" />
+        </FormItem>
+      </Form>
+    </Modal>
   </div>
 </template>
 
 <script>
 import Cookies from 'js-cookie';
-import { getAllTopics, getAllTopicsSorted, addTopics, updateTopics, deleteTopics } from '@/api/discussion';
+import { getAllTopics, getAllTopicsSorted, addTopics, updateTopics, deleteTopics, saveOrUpdateTopics } from '@/api/discussion';
 import { getAllPosts, getAllPostsSorted, addPosts, deletePosts } from '@/api/discussion';
 import { getAllUsers } from '@/views/roster/user/api';
 
@@ -141,7 +182,23 @@ export default {
       courseId: null,
       loading: false,
       error: null,
-      users: []
+      users: [],
+      editTopicModalVisible: false,
+      editTopicForm: {
+        id: '',
+        title: '',
+        description: ''
+      },
+      createModalVisible: false,
+      replyModalVisible: false,
+      newTopic: {
+        title: '',
+        content: ''
+      },
+      newReply: {
+        content: '',
+        topicIndex: -1
+      }
     }
   },
   computed: {
@@ -173,7 +230,7 @@ export default {
           this.users = res.result;
         }
       } catch (error) {
-        console.error('加载用户信息失败:', error);
+        console.error('Failed to load the user information:', error);
       }
     },
 
@@ -208,7 +265,7 @@ export default {
                   replies: postsResponse.success ? postsResponse.result : []
                 };
               } catch (error) {
-                console.error(`获取主题 ${topic.id} 的回复失败:`, error);
+                console.error(`Failed to obtain the reply to Topic ${topic.id} :`, error);
                 return {
                   ...topic,
                   replyCount: 0,
@@ -260,13 +317,13 @@ export default {
         
         const response = await addPosts(topicId, params);
         if (response.success) {
-          this.$Message.success('回复发布成功');
+          this.$Message.success('The reply was published successfully.');
           await this.loadTopicReplies(topicId);
         } else {
-          this.$Message.error('回复发布失败');
+          this.$Message.error('The reply failed to publish.');
         }
       } catch (error) {
-        this.$Message.error('回复发布失败');
+        this.$Message.error('The reply failed to publish.');
       }
     },
 
@@ -282,7 +339,7 @@ export default {
           }
         }
       } catch (error) {
-        console.error('加载回复失败:', error);
+        console.error('Failed to load the reply:', error);
       }
     },
 
@@ -325,19 +382,21 @@ export default {
     
     async handleDeleteReply(reply) {
       this.$Modal.confirm({
-        title: '确认删除',
-        content: '确定要删除这条回复吗？',
+        title: 'Confirm deletion',
+        content: 'Are you sure you want to delete this reply?',
+        okText: 'OK',
+        cancelText: 'Cancel',
         onOk: async () => {
           try {
             const response = await deletePosts(reply.topicId, { ids: [reply.id] });
             if (response.success) {
-              this.$Message.success('回复已删除');
+              this.$Message.success('The reply has been deleted.');
               await this.loadTopicReplies(reply.topicId);
             } else {
-              this.$Message.error('删除回复失败');
+              this.$Message.error('Failed to delete the reply');
             }
           } catch (error) {
-            this.$Message.error('删除回复失败');
+            this.$Message.error('Failed to delete the reply');
           }
         }
       });
@@ -351,6 +410,89 @@ export default {
     async initData() {
       await this.loadUsers();
       await this.fetchCourseDiscussions();
+    },
+
+    showEditTopicModal() {
+      this.editTopicForm = {
+        id: this.selectedTopic.id,
+        title: this.selectedTopic.title,
+        description: this.selectedTopic.description
+      };
+      this.editTopicModalVisible = true;
+    },
+    async handleEditTopicSave() {
+      if (!this.editTopicForm.title || !this.editTopicForm.description) {
+        this.$Message.warning('Please fill in all fields');
+        return;
+      }
+      try {
+        const params = {
+          id: this.editTopicForm.id,
+          title: this.editTopicForm.title,
+          description: this.editTopicForm.description,
+          createBy: this.selectedTopic.createBy
+        };
+        const response = await saveOrUpdateTopics(this.courseId, params);
+        if (response.success) {
+          this.$Message.success('Edit Successful');
+          this.editTopicModalVisible = false;
+          await this.fetchCourseDiscussions();
+          // 重新选中当前主题
+          const updated = this.filteredDiscussions.find(t => t.id === this.editTopicForm.id);
+          if (updated) this.selectedTopic = updated;
+        } else {
+          this.$Message.error('Edit Failed');
+        }
+      } catch (error) {
+        this.$Message.error('Edit Failed');
+      }
+    },
+    showCreateModal() {
+      this.createModalVisible = true;
+      this.newTopic = {
+        title: '',
+        content: ''
+      };
+    },
+    async handleCreateTopic() {
+      if (!this.newTopic.title || !this.newTopic.content) {
+        this.$Message.warning('Please fill in all fields');
+        return;
+      }
+      try {
+        await this.createDiscussion(this.newTopic);
+        this.createModalVisible = false;
+        this.newTopic = {
+          title: '',
+          content: ''
+        };
+      } catch (error) {
+        this.$Message.error('Failed to create topic');
+      }
+    },
+    showReplyModal(topic) {
+      this.replyModalVisible = true;
+      this.newReply = {
+        content: '',
+        topicIndex: this.filteredDiscussions.indexOf(topic)
+      };
+    },
+    async handleReply() {
+      if (!this.newReply.content) {
+        this.$Message.warning('Please enter reply content');
+        return;
+      }
+      try {
+        const topic = this.filteredDiscussions[this.newReply.topicIndex];
+        await this.replyToDiscussion(topic.id, this.newReply);
+        this.replyModalVisible = false;
+        this.newReply = {
+          content: '',
+          topicIndex: -1
+        };
+      } catch (error) {
+        this.$Message.error('Failed to publish reply');
+      }
     }
   }
 }
@@ -525,11 +667,27 @@ export default {
       .detail-header {
         padding: 15px;
 
+        .title-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
         .detail-title {
           font-size: 22px;
           font-weight: 600;
           color: #515a6e;
           margin-bottom: 12px;
+        }
+
+        .edit-topic-btn-wrapper {
+          display: flex;
+          align-items: center;
+        }
+
+        .edit-topic-btn {
+          margin-left: 10px;
+          border-radius: 22px;
         }
 
         .similar-topic {
@@ -540,7 +698,7 @@ export default {
           padding: 8px 12px;
           background: rgba(45, 140, 240, 0.05);
           border-radius: 16px;
-
+          
           .similar-topic-label {
             color: #515a6e;
             font-size: 13px;
@@ -556,7 +714,13 @@ export default {
             color: #2d8cf0;
             text-decoration: none;
             font-size: 14px;
-
+            max-width: 180px;
+            display: inline-block;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: bottom;
+            
             &:hover {
               color: #1c6bb8;
               text-decoration: underline;
