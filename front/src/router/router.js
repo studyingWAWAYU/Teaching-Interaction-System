@@ -4,7 +4,7 @@ export const loginRouter = {
     path: '/login',
     name: 'login',
     meta: {
-        title: '登录 - 教学资源共享平台'
+        title: '登录 - Teaching interaction system'
     },
     component: () => import('@/views/login.vue')
 };
@@ -13,7 +13,7 @@ export const registRouter = {
     path: '/regist',
     name: 'regist',
     meta: {
-        title: '注册 - 教学资源共享平台'
+        title: '注册 - Teaching interaction system'
     },
     component: () => import('@/views/regist.vue')
 };

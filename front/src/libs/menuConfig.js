@@ -3,7 +3,7 @@ export const menuConfig = [
   {
     id: 1,
     name: 'wlHome',
-    title: '教学资源共享平台',
+    title: 'Teaching interaction system',
     icon: 'md-home',
     type: -1,
     level: 0,
@@ -32,7 +32,7 @@ export const menuConfig = [
           {
             id: 58,
             name: 'department-admin',
-            title: '部门管理',
+            title: '学院管理',
             icon: 'md-git-branch',
             type: 0,
             level: 2,

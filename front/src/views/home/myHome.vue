@@ -26,7 +26,7 @@
                 </FormItem>
                 </Col>
                 <Col :span="12">
-                <FormItem label="所属部门" prop="departmentTitle">
+                <FormItem label="所属学院" prop="departmentTitle">
                     <Input v-model="userForm.departmentTitle" readonly style="width: 100%" />
                 </FormItem>
                 </Col>

@@ -1,13 +1,13 @@
 <template>
   <div class="department-manage-page">
-    <!-- 顶部操作栏 -->
+    <!-- Top action bar -->
     <div class="top-bar">
       <div class="search-area">
         <Input
           v-model="searchKey"
           suffix="ios-search"
           @on-change="search"
-          placeholder="输入部门名搜索"
+          placeholder="Search by institute name"
           clearable
           style="width: 300px"
         />
@@ -21,7 +21,7 @@
           shape="round"
           :disabled="!$route.meta.permTypes.includes('add')"
         >
-          添加部门
+          Add Institute
         </Button>
         <Button
           @click="delAll"
@@ -32,7 +32,7 @@
           style="margin-left: 8px"
           :disabled="!$route.meta.permTypes.includes('delete')"
         >
-          删除
+          Delete
         </Button>
         <Button
           @click="getParentList"
@@ -42,7 +42,7 @@
           shape="round"
           style="margin-left: 8px"
         >
-          刷新
+          Refresh
         </Button>
         <Button
           @click="excelData"
@@ -52,25 +52,25 @@
           shape="round"
           style="margin-left: 8px"
         >
-          导出用户
+          Export Users
         </Button>
         <i-switch v-model="strict" size="large" style="margin-left:8px">
-          <span slot="open">级联</span>
-          <span slot="close">单选</span>
+          <span slot="open">Cascading</span>
+          <span slot="close">Single Selection</span>
         </i-switch>
       </div>
     </div>
 
-    <!-- 主要内容区域 -->
+    <!-- Main content area -->
     <div class="main-content">
       <Row :gutter="16">
         <Col span="8">
           <Card>
             <div class="tree-container">
               <Alert show-icon type="success" v-show="form.id">
-                当前选择
+                Current Selection
                 <span class="select-title">{{editTitle}}</span>
-                <a class="select-clear" @click="cancelEdit"> 取消选择</a>
+                <a class="select-clear" @click="cancelEdit"> Cancel Selection</a>
               </Alert>
               <div class="tree-bar" :style="{maxHeight: maxHeight}">
                 <Tree 
@@ -92,11 +92,11 @@
             <Form ref="form" :model="form" :label-width="100" :rules="formValidate">
               <Row :gutter="16">
                 <Col span="12">
-                  <FormItem label="上级部门" prop="parentTitle">
+                  <FormItem label="Parent Institute" prop="parentTitle">
                     <div style="display:flex;">
                       <Input v-model="form.parentTitle" readonly style="margin-right:10px;" />
-                      <Poptip transfer trigger="click" placement="right-start" title="选择上级部门" width="250">
-                        <Button icon="md-list">选择部门</Button>
+                      <Poptip transfer trigger="click" placement="right-start" title="Select Parent Institute" width="250">
+                        <Button icon="md-list">Select Institute</Button>
                         <div slot="content" style="position:relative;min-height:5vh">
                           <Tree :data="dataEdit" :load-data="loadData" @on-select-change="selectTreeEdit"></Tree>
                           <Spin size="large" fix v-if="loadingEdit"></Spin>
@@ -106,21 +106,21 @@
                   </FormItem>
                 </Col>
                 <Col span="12">
-                  <FormItem label="部门名称" prop="title">
+                  <FormItem label="Institute Name" prop="title">
                     <Input v-model="form.title" />
                   </FormItem>
                 </Col>
               </Row>
               <Row :gutter="16">
                 <Col span="12">
-                  <FormItem label="部门领导" prop="mainHeader">
+                  <FormItem label="Institute Leader" prop="mainHeader">
                     <Select 
                       :loading="userLoading" 
-                      not-found-text="该部门暂无用户数据" 
+                      not-found-text="No user data for this institute" 
                       v-model="form.mainHeader" 
                       multiple 
                       filterable 
-                      placeholder="选择部门领导"
+                      placeholder="Select Institute Leader"
                     >
                       <Option v-for="item in users" :value="item.id" :key="item.id" :label="item.nickname">
                         <span style="margin-right:10px;">{{ item.nickname }}</span>
@@ -130,14 +130,14 @@
                   </FormItem>
                 </Col>
                 <Col span="12">
-                  <FormItem label="部门组长" prop="viceHeader">
+                  <FormItem label="Institute Supervisor" prop="viceHeader">
                     <Select 
                       :loading="userLoading" 
-                      not-found-text="该部门暂无用户数据" 
+                      not-found-text="No user data for this institute" 
                       v-model="form.viceHeader" 
                       multiple 
                       filterable 
-                      placeholder="选择部门组长"
+                      placeholder="Select Institute Supervisor"
                     >
                       <Option v-for="item in users" :value="item.id" :key="item.id" :label="item.nickname">
                         <span style="margin-right:10px;">{{ item.nickname }}</span>
@@ -149,17 +149,17 @@
               </Row>
               <Row :gutter="16">
                 <Col span="8">
-                  <FormItem label="排序值" prop="sortOrder">
-                    <Tooltip trigger="hover" placement="right" content="值越小越靠前，支持小数">
+                  <FormItem label="Sort Order" prop="sortOrder">
+                    <Tooltip trigger="hover" placement="right" content="Smaller value comes first, supports decimals">
                       <InputNumber :max="1000" :min="0" v-model="form.sortOrder"></InputNumber>
                     </Tooltip>
                   </FormItem>
                 </Col>
                 <Col span="8">
-                  <FormItem label="是否启用" prop="status">
+                  <FormItem label="Status" prop="status">
                     <i-switch size="large" v-model="form.status" :true-value="0" :false-value="-1">
-                      <span slot="open">启用</span>
-                      <span slot="close">禁用</span>
+                      <span slot="open">Enabled</span>
+                      <span slot="close">Disabled</span>
                     </i-switch>
                   </FormItem>
                 </Col>
@@ -174,7 +174,7 @@
                       size="small" 
                       :disabled="!$route.meta.permTypes.includes('edit')"
                     >
-                      保存
+                      Save
                     </Button>
                   </Form-item>
                 </Col>
@@ -185,8 +185,8 @@
       </Row>
     </div>
 
-    <!-- 部门用户列表 -->
-    <Divider dashed>部门下用户列表</Divider>
+    <!-- Institute user list -->
+    <Divider dashed>Users in Institute</Divider>
     <Card>
       <Row>
         <Table 
@@ -218,41 +218,41 @@
       </Row>
     </Card>
 
-    <!-- 添加部门模态框 -->
+    <!-- Add institute modal -->
     <Modal 
       :title="modalTitle" 
       v-model="addOrEditDepartmentModal" 
       :mask-closable="false" 
       :width="500" 
-      on-text="提交" 
+      on-text="Submit" 
       @on-ok="submitAdd"
     >
       <Form ref="formAdd" :model="formAdd" :label-width="85" :rules="formValidate">
         <Row :gutter="16" v-show="showParent">
           <Col span="24">
-            <FormItem label="上级部门：">{{form.title}}</FormItem>
+            <FormItem label="Parent Institute:">{{form.title}}</FormItem>
           </Col>
         </Row>
         <Row :gutter="16">
           <Col span="24">
-            <FormItem label="部门名称" prop="title">
+            <FormItem label="Institute Name" prop="title">
               <Input v-model="formAdd.title" />
             </FormItem>
           </Col>
         </Row>
         <Row :gutter="16">
           <Col span="12">
-            <FormItem label="排序值" prop="sortOrder">
-              <Tooltip trigger="hover" placement="right" content="值越小越靠前，支持小数">
+            <FormItem label="Sort Order" prop="sortOrder">
+              <Tooltip trigger="hover" placement="right" content="Smaller value comes first, supports decimals">
                 <InputNumber :max="1000" :min="0" v-model="formAdd.sortOrder"></InputNumber>
               </Tooltip>
             </FormItem>
           </Col>
           <Col span="12">
-            <FormItem label="是否启用" prop="status">
+            <FormItem label="Status" prop="status">
               <i-switch size="large" v-model="formAdd.status" :true-value="0" :false-value="-1">
-                <span slot="open">启用</span>
-                <span slot="close">禁用</span>
+                <span slot="open">Enabled</span>
+                <span slot="close">Disabled</span>
               </i-switch>
             </FormItem>
           </Col>
@@ -313,13 +313,13 @@ export default {
       formValidate: {
         title: [{
           required: true,
-          message: "名称不能为空",
+          message: "Name cannot be empty",
           trigger: "blur"
         }],
         sortOrder: [{
           required: true,
           type: "number",
-          message: "排序值不能为空",
+          message: "Sort order cannot be empty",
           trigger: "blur"
         }]
       },
@@ -340,20 +340,20 @@ export default {
         fixed: "left"
       },
       {
-        title: "用户名",
+        title: "User Name",
         key: "nickname",
         minWidth: 125,
         sortable: true,
         fixed: "left"
       },
       {
-        title: "登录账号",
+        title: "Login Account",
         key: "username",
         minWidth: 125,
         sortable: true
       },
       {
-        title: "头像",
+        title: "Avatar",
         key: "avatar",
         width: 80,
         align: "center",
@@ -366,30 +366,30 @@ export default {
         }
       },
       {
-        title: "所属部门",
+        title: "Affiliated Institute",
         key: "departmentTitle",
         minWidth: 120
       },
       {
-        title: "手机",
+        title: "Mobile",
         key: "mobile",
         minWidth: 125,
         sortable: true
       },
       {
-        title: "邮箱",
+        title: "Email",
         key: "email",
         minWidth: 180,
         sortable: true
       },
       {
-        title: "性别",
+        title: "Gender",
         key: "sex",
         width: 90,
         align: "center"
       },
       {
-        title: "类型",
+        title: "Type",
         key: "type",
         align: "center",
         width: 100,
@@ -403,7 +403,7 @@ export default {
                     size: "medium"
                   }
                 },
-                "管理员"
+                "Administrator"
               ),
             ]);
           } else {
@@ -415,14 +415,14 @@ export default {
                     size: "default"
                   }
                 },
-                "用户"
+                "User"
               ),
             ]);
           }
         },
       },
       {
-        title: "状态",
+        title: "Status",
         key: "status",
         align: "center",
         width: 110,
@@ -435,7 +435,7 @@ export default {
                   size: "medium"
                 }
               },
-              (params.row.status == 0 ? "启用" : "禁用")
+              (params.row.status == 0 ? "Enabled" : "Disabled")
             ),
           ]);
         }
@@ -488,7 +488,7 @@ export default {
           });
           let first = {
             id: "0",
-            title: "一级部门"
+            title: "First-level Institute"
           };
           res.result.unshift(first);
           this.dataEdit = res.result;
@@ -528,7 +528,7 @@ export default {
     },
     excelData() {
       this.$refs.table.exportCsv({
-        filename: "部门用户导出结果",
+        filename: "Institute User Export Result",
       });
     },
     selectTree(v) {
@@ -596,14 +596,14 @@ export default {
       this.$refs.form.validate(valid => {
         if (valid) {
           if (!this.form.id) {
-            this.$Message.warning("请先点击选择要修改的部门");
+            this.$Message.warning("Please select an institute to modify first");
             return;
           }
           this.submitLoading = true;
           editDepartment(this.form).then(res => {
             this.submitLoading = false;
             if (res.success) {
-              this.$Message.success("编辑成功");
+              this.$Message.success("Edit successful");
               this.init();
               this.addOrEditDepartmentModal = false;
             }
@@ -618,7 +618,7 @@ export default {
           addDepartment(this.formAdd).then(res => {
             this.submitLoading = false;
             if (res.success) {
-              this.$Message.success("添加成功");
+              this.$Message.success("Add successful");
               this.init();
               this.addOrEditDepartmentModal = false;
             }
@@ -635,7 +635,7 @@ export default {
         this.addRoot();
         return;
       }
-      this.modalTitle = "添加子部门";
+      this.modalTitle = "Add Sub-institute";
       this.showParent = true;
       this.formAdd = {
         parentId: this.form.id,
@@ -645,7 +645,7 @@ export default {
       this.addOrEditDepartmentModal = true;
     },
     addRoot() {
-      this.modalTitle = "添加一级部门";
+      this.modalTitle = "Add First-level Institute";
       this.showParent = false;
       this.formAdd = {
         parentId: 0,
@@ -665,12 +665,12 @@ export default {
     },
     delAll() {
       if (this.selectCount <= 0) {
-        this.$Message.warning("您还未勾选要删除的数据");
+        this.$Message.warning("You haven't selected any data to delete");
         return;
       }
       this.$Modal.confirm({
-        title: "确认删除",
-        content: "您确认要删除所选的部门?",
+        title: "Confirm Delete",
+        content: "Are you sure you want to delete the selected institutes?",
         loading: true,
         onOk: () => {
           let ids = "";
@@ -683,7 +683,7 @@ export default {
           }).then(res => {
             this.$Modal.remove();
             if (res.success) {
-              this.$Message.success("删除成功");
+              this.$Message.success("Delete successful");
               this.selectList = [];
               this.selectCount = 0;
               this.cancelEdit();
@@ -712,13 +712,13 @@ export default {
 </script>
 
 <style lang="less" scoped>
-/* 全局样式 */
+/* Global styles */
 .department-manage-page {
   padding: 20px;
   background: #f8f9fa;
 }
 
-/* 顶部操作栏 */
+/* Top action bar */
 .top-bar {
   display: flex;
   justify-content: space-between;
@@ -754,7 +754,7 @@ export default {
   }
 }
 
-/* 主要内容区域 */
+/* Main content area */
 .main-content {
   margin-bottom: 16px;
 
@@ -772,11 +772,11 @@ export default {
   }
 }
 
-/* 表格样式 */
+/* Table styles */
 .ivu-table {
   border: none;
 
-  /* 表头样式 */
+  /* Header styles */
   thead th {
     background: #f9fafb;
     color: #333;
@@ -785,7 +785,7 @@ export default {
     padding: 12px 8px;
   }
 
-  /* 表格行样式 */
+  /* Table row styles */
   tbody tr {
     &:hover {
       background: #f7fafc;
@@ -797,14 +797,14 @@ export default {
     }
   }
 
-  /* 表格单元格 */
+  /* Table cell */
   td {
     border-bottom: 1px solid #eee;
     padding: 12px 8px;
   }
 }
 
-/* 按钮样式 */
+/* Button styles */
 .ivu-btn {
   border-radius: 20px;
   transition: all 0.3s ease;
@@ -815,7 +815,7 @@ export default {
   }
 }
 
-/* 分页 */
+/* Pagination */
 .page {
   padding: 16px 20px;
   background: #fff;
@@ -824,7 +824,7 @@ export default {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
-/* 卡片样式 */
+/* Card styles */
 .ivu-card {
   border-radius: 20px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
