@@ -49,8 +49,13 @@
         <div class="detail-header">
           <div class="title-row">
             <h2 class="detail-title">{{ selectedTopic.title }}</h2>
-            <div v-if="selectedTopic.createBy === currentUserId" class="edit-topic-btn-wrapper">
-              <Button type="primary" size="middle" class="edit-topic-btn" @click="showEditTopicModal">Edit</Button>
+            <div v-if="selectedTopic && (selectedTopic.createBy === currentUserId || isAdmin)" class="topic-action-btns">
+              <Button type="text" class="edit-topic-btn" v-if="selectedTopic.createBy === currentUserId" @click="showEditTopicModal">
+                <Icon type="md-create" />
+              </Button>
+              <Button type="text" class="delete-topic-btn" @click="handleDeleteTopic(selectedTopic)">
+                <Icon type="md-trash" />
+              </Button>
             </div>
           </div>
           <div class="similar-topic">
@@ -106,7 +111,7 @@
                 <div class="reply-content">{{ reply.content }}</div>
               </div>
               <div class="reply-actions">
-                <Button type="text" v-if="reply.createBy === currentUserId" @click="handleDeleteReply(reply)">
+                <Button type="text" v-if="reply.createBy === currentUserId || isAdmin" @click="handleDeleteReply(reply)">
                   <Icon type="md-trash" />
                 </Button>
                 <span class="reply-likes" @click="handleReplyLike(reply)">
@@ -208,6 +213,23 @@ export default {
     sortedReplies() {
       if (!this.selectedTopic || !this.selectedTopic.replies) return [];
       return [...this.selectedTopic.replies].sort((a, b) => (b.likes || 0) - (a.likes || 0));
+    },
+    isAdmin() {
+      try {
+        const userInfo = Cookies.get('userInfo')
+        if (userInfo) {
+          const user = JSON.parse(userInfo)
+          if (user.role && user.role.name) {
+            return user.role.name === 'ROLE_ADMIN'
+          }
+          if (user.roleName) {
+            return user.roleName === 'ROLE_ADMIN'
+          }
+        }
+        return false
+      } catch (error) {
+        return false
+      }
     }
   },
   created() {
@@ -223,6 +245,7 @@ export default {
     }
   },
   methods: {
+    // 通用方法
     async loadUsers() {
       try {
         const res = await getAllUsers();
@@ -233,8 +256,6 @@ export default {
         console.error('Failed to load the user information:', error);
       }
     },
-
-
     getAuthorName(userId) {
       if (userId === null || userId === undefined) {
         return 'Unknown User';
@@ -242,13 +263,13 @@ export default {
       const user = this.users.find(u => u.id === userId);
       return user ? (user.nickname || user.username) : `User${userId}`;
     },
-
     formatTime(timeStr) {
       if (!timeStr) return '';
       const date = new Date(timeStr);
       return date.toLocaleString('zh-CN');
     },
 
+    // =================== Topic 相关 ===================
     async fetchCourseDiscussions() {
       try {
         this.loading = true;
@@ -274,7 +295,6 @@ export default {
               }
             })
           );
-          
           this.filteredDiscussions = topicsWithReplies;
           this.$emit('discussions-loaded', topicsWithReplies);
         } else {
@@ -287,7 +307,6 @@ export default {
         this.loading = false;
       }
     },
-
     async createDiscussion(topicData) {
       try {
         const params = {
@@ -295,7 +314,6 @@ export default {
           title: topicData.title,
           description: topicData.content
         };
-        
         const response = await addTopics(this.courseId, params);
         if (response.success) {
           this.$Message.success('Succeed to create discussion.');
@@ -307,118 +325,27 @@ export default {
         this.$Message.error('Failed to create discussion.');
       }
     },
-
-    async replyToDiscussion(topicId, replyData) {
-      try {
-        const params = {
-          topicId: topicId,
-          content: replyData.content
-        };
-        
-        const response = await addPosts(topicId, params);
-        if (response.success) {
-          this.$Message.success('The reply was published successfully.');
-          await this.loadTopicReplies(topicId);
-        } else {
-          this.$Message.error('The reply failed to publish.');
-        }
-      } catch (error) {
-        this.$Message.error('The reply failed to publish.');
-      }
-    },
-
-    async loadTopicReplies(topicId) {
-      try {
-        const response = await getAllPosts(topicId);
-        if (response.success) {
-          console.log('Posts response:', response.result);
-          const topic = this.filteredDiscussions.find(t => t.id === topicId);
-          if (topic) {
-            topic.replies = response.result;
-            topic.replyCount = response.result.length;
-          }
-        }
-      } catch (error) {
-        console.error('Failed to load the reply:', error);
-      }
-    },
-
-    handleSearch() {
-      if (!this.searchQuery) {
-        this.filteredDiscussions = [...this.discussions];
-        return;
-      }
-      
-      const query = this.searchQuery.toLowerCase();
-      this.filteredDiscussions = this.discussions.filter(topic => {
-        return topic.title.toLowerCase().includes(query) || 
-               (topic.description && topic.description.toLowerCase().includes(query));
-      });
-    },
-    
-    selectTopic(topic) {
-      this.selectedTopic = topic;
-      this.loadTopicReplies(topic.id);
-    },
-    
-    handleContentClick(event) {
-      if (event.target.classList.contains('discussion-content') || 
-          event.target.classList.contains('discussion-main')) {
-        this.selectedTopic = null;
-      }
-    },
-    
-    handleTopicLike(topic) {
-      // TODO: 实现点赞功能
-      topic.isLiked = !topic.isLiked;
-      topic.likes = (topic.likes || 0) + (topic.isLiked ? 1 : -1);
-    },
-    
-    handleReplyLike(reply) {
-      // TODO: 实现回复点赞功能
-      reply.isLiked = !reply.isLiked;
-      reply.likes = (reply.likes || 0) + (reply.isLiked ? 1 : -1);
-    },
-    
-    async handleDeleteReply(reply) {
+    async handleDeleteTopic(topic) {
       this.$Modal.confirm({
         title: 'Confirm deletion',
-        content: 'Are you sure you want to delete this reply?',
+        content: 'Are you sure you want to delete this topic?',
         okText: 'OK',
         cancelText: 'Cancel',
         onOk: async () => {
           try {
-            const response = await deletePosts(reply.topicId, { ids: [reply.id] });
+            const response = await deleteTopics(topic.id, { ids: [topic.id] });
             if (response.success) {
-              this.$Message.success('The reply has been deleted.');
-              await this.loadTopicReplies(reply.topicId);
+              this.$Message.success('The topic has been deleted.');
+              this.selectedTopic = null;
+              await this.fetchCourseDiscussions();
             } else {
-              this.$Message.error('Failed to delete the reply');
+              this.$Message.error('Failed to delete the topic');
             }
           } catch (error) {
-            this.$Message.error('Failed to delete the reply');
+            this.$Message.error('Failed to delete the topic');
           }
         }
       });
-    },
-    
-    hasUserReplied(topic) {
-      if (!topic.replies) return false;
-      return topic.replies.some(reply => reply.createBy === this.currentUserId);
-    },
-
-    async initData() {
-      await this.loadUsers();
-      await this.fetchCourseDiscussions();
-    },
-
-    showEditTopicModal() {
-      this.editTopicForm = {
-        id: this.selectedTopic.id,
-        title: this.selectedTopic.title,
-        description: this.selectedTopic.description
-      };
-      this.editTopicModalVisible = true;
     },
     async handleEditTopicSave() {
       if (!this.editTopicForm.title || !this.editTopicForm.description) {
@@ -447,6 +374,14 @@ export default {
         this.$Message.error('Edit Failed');
       }
     },
+    showEditTopicModal() {
+      this.editTopicForm = {
+        id: this.selectedTopic.id,
+        title: this.selectedTopic.title,
+        description: this.selectedTopic.description
+      };
+      this.editTopicModalVisible = true;
+    },
     showCreateModal() {
       this.createModalVisible = true;
       this.newTopic = {
@@ -469,6 +404,86 @@ export default {
       } catch (error) {
         this.$Message.error('Failed to create topic');
       }
+    },
+    selectTopic(topic) {
+      this.selectedTopic = topic;
+      this.loadTopicReplies(topic.id);
+    },
+    handleSearch() {
+      if (!this.searchQuery) {
+        this.filteredDiscussions = [...this.discussions];
+        return;
+      }
+      const query = this.searchQuery.toLowerCase();
+      this.filteredDiscussions = this.discussions.filter(topic => {
+        return topic.title.toLowerCase().includes(query) || 
+               (topic.description && topic.description.toLowerCase().includes(query));
+      });
+    },
+    handleContentClick(event) {
+      if (event.target.classList.contains('discussion-content') || 
+          event.target.classList.contains('discussion-main')) {
+        this.selectedTopic = null;
+      }
+    },
+    handleTopicLike(topic) {
+      // TODO: 实现点赞功能
+      topic.isLiked = !topic.isLiked;
+      topic.likes = (topic.likes || 0) + (topic.isLiked ? 1 : -1);
+    },
+
+    // =================== Reply 相关 ===================
+    async replyToDiscussion(topicId, replyData) {
+      try {
+        const params = {
+          topicId: topicId,
+          content: replyData.content
+        };
+        const response = await addPosts(topicId, params);
+        if (response.success) {
+          this.$Message.success('The reply was published successfully.');
+          await this.loadTopicReplies(topicId);
+        } else {
+          this.$Message.error('The reply failed to publish.');
+        }
+      } catch (error) {
+        this.$Message.error('The reply failed to publish.');
+      }
+    },
+    async loadTopicReplies(topicId) {
+      try {
+        const response = await getAllPosts(topicId);
+        if (response.success) {
+          const topic = this.filteredDiscussions.find(t => t.id === topicId);
+          if (topic) {
+            topic.replies = response.result;
+            topic.replyCount = response.result.length;
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load the reply:', error);
+      }
+    },
+    async handleDeleteReply(reply) {
+      this.$Modal.confirm({
+        title: 'Confirm deletion',
+        content: 'Are you sure you want to delete this reply?',
+        okText: 'OK',
+        cancelText: 'Cancel',
+        onOk: async () => {
+          try {
+            const response = await deletePosts(reply.topicId, { ids: [reply.id] });
+            if (response.success) {
+              this.$Message.success('The reply has been deleted.');
+              await this.loadTopicReplies(reply.topicId);
+            } else {
+              this.$Message.error('Failed to delete the reply');
+            }
+          } catch (error) {
+            this.$Message.error('Failed to delete the reply');
+          }
+        }
+      });
     },
     showReplyModal(topic) {
       this.replyModalVisible = true;
@@ -493,6 +508,19 @@ export default {
       } catch (error) {
         this.$Message.error('Failed to publish reply');
       }
+    },
+    handleReplyLike(reply) {
+      // TODO: 实现回复点赞功能
+      reply.isLiked = !reply.isLiked;
+      reply.likes = (reply.likes || 0) + (reply.isLiked ? 1 : -1);
+    },
+    hasUserReplied(topic) {
+      if (!topic.replies) return false;
+      return topic.replies.some(reply => reply.createBy === this.currentUserId);
+    },
+    async initData() {
+      await this.loadUsers();
+      await this.fetchCourseDiscussions();
     }
   }
 }
@@ -680,14 +708,38 @@ export default {
           margin-bottom: 12px;
         }
 
-        .edit-topic-btn-wrapper {
+        .topic-action-btns {
           display: flex;
           align-items: center;
-        }
-
-        .edit-topic-btn {
-          margin-left: 10px;
-          border-radius: 22px;
+          gap: 8px;
+          .edit-topic-btn {
+            padding: 4px 8px;
+            color: #808695;
+            background: none;
+            border: none;
+            box-shadow: none;
+            &:hover {
+              color: #2d8cf0;
+              background: transparent !important;
+            }
+            .ivu-icon {
+              font-size: 18px;
+            }
+          }
+          .delete-topic-btn {
+            padding: 4px 8px;
+            color: #808695;
+            background: none;
+            border: none;
+            box-shadow: none;
+            &:hover {
+              color: #ed4014;
+              background: transparent !important;
+            }
+            .ivu-icon {
+              font-size: 18px;
+            }
+          }
         }
 
         .similar-topic {
@@ -714,7 +766,6 @@ export default {
             color: #2d8cf0;
             text-decoration: none;
             font-size: 14px;
-            max-width: 180px;
             display: inline-block;
             overflow: hidden;
             text-overflow: ellipsis;
