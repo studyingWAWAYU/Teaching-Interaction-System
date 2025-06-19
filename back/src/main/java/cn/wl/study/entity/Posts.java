@@ -41,21 +41,21 @@ public class Posts{
     @CreatedBy
     @TableField(fill = FieldFill.INSERT)
     @ApiModelProperty(value="留言人ID")
-    private Integer create_by;
+    private Integer createBy;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @TableField(fill = FieldFill.INSERT)
     @CreatedDate
     @ApiModelProperty(value = "创建时间")
-    private Date create_time;
+    private Date createTime;
 
     @ApiModelProperty(value="内容")
     @Size(max = 5000, message = "Content length cannot exceed 5000 characters.")
     private String content;
 
     @ApiModelProperty(value="隶属的主题")
-    private Integer topic_id;
+    private Integer topicId;
 
     @ApiModelProperty(value="点赞数")
     private Integer likes;

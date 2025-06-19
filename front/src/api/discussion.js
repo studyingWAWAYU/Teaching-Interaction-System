@@ -17,7 +17,7 @@ export const getAllTopics = (courseId) => {
 
 // 根据likes降序排序获取所有主题
 export const getAllTopicsSorted = (courseId) => {
-    return getNoAuthRequest(`/course/${courseId}/topics/getAll/sorted_by_likes`,params);
+    return getNoAuthRequest(`/course/${courseId}/topics/getAll/sorted_by_likes`);
 };
 
 // 增改主题
@@ -35,7 +35,48 @@ export const updateTopics = (courseId,params) => {
     return postRequest(`/course/${courseId}/topics/update`, params);
 };
 
-// 删除课程
+// 删除主题
 export const deleteTopics = (courseId,params) => {
     return postRequest(`/course/${courseId}/topics/delByIds`, params);
+};
+
+
+// 获取单个回复
+export const getPosts = (topicId, params) => {
+    return getNoAuthRequest(`/course/${topicId}/posts/getOne`, params);
+};
+
+// 获取回复总数
+export const getPostsCount = (topicId) => {
+    return getNoAuthRequest(`/course/${topicId}/posts/count`);
+};
+
+// 获取所有回复
+export const getAllPosts = (topicId) => {
+    return getNoAuthRequest(`/course/${topicId}/posts/getAll`);
+};
+
+// 根据likes降序排序获取所有回复
+export const getAllPostsSorted = (topicId) => {
+    return getNoAuthRequest(`/course/${topicId}/posts/getAll/sorted_by_likes`);
+};
+
+// 增改回复
+export const saveOrUpdatePosts = (topicId, params) => {
+    return postRequest(`/course/${topicId}/posts/insertOrUpdate`, params);
+};
+
+// 新增回复
+export const addPosts = (topicId, params) => {
+    return postRequest(`/course/${topicId}/posts/insert`, params);
+};
+
+// 更新回复
+export const updatePosts = (topicId, params) => {
+    return postRequest(`/course/${topicId}/posts/update`, params);
+};
+
+// 删除回复
+export const deletePosts = (topicId, params) => {
+    return postRequest(`/course/${topicId}/posts/delByIds`, params);
 };
