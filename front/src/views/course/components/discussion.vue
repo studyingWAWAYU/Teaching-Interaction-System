@@ -384,6 +384,8 @@ export default {
       this.$Modal.confirm({
         title: 'Confirm deletion',
         content: 'Are you sure you want to delete this reply?',
+        okText: 'OK',
+        cancelText: 'Cancel',
         onOk: async () => {
           try {
             const response = await deletePosts(reply.topicId, { ids: [reply.id] });
