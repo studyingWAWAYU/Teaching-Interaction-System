@@ -72,8 +72,6 @@
           <Discussion 
             ref="discussion"
             :discussions="discussions"
-            @show-create-modal="showCreateModal"
-            @show-reply-modal="showReplyModal"
             @discussions-loaded="handleDiscussionsLoaded"/>
         </TabPane>
 
@@ -82,33 +80,6 @@
         </TabPane>
       </Tabs>
     </Card>
-
-    <Modal v-model="createModalVisible" title="Create Topic" @on-ok="handleCreateTopic">
-      <Form :model="newTopic" :label-width="80">
-        <FormItem label="Title">
-          <Input v-model="newTopic.title" placeholder="Enter topic title" />
-        </FormItem>
-        <FormItem label="Content">
-          <Input
-            v-model="newTopic.content"
-            type="textarea"
-            :rows="4"
-            placeholder="Enter topic content" />
-        </FormItem>
-      </Form>
-    </Modal>
-
-    <Modal v-model="replyModalVisible" title="Reply to Topic" @on-ok="handleReply">
-      <Form :model="newReply" :label-width="80">
-        <FormItem label="Content">
-          <Input
-            v-model="newReply.content"
-            type="textarea"
-            :rows="4"
-            placeholder="Enter your reply" />
-        </FormItem>
-      </Form>
-    </Modal>
 
     <Modal v-model="showEditInfoModal" title="Edit Course Info" @on-ok="saveEditInfo">
       <Form :model="editCourseInfo" :label-width="100">
@@ -164,16 +135,6 @@ export default {
       reviews: [],
       discussions: [],
       users: [], // 存储用户信息
-      createModalVisible: false,
-      replyModalVisible: false,
-      newTopic: {
-        title: '',
-        content: ''
-      },
-      newReply: {
-        content: '',
-        topicIndex: -1
-      },
       editInfoMode: false,
       showEditInfoModal: false,
       editCourseInfo: {
@@ -362,62 +323,6 @@ export default {
         }
       } catch (error) {
         this.$Message.error(this.isEnrolled ? '退课失败' : '选课失败');
-      }
-    },
-    
-    // 显示创建讨论主题的模态框
-    showCreateModal() {
-      this.createModalVisible = true;
-      this.newTopic = {
-        title: '',
-        content: ''
-      };
-    },
-
-    // 处理创建讨论主题
-    async handleCreateTopic() {
-      if (!this.newTopic.title || !this.newTopic.content) {
-        this.$Message.warning('请填写所有字段');
-        return;
-      }
-      try {
-        // 通过Discussion组件的方法创建主题
-        await this.$refs.discussion.createDiscussion(this.newTopic);
-        this.createModalVisible = false;
-        this.newTopic = {
-          title: '',
-          content: ''
-        };
-      } catch (error) {
-        this.$Message.error('创建主题失败');
-      }
-    },
-
-    // 显示回复模态框
-    showReplyModal(topic) {
-      this.replyModalVisible = true;
-      this.newReply = {
-        content: '',
-        topicIndex: this.discussions.indexOf(topic)
-      };
-    },
-
-    async handleReply() {
-      if (!this.newReply.content) {
-        this.$Message.warning('请输入回复内容');
-        return;
-      }
-      try {
-        const topic = this.discussions[this.newReply.topicIndex];
-        // 通过Discussion组件的方法创建回复
-        await this.$refs.discussion.replyToDiscussion(topic.id, this.newReply);
-        this.replyModalVisible = false;
-        this.newReply = {
-          content: '',
-          topicIndex: -1
-        };
-      } catch (error) {
-        this.$Message.error('发布回复失败');
       }
     },
 
