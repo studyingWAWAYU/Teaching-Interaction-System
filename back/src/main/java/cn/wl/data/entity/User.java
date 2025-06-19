@@ -74,7 +74,7 @@ public class User {
 
 
     @ApiModelProperty(value = "学工号")
-    @NotNull(message = "Teacher/Student ID cannot be empty.")
+//    @NotNull(message = "Teacher/Student ID cannot be empty.")
     private String number;
 
     @ApiModelProperty(value = "性别")

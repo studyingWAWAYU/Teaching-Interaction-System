@@ -53,6 +53,8 @@ public class File{
     @ApiModelProperty(value = "更新时间")
     private Date updateTime;
 
+    private Date createTime;
+
     @ApiModelProperty(value = "上传文件名")
     private String name;
 

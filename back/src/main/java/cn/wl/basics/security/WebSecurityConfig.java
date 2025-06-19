@@ -53,52 +53,54 @@ public class WebSecurityConfig {
     private SecurityUtil securityUtil;
 
     @Bean
-    // 所有的请求都会经过securityFilterChain过滤器进行过滤
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
-        // 这里配置了免登录接口（白名单），不需要校验token值也能访问这些接口
-        http.authorizeHttpRequests().requestMatchers("/wl/dictData/getByType/**",
-                        "/wl/file/view/**",
-                        "/wl/user/regist",
-                        "/wl/user/getAll",
-                        "/wl/common/**",
-                        "/wl/course/getAll",
-                        "/wl/course/getOne",
-                        "/wl/course/count",
-                        "/wl/course/getByPage",
-                        "/wl/feedback/getAll",
-                        "/wl/feedback/getOne",
-                        "/wl/feedback/count",
-                        "/wl/feedback/getByPage",
-                        "/*/*.js","/*/*.css","/*/*.png","/*/*.ico",
-                        "/swagger-ui.html").permitAll()
-                // 如果token校验失败就跳转到登录界面
-                .and().formLogin()
-                .loginPage("/wl/common/needLogin")
-                // 配置登录接口
-                .loginProcessingUrl("/wl/login").permitAll()
-                // 配置登录成功的处理类 和 登录失败的处理类
-                .successHandler(authenticationSuccessHandler).failureHandler(authenticationFailHandler)
-                // 允许iframe嵌套
-                .and().headers().frameOptions().disable()
+        http
+                // 配置白名单路径，这些路径不需要认证
+                .authorizeHttpRequests(requestMatcherRegistry -> requestMatcherRegistry
+                        .requestMatchers(
+                                "/wl/dictData/getByType/**",
+                                "/wl/file/view/**",
+                                "/wl/user/regist",
+                                "/wl/user/getAll",
+                                "/wl/common/**",
+                                "/wl/course/getAll",
+                                "/wl/course/getOne",
+                                "/wl/course/count",
+                                "/wl/course/getByPage",
+                                "/wl/feedback/getAll",
+                                "/wl/feedback/getOne",
+                                "/wl/feedback/count",
+                                "/wl/feedback/getByPage",
+                                "/*/*.js", "/*/*.css", "/*/*.png", "/*/*.ico",
+                                "/swagger-ui.html"
+                        ).permitAll()
+                        // 其他请求需要认证
+                        .anyRequest().authenticated()
+                )
+
+                // 配置登录页面和登录处理
+                .formLogin(formLogin -> formLogin
+                        .loginPage("/wl/common/needLogin")
+                        .loginProcessingUrl("/wl/login").permitAll()
+                        .successHandler(authenticationSuccessHandler)
+                        .failureHandler(authenticationFailHandler)
+                )
+
+
                 // 配置注销
-                .and().logout().permitAll()
-                // 其他请求需要认证
-                .and().authorizeHttpRequests()
-                .anyRequest().authenticated()
+                .logout(logout -> logout.permitAll())
                 // 跨域配置
-                .and().cors()
+//                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 // 禁用CSRF防护
-                .and().csrf().disable()
-
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-
-                .and().exceptionHandling().accessDeniedHandler(wlAccessDeniedHandler)
-                .and().authenticationProvider(authenticationProvider())
-                // 自定义限流过滤器。防止白名单网站请求量太大导致服务器垮掉
+                .csrf(csrf -> csrf.disable())
+                // 会话管理策略
+                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // 异常处理
+                .exceptionHandling(exceptionHandling -> exceptionHandling.accessDeniedHandler(wlAccessDeniedHandler))
+                // 添加自定义过滤器
                 .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
-                // 图形验证码的过滤器
-                //.addFilterBefore(imageValidateFilter, UsernamePasswordAuthenticationFilter.class);
+
         return http.build();
     }
 

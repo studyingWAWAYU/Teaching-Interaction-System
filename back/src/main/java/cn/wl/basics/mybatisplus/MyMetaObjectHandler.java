@@ -1,6 +1,8 @@
 package cn.wl.basics.mybatisplus;
 
 import cn.wl.basics.redis.RedisTemplateHelper;
+import cn.wl.basics.utils.SecurityUtil;
+import cn.wl.data.entity.User;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +31,7 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
 
     private static final String REDIS_PRE = "OAUSER:";
 
-    private static final String CREATE_BY = "createBy";
+
 
     private static final String CREATE_TIME = "createTime";
 
@@ -44,19 +46,22 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     public void insertFill(MetaObject metaObject) {
         try {
             Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
             if(!Objects.equals(ANONYMOUS_USER,principal.toString())){
                 UserDetails user = (UserDetails) principal;
+
                 String str = redisTemplate.get(REDIS_PRE + user.getUsername());
-                if(str != null) {
-                    this.setFieldValByName(CREATE_BY, str, metaObject);
-                } else {
-                    this.setFieldValByName(CREATE_BY, user.getUsername(), metaObject);
-                }
+//                if(str != null) {
+//
+//                    this.setFieldValByName(CREATE_BY, id, metaObject);
+//                } else {
+//                    this.setFieldValByName(CREATE_BY, id, metaObject);
+//                }
             }
             this.setFieldValByName(CREATE_TIME, new Date(), metaObject);
         }
         catch (NullPointerException e) {
-            this.setFieldValByName(CREATE_BY, DEFALUT_STR, metaObject);
+//            this.setFieldValByName(CREATE_BY, DEFALUT_STR, metaObject);
             this.setFieldValByName(CREATE_TIME, new Date(), metaObject);
         }
     }
