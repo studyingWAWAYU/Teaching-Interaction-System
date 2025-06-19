@@ -114,46 +114,4 @@ public class CourseResourcesController {
         return ResultUtil.success();
     }
 
-    @RequestMapping(value = "/download", method = RequestMethod.GET)
-    @ApiOperation(value = "下载资源")
-    public Result<Object> download(CourseResources courseResources,HttpServletResponse response) {
-        // 根据ID查询资源
-        Course c = iCourseService.getById(courseResources.getCourseId());
-        if (c == null) {
-            return ResultUtil.error("课程不存在");
-        }
-
-        // 获取资源文件路径
-        String filePath = courseResources.getFileUrl(); // 假设资源文件存储在filePath字段中
-        if (StrUtil.isEmpty(filePath)) {
-            return ResultUtil.error("文件路径为空");
-        }
-
-        // 设置响应头，告诉浏览器文件是作为附件下载
-        try {
-            response.setContentType("application/octet-stream");
-            response.setHeader("Content-Disposition", "attachment; filename=" + courseResources.getTitle());
-            File file = new File(filePath);
-            if (file.exists()) {
-                // 使用流的方式将文件内容写入响应
-                try (InputStream inputStream = new FileInputStream(file);
-                     OutputStream outputStream = response.getOutputStream()) {
-
-                    byte[] buffer = new byte[1024];
-                    int length;
-                    while ((length = inputStream.read(buffer)) > 0) {
-                        outputStream.write(buffer, 0, length);
-                    }
-                    return ResultUtil.success();
-                }
-            } else {
-                return ResultUtil.error("文件不存在");
-            }
-        } catch (IOException e) {
-            log.error("下载文件失败", e);
-            return ResultUtil.error("下载失败，请稍后重试");
-        }
-    }
-
-
 }
