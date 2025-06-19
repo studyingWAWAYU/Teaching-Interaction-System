@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permission> implements IPermissionService {
-
     @Override
     public Set<String> getPermTypesByUserId(String userId) {
         List<Permission> permissions = baseMapper.getUserPermissions(userId);
