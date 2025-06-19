@@ -47,9 +47,6 @@ public class UserController {
     @Autowired
     private IRoleService iRoleService;
 
-    //@Autowired
-    //private IUserRoleService iUserRoleService;
-
     @Autowired
     private IDepartmentHeaderService iDepartmentHeaderService;
 
