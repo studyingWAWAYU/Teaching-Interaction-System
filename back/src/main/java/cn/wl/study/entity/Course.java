@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.data.annotation.CreatedBy;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 @Data
@@ -56,4 +57,7 @@ public class Course{
 
     @ApiModelProperty(value = "课程标题")
     private String title;
+
+    @ApiModelProperty(value = "学分")
+    private BigDecimal credit;
 }
