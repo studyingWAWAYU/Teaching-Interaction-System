@@ -714,7 +714,6 @@ export default {
             color: #2d8cf0;
             text-decoration: none;
             font-size: 14px;
-            max-width: 180px;
             display: inline-block;
             overflow: hidden;
             text-overflow: ellipsis;
