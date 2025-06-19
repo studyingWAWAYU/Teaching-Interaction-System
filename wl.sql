@@ -66,7 +66,7 @@ INSERT INTO `teacher` (`id`, `description`, `title`,user_id) VALUES
 DROP TABLE IF EXISTS `role`;
 CREATE TABLE IF NOT EXISTS `role` (
                                       `id` integer primary key,
-                                      `create_time` date(0),
+                                      `create_time` date,
                                       `description` varchar(255) DEFAULT NULL,
                                       `name` varchar(50) NOT NULL,
                                       `datatype` int NOT NULL
@@ -166,8 +166,6 @@ INSERT INTO `permission` (`id`, `description`, `name`, `parent_id`, `type`, `sor
                                                                                                                                                                                      (63, NULL, 'file-admin', 2, 0, 5.00, 'file/file/index', 'file', '文件管理', 'ios-folder', 2, '', 0, b'1');
 
 
-
-
 DROP TABLE IF EXISTS `role_permission`;
 CREATE TABLE IF NOT EXISTS `role_permission` (
                                                  id integer primary key auto_increment,
@@ -264,21 +262,22 @@ INSERT INTO `role_permission` (`id`,`permission_id`, `role_id`) VALUES
 
 DROP TABLE IF EXISTS `course`;
 CREATE TABLE IF NOT EXISTS `course` (
-                                        `id` integer primary key auto_increment,
-                                        create_by integer,
-                                        foreign key (create_by) references user(id),
-                                        start_time date DEFAULT NULL,
-                                        end_time date DEFAULT NULL,
-                                        `content` varchar(800) DEFAULT NULL,
-                                        `image` varchar(255) DEFAULT NULL,
-                                        `status` varchar(255) DEFAULT NULL,
-                                        `title` varchar(255) DEFAULT NULL
+    `id` integer primary key auto_increment,
+    create_by integer,
+    foreign key (create_by) references user(id),
+    start_time date DEFAULT NULL,
+    end_time date DEFAULT NULL,
+    `content` varchar(800) DEFAULT NULL,
+    `image` varchar(255) DEFAULT NULL,
+    `status` varchar(255) DEFAULT NULL,
+    `title` varchar(255) DEFAULT NULL,
+    credit decimal(4,1) DEFAULT NULL
 );
 
 DELETE FROM `course`;
-INSERT INTO `course` (`id`, `create_by`, `start_time`,end_time, `content`, `image`, `status`, `title`) VALUES
-                                                                                                           (1, 2, '2025-06-09', '2025-06-12', 'Java Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071506217668608.png', 'Normal', 'Java Program Design'),
-                                                                                                           (2, 2, '2025-06-09', '2025-06-12', 'Python Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071540472549376.png', 'Normal', 'Python Program Design');
+INSERT INTO `course` (`id`, `create_by`, `start_time`,end_time, `content`, `image`, `status`, `title`,credit) VALUES
+                                                                                                           (1, 2, '2025-06-09', '2025-06-12', 'Java Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071506217668608.png', 'Normal', 'Java Program Design',3.0),
+                                                                                                           (2, 2, '2025-06-09', '2025-06-12', 'Python Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071540472549376.png', 'Normal', 'Python Program Design',3.0);
 
 DROP TABLE IF EXISTS `gradebook`;
 CREATE TABLE IF NOT EXISTS `gradebook` (
