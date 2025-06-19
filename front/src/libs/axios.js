@@ -7,6 +7,10 @@ let base = '/wl';
 
 
 // 在这里加上全局配置
+const accessToken = localStorage.getItem('accessToken') || Cookies.get('accessToken');
+// 设置请求头，将 accessToken 作为 Bearer token 发送
+axios.defaults.headers.common['accessToken'] = `Bearer ${accessToken}`;
+
 axios.defaults.withCredentials = true;
 axios.defaults.timeout = 15000;
 axios.interceptors.request.use(config => {
