@@ -1,73 +1,188 @@
 <template>
-<div class="search">
-    <Card>
-        <Row>
-            <Form ref="searchForm" :model="searchForm" inline :label-width="40">
-                <Form-item label="姓名" prop="nickname">
-                    <Input type="text" v-model="searchForm.nickname" clearable placeholder="搜索姓名" style="width: 160px" />
-                </Form-item>
-                <Form-item label="部门" prop="department">
-                    <department-choose @on-change="handleSelectDep" placeholder="用户部门" style="width: 160px" ref="dep"></department-choose>
-                </Form-item>
-                <Form-item style="margin-left:10px;" class="br">
-                    <Button @click="handleSearch" type="primary" icon="ios-search" ghost shape="circle" size="small">搜索</Button>
-                    <Button @click="handleReset" type="warning" ghost shape="circle" icon="md-refresh" size="small">重置</Button>
-                    <Button @click="add" type="info" icon="md-add" ghost shape="circle" size="small" :disabled="!$route.meta.permTypes.includes('add')">添加</Button>
-                    <Button @click="importModalVisible=true" type="success" icon="md-paper-plane" ghost shape="circle" size="small">导入</Button>
-                    <Button @click="excelData" type="success" icon="md-paper-plane" ghost shape="circle" size="small">导出</Button>
-                </Form-item>
-                <Form-item style="position:fixed;right:50px;top:130px">
-                    <Button type="info" @click="showFilterPanelFlag = !showFilterPanelFlag" class="showFilterPanelFlag" icon="md-settings" size="small" ghost>
-                        列筛选</Button>
-                    <Button type="warning" @click="usingTutorialsModal = true" class="showFilterPanelFlag" icon="ios-help-circle-outline" size="small" ghost>
-                        使用教程</Button>
-                    <Modal v-model="usingTutorialsModal" title="使用教程">
-                        <p>1.XXXXXXXXXXXXXXXXXXXXXXXX</p>
-                        <p>2.XXXXXXXXXXXXXXXXXXXXXXXX</p>
-                        <p>3.XXXXXXXXXXXXXXXXXXXXXXXX</p>
-                    </Modal>
-                </Form-item>
-            </Form>
-        </Row>
-        <Row class="operation" style="position:relative;">
-            <transition>
-                <div v-show="showFilterPanelFlag" class="filter-panel">
-                    <CheckboxGroup v-model="selected">
-                        <div v-for="item in mycolumns" :key="item.key">
-                            <Checkbox :label="item.title" style="margin: 2px 5px"></Checkbox>
-                        </div>
-                    </CheckboxGroup>
-                </div>
-            </transition>
-        </Row>
-        <Row>
-            <Table :loading="loading" border stripe :height="height" :columns="columns" :data="data" sortable="custom" @on-sort-change="changeSort" @on-selection-change="showSelect" ref="table" @on-row-click="rowClick" :row-class-name="rowClassName"></Table>
-        </Row>
-        <Row type="flex" justify="end" class="page">
-            <Page :current="searchForm.pageNumber" :total="total" :page-size="searchForm.pageSize" @on-change="changePage" @on-page-size-change="changePageSize" :page-size-opts="[20,30,50]" size="small" show-total show-elevator show-sizer></Page>
-        </Row>
+  <div class="search">
+    <!-- 搜索和操作区域 -->
+    <Card class="search-card">
+      <Row>
+        <div class="search-form-wrapper">
+          <Form
+            ref="searchForm"
+            :model="searchForm"
+            inline
+            :label-width="80"
+            class="search-form"
+          >
+            <Form-item label="姓名" prop="nickname">
+              <Input
+                type="text"
+                v-model="searchForm.nickname"
+                clearable
+                placeholder="搜索姓名"
+                style="width: 200px"
+              />
+            </Form-item>
+            <Form-item label="部门" prop="department">
+              <department-choose
+                @on-change="handleSelectDep"
+                placeholder="用户部门"
+                style="width: 200px"
+                ref="dep"
+              ></department-choose>
+            </Form-item>
+            <Form-item class="search-buttons">
+              <Button
+                @click="handleSearch"
+                type="primary"
+                icon="ios-search"
+                ghost
+                shape="circle"
+                size="small"
+              >
+                搜索
+              </Button>
+              <Button
+                @click="handleReset"
+                type="warning"
+                ghost
+                shape="circle"
+                icon="md-refresh"
+                size="small"
+                style="margin-left: 5px"
+              >
+                重置
+              </Button>
+            </Form-item>
+          </Form>
+        </div>
+        
+        <div class="action-buttons">
+          <Button
+            @click="add"
+            type="info"
+            icon="md-add"
+            ghost
+            shape="circle"
+            size="small"
+            :disabled="!$route.meta.permTypes.includes('add')"
+          >
+            添加
+          </Button>
+          <Button
+            @click="importModalVisible = true"
+            type="success"
+            icon="md-paper-plane"
+            ghost
+            shape="circle"
+            size="small"
+            style="margin-left: 5px"
+          >
+            导入
+          </Button>
+          <Button
+            @click="excelData"
+            type="success"
+            icon="md-paper-plane"
+            ghost
+            shape="circle"
+            size="small"
+            style="margin-left: 5px"
+          >
+            导出
+          </Button>
+          <Button
+            type="info"
+            @click="showFilterPanelFlag = !showFilterPanelFlag"
+            class="showFilterPanelFlag"
+            icon="md-settings"
+            size="small"
+            ghost
+            style="margin-left: 5px"
+          >
+            列筛选
+          </Button>
+          
+        </div>
+      </Row>
+      
+      <!-- 列筛选面板 -->
+      <Row class="operation" style="position: relative;">
+        <transition>
+          <div v-show="showFilterPanelFlag" class="filter-panel">
+            <CheckboxGroup v-model="selected">
+              <div v-for="item in mycolumns" :key="item.key">
+                <Checkbox :label="item.title" style="margin: 2px 5px"></Checkbox>
+              </div>
+            </CheckboxGroup>
+          </div>
+        </transition>
+      </Row>
+      
+      <!-- 数据表格 -->
+      <Row>
+        <Table
+          :loading="loading"
+          border
+          stripe
+          :height="height"
+          :columns="columns"
+          :data="data"
+          sortable="custom"
+          @on-sort-change="changeSort"
+          @on-selection-change="showSelect"
+          ref="table"
+          @on-row-click="rowClick"
+          :row-class-name="rowClassName"
+        ></Table>
+      </Row>
+      
+      <!-- 分页 -->
+      <Row type="flex" justify="end" class="page">
+        <Page
+          :current="searchForm.pageNumber"
+          :total="total"
+          :page-size="searchForm.pageSize"
+          @on-change="changePage"
+          @on-page-size-change="changePageSize"
+          :page-size-opts="[20, 30, 50]"
+          size="small"
+          show-total
+          show-elevator
+          show-sizer
+        ></Page>
+      </Row>
     </Card>
+    
+    <!-- 导入数据抽屉 -->
     <Drawer title="导入数据" closable v-model="importModalVisible" width="1000">
-        <div style="display:flex;justify-content: space-between;align-items: center;">
-            <Upload action :before-upload="beforeUploadImport" accept=".xls, .xlsx">
-                <Button :loading="reading" icon="ios-cloud-upload-outline" style="margin-right:10px">上传Excel文件</Button>
-                <span v-if="uploadfile.name">当前选择文件：{{ uploadfile.name }}</span>
-            </Upload>
-            <Button @click="clearImportData" icon="md-trash">清空数据</Button>
+      <div style="display:flex;justify-content: space-between;align-items: center;">
+        <Upload action :before-upload="beforeUploadImport" accept=".xls, .xlsx">
+          <Button :loading="reading" icon="ios-cloud-upload-outline" style="margin-right:10px">
+            上传Excel文件
+          </Button>
+          <span v-if="uploadfile.name">当前选择文件：{{ uploadfile.name }}</span>
+        </Upload>
+        <Button @click="clearImportData" icon="md-trash">清空数据</Button>
+      </div>
+      <Table :columns="importColumns" border :height="height" :data="importTableData" ref="importTable"></Table>
+      <div class="drawer-footer">
+        <div style="position:absolute;right:15px;display: inline-block">
+          <Button @click="importModalVisible=false">关闭</Button>
+          <Button
+            :loading="importLoading"
+            :disabled="importTableData.length<=0"
+            @click="importData"
+            style="margin-left:8px"
+            type="primary"
+          >
+            确认导入
+            <span v-if="importTableData.length>0">{{importTableData.length}} 条数据</span>
+          </Button>
         </div>
-        <Table :columns="importColumns" border :height="height" :data="importTableData" ref="importTable"></Table>
-        <div class="drawer-footer">
-            <div style="position:absolute;right:15px;display: inline-block">
-                <Button @click="importModalVisible=false">关闭</Button>
-                <Button :loading="importLoading" :disabled="importTableData.length<=0" @click="importData" style="margin-left:8px" type="primary">
-                    确认导入
-                    <span v-if="importTableData.length>0">{{importTableData.length}} 条数据</span>
-                </Button>
-            </div>
-        </div>
+      </div>
     </Drawer>
+    
+    <!-- 添加/编辑用户组件 -->
     <addEdit :data="form" :type="showType" v-model="showUser" @on-submit="getUserList" />
-</div>
+  </div>
 </template>
 
 <script>
@@ -83,6 +198,7 @@ import departmentChoose from "@/views/template/department-choose";
 import excel from "@/libs/excel";
 import addEdit from "./addEdit.vue";
 import dict from "@/views/template/dict";
+
 export default {
     name: "user-manage",
     components: {
@@ -600,29 +716,55 @@ export default {
 
 <style lang="less">
 .search {
-    .operation {
-        margin-bottom: 2vh;
-    }
-
-    .select-count {
-        font-weight: 600;
-        color: #40a9ff;
-    }
-
-    .select-clear {
-        margin-left: 10px;
-    }
-
-    .page {
-        margin-top: 2vh;
-    }
-
-    .drop-down {
-        margin-left: 5px;
-    }
-}
-
-.filter-panel {
+  .search-card {
+    padding: 15px;
+    margin: 15px;
+  }
+  
+  .search-form-wrapper {
+    display: inline-block;
+    width: 70%;
+  }
+  
+  .action-buttons {
+    display: inline-block;
+    width: 30%;
+    text-align: right;
+    padding-right: 10px;
+  }
+  
+  .search-form {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  
+  .search-buttons {
+    margin-left: 10px;
+  }
+  
+  .operation {
+    margin-bottom: 10px;
+  }
+  
+  .select-count {
+    font-weight: 600;
+    color: #40a9ff;
+  }
+  
+  .select-clear {
+    margin-left: 10px;
+  }
+  
+  .page {
+    margin-top: 10px;
+  }
+  
+  .drop-down {
+    margin-left: 5px;
+  }
+  
+  .filter-panel {
     width: 166px;
     min-height: 120px;
     height: 200px;
@@ -631,38 +773,44 @@ export default {
     z-index: 9999;
     margin-left: 1px;
     overflow-y: scroll;
-    border: 1px solid blue;
-    top: 35px;
-    right: 10px;
-}
-
-.openSearch {
-    position: absolute;
-    right: 240px;
-}
-
-.openTip {
-    position: absolute;
-    right: 130px;
-}
-
-.showFilterPanelFlag {
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    top: 60px;
+    right: 20px;
+  }
+  
+  .showFilterPanelFlag {
     position: static !important;
-    right: 10px;
     margin-right: 10px;
-}
-
-.ivu-table td {
+  }
+  
+  .ivu-table td {
     height: 38px !important;
-}
-
-.ivu-table-cell-with-expand {
+  }
+  
+  .ivu-table-cell-with-expand {
     height: 38px !important;
     line-height: 38px !important;
-}
-
-.ivu-table .rowClassNameColor td {
+  }
+  
+  .ivu-table .rowClassNameColor td {
     background-color: #b0b3b6 !important;
     color: #ffffff !important;
+  }
+  
+  /* 响应式调整 */
+  @media (max-width: 768px) {
+    .search-form-wrapper,
+    .action-buttons {
+      width: 100%;
+      text-align: left;
+      margin-bottom: 10px;
+    }
+    
+    .filter-panel {
+      top: 100px;
+    }
+  }
 }
 </style>

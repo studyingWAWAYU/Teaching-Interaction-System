@@ -1,10 +1,10 @@
 import { getRequest, postRequest, putRequest, postBodyRequest, getNoAuthRequest, postNoAuthRequest } from '@/libs/axios';
-
+import { getStore } from '@/libs/storage'
 
 // 分页获取角色数据
 export const getRoleList = (params) => {
-    return getRequest('/role/getAllByPage', params)
-}
+  return getRequest("/role/getAllByPage", params,);
+};
 // 添加角色
 export const addRole = (params) => {
     return postRequest('/role/save', params)
@@ -20,9 +20,9 @@ export const getAllPermissionList = (params) => {
 export const deleteRole = (params) => {
     return postRequest('/role/delByIds', params)
 }
-export const setDefaultRole = (params) => {
-    return postRequest('/role/setDefault', params)
-}
+//export const setDefaultRole = (params) => {
+ //   return postRequest('/role/setDefault', params)
+//}
 export const editRolePerm = (params) => {
     return postRequest('/role/editRolePerm', params)
 }

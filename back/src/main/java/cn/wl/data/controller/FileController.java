@@ -33,10 +33,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
 @Slf4j
 @Controller
 @Api(tags = "文件管理接口")
@@ -159,6 +155,39 @@ public class FileController {
         return ResultUtil.data();
     }
 
+    @RequestMapping(value = "/download/{id}", method = RequestMethod.GET)
+    @ApiOperation(value = "下载文件")
+    public void download(@PathVariable String id, HttpServletResponse response) throws IOException {
+        // 获取文件信息
+        File file = iFileService.getById(id);
+        if (file == null) {
+            throw new WlException("文件不存在");
+        }
+
+        String filename = file.getFKey(); // 原始文件名
+        if (StrUtil.isBlank(filename)) {
+            filename = "download_file";
+        }
+
+        // 设置 Content-Disposition 为附件，确保浏览器下载
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + URLEncoder.encode(filename, "UTF-8") + "\"");
+
+        // 设置下载类型（你也可以统一设置为 application/octet-stream 来确保下载）
+        response.setContentType("application/octet-stream");
+
+        // 设置文件大小等信息
+        if (file.getSize() != null && file.getSize() > 0) {
+            response.setContentLengthLong(file.getSize());
+            response.setHeader("Content-Range", "bytes 0-" + (file.getSize() - 1) + "/" + file.getSize());
+        }
+
+        // 下载
+        WlFileUtils.view(file.getUrl(), response);
+    }
+
+
+
+
     @RequestMapping(value = "/view/{id}", method = RequestMethod.GET)
     @ApiOperation(value = "预览文件")
     public void view(@PathVariable String id,@RequestParam(required = false) String filename,@RequestParam(required = false, defaultValue = "false") Boolean preview,HttpServletResponse httpServletResponse) throws IOException {
@@ -180,6 +209,8 @@ public class FileController {
         }
         WlFileUtils.view(selectFile.getUrl(), httpServletResponse);
     }
+
+
 
     public OssSettingVo getOssSetting() {
         Setting s1 = iSettingService.getById("FILE_VIEW");

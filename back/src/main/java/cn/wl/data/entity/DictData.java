@@ -48,4 +48,7 @@ public class DictData{
     @ApiModelProperty(value = "数据字典值")
     private String value;
 
+    private String createTime;
+    private Integer sortOrder;
+
 }
