@@ -8,9 +8,10 @@
           </div>
         </Col>
 
-        <Col span="16">
+        <Col span="16" style="position:relative;">
           <div class="info">
-            <h1 class="course-title">{{ courseInfo.name }}</h1>
+            <h1 class="course-title" v-if="!editInfoMode">{{ courseInfo.name }}</h1>
+            <Input v-else v-model="editCourseInfo.name" style="font-size:22px;width:60%;margin-bottom:10px;" />
             <div class="course-meta">
               <div class="meta-item">
                 <Icon type="ios-person" />
@@ -18,15 +19,18 @@
               </div>
               <div class="meta-item">
                 <Icon type="ios-school" />
-                <span>Credits:&nbsp; {{ courseInfo.credits }}</span>
+                <span v-if="!editInfoMode">Credits:&nbsp; {{ courseInfo.credits }}</span>
+                <Input v-else v-model="editCourseInfo.credits" style="width:80px;display:inline-block;" />
               </div>
               <div class="meta-item">
                 <Icon type="ios-time" />
-                <span>Course Time:&nbsp; {{ courseInfo.Time }}</span>
+                <span v-if="!editInfoMode">Course Time:&nbsp; {{ formattedCourseTime }}</span>
+                <Input v-else v-model="editCourseInfo.Time" style="width:180px;display:inline-block;" />
               </div>
             </div>
             <div class="choice">
               <Button 
+                v-if="!isTeacher"
                 :type="isEnrolled ? 'error' : 'primary'" 
                 size="large" 
                 @click="handleEnroll"
@@ -36,6 +40,12 @@
             </div>
           </div>
         </Col>
+        <Button v-if="isTeacher" class="edit-info-btn" 
+          type="primary" size="middle"
+          @click="openEditInfoModal"
+        >
+          Edit
+        </Button>
       </Row>
     </Card>
 
@@ -44,7 +54,10 @@
         <TabPane label="Details">
           <CourseDetails 
             :courseInfo="courseInfo"
-            :reviews="reviews"/>
+            :reviews="reviews"
+            :isTeacher="isTeacher"
+            @refresh-reviews="refreshReviews"
+            @update-introduction="updateIntroduction"/>
         </TabPane>
 
         <TabPane label="Resources">
@@ -57,36 +70,30 @@
 
         <TabPane label="Discussion">
           <Discussion 
+            ref="discussion"
             :discussions="discussions"
-            @show-create-modal="showCreateModal"
-            @show-reply-modal="showReplyModal"/>
+            @discussions-loaded="handleDiscussionsLoaded"/>
+        </TabPane>
+
+        <TabPane v-if="isTeacher" label="Student Management">
+          <StudentManage :courseId="courseInfo.id" />
         </TabPane>
       </Tabs>
     </Card>
 
-    <Modal v-model="createModalVisible" title="Create Topic" @on-ok="handleCreateTopic">
-      <Form :model="newTopic" :label-width="80">
-        <FormItem label="Title">
-          <Input v-model="newTopic.title" placeholder="Enter topic title" />
+    <Modal v-model="showEditInfoModal" title="Edit Course Info" @on-ok="saveEditInfo">
+      <Form :model="editCourseInfo" :label-width="100">
+        <FormItem label="Course Name">
+          <Input v-model="editCourseInfo.name" placeholder="Enter course name" />
         </FormItem>
-        <FormItem label="Content">
-          <Input
-            v-model="newTopic.content"
-            type="textarea"
-            :rows="4"
-            placeholder="Enter topic content" />
+        <FormItem label="Credits">
+          <Input v-model="editCourseInfo.credits" placeholder="Enter credits" />
         </FormItem>
-      </Form>
-    </Modal>
-
-    <Modal v-model="replyModalVisible" title="Reply to Topic" @on-ok="handleReply">
-      <Form :model="newReply" :label-width="80">
-        <FormItem label="Content">
-          <Input
-            v-model="newReply.content"
-            type="textarea"
-            :rows="4"
-            placeholder="Enter your reply" />
+        <FormItem label="Start Time">
+          <DatePicker v-model="editCourseInfo.startTime" type="date" format="yyyy-MM-dd" placeholder="Select start date" style="width:100%" :options="{ lang: 'en' }" />
+        </FormItem>
+        <FormItem label="End Time">
+          <DatePicker v-model="editCourseInfo.endTime" type="date" format="yyyy-MM-dd" placeholder="Select end date" style="width:100%" :options="{ lang: 'en' }" />
         </FormItem>
       </Form>
     </Modal>
@@ -98,225 +105,267 @@ import Discussion from './components/discussion.vue'
 import CourseDetails from './components/details.vue'
 import CourseResources from './components/resources.vue'
 import CourseAssignments from './components/assignments.vue'
+import StudentManage from './components/studentManage.vue'
+import { getCourse, updateCourse } from '@/api/course'
+import { getAllFeedbacks } from '@/api/feedback'
+import { getAllUsers } from '@/views/roster/user/api'
 import Cookies from 'js-cookie'
 
 export default {
-  name: 'Lessons',
+  name: 'CourseManage',
   components: {
     Discussion,
     CourseDetails,
     CourseResources,
-    CourseAssignments
+    CourseAssignments,
+    StudentManage
   },
   data() {
     return {
       isEnrolled: false,
       courseInfo: {
         id: null,
-        name: 'Java Program Design',
-        instructor: 'Ken',
-        Time: 'Spring 2024 Semester',
-        credits: 4,
-        image: require('@/assets/course1.png'),
-        introduction: 'This course mainly introduces the basic knowledge and practical application of Java programming, including object-oriented programming, collection framework, multithreading and other contents.',
-        objectives: '1. 掌握Java语言的基本语法和编程规范\n2. 深入理解面向对象编程的核心概念\n3. 熟练运用Java集合框架进行数据处理\n4. 掌握多线程编程的基本原理和应用'
+        name: '',
+        instructor: '',
+        Time: '',
+        credits: 0,
+        image: '',
+        introduction: '',
       },
-      reviews: [
-        {
-          id: 1,
-          name: 'Ben',
-          rating: 5,
-          content: '老师讲课很生动，课程内容很实用。',
-          time: '2024-03-15'
-        },
-        {
-          id: 2,
-          name: 'Amy',
-          rating: 4,
-          content: '课程安排合理，实践机会多。',
-          time: '2024-03-14'
-        },
-        {
-          id: 3,
-          name: 'Emma',
-          rating: 0,
-          content: '不喜欢。',
-          time: '2024-03-14'
-        }
-
-      ],
-      discussions: [
-        {
-          id: 1,
-          title: '关于Java多线程的疑问',
-          author: 'Ken',
-          time: '2024-03-15 14:30',
-          content: '在实现多线程时，如何避免死锁问题？有没有一些最佳实践可以分享？',
-          replyCount: 2,
-          likes: 5,
-          showReplies: false,
-          replies: [
-            {
-              id: 1,
-              author: 'Ben',
-              time: '2024-03-15 15:00',
-              content: '建议使用tryLock()方法，并设置超时时间，这样可以避免死锁。',
-              likes: 3
-            },
-            {
-              id: 2,
-              author: 'Amy',
-              time: '2024-03-15 15:30',
-              content: '也可以使用ReentrantLock，它提供了更灵活的锁机制。',
-              likes: 2
-            }
-          ]
-        },
-        {
-          id: 2,
-          title: '课程项目建议',
-          author: 'Amy',
-          time: '2024-03-14 10:20',
-          content: '建议在课程项目中加入更多实际案例，这样可以帮助我们更好地理解知识点。',
-          replyCount: 2,
-          likes: 3,
-          showReplies: false,
-          replies: [
-            {
-              id: 3,
-              author: 'Ken',
-              time: '2024-03-14 11:00',
-              content: '很好的建议，我会在下一节课加入更多实际案例。',
-              likes: 1
-            }
-          ]
-        }
-      ],
-      createModalVisible: false,
-      replyModalVisible: false,
-      newTopic: {
-        title: '',
-        content: ''
-      },
-      newReply: {
-        content: '',
-        topicIndex: -1
+      reviews: [],
+      discussions: [],
+      users: [], // 存储用户信息
+      editInfoMode: false,
+      showEditInfoModal: false,
+      editCourseInfo: {
+        name: '',
+        credits: '',
+        startTime: '',
+        endTime: ''
       }
     }
   },
   created() {
-    this.getCourseInfo();  // 获取课程信息
-    this.getCourseReviews();  // 获取课程评价
-    this.getDiscussions();  // 获取讨论列表
+    this.loadData();
+    // 调试信息：检查用户角色
+    this.debugUserRole();
+  },
+  computed: {
+    isTeacher() {
+      try {
+        const userInfo = Cookies.get('userInfo')
+        if (userInfo) {
+          const user = JSON.parse(userInfo)
+          // 检查role对象中的name字段
+          if (user.role && user.role.name) {
+            return user.role.name === 'ROLE_TEACHER' || user.role.name === 'ROLE_ADMIN'
+          }
+          // 兼容旧版本，检查roleName字段
+          if (user.roleName) {
+            return user.roleName === 'ROLE_TEACHER' || user.roleName === 'ROLE_ADMIN'
+          }
+        }
+        return false
+      } catch (error) {
+        console.error('解析用户信息失败:', error)
+        return false
+      }
+    },
+    formattedCourseTime() {
+      if (this.courseInfo.startTime && this.courseInfo.endTime) {
+        // 格式化为 yyyy-MM-dd
+        const format = dt => {
+          if (!dt) return '';
+          const d = new Date(dt);
+          const pad = n => n < 10 ? '0' + n : n;
+          return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+        };
+        return `${format(this.courseInfo.startTime)} ~ ${format(this.courseInfo.endTime)}`;
+      }
+      return this.courseInfo.Time || '';
+    }
   },
   methods: {
+    async loadData() {
+      await this.loadUsers();
+      await this.getCourseInfo();
+      await this.getCourseReviews();
+      await this.getDiscussions();
+    },
+    
+    async loadUsers() {
+      try {
+        const res = await getAllUsers();
+        if (res.success) {
+          this.users = res.result;
+        }
+      } catch (error) {
+        console.error('加载用户信息失败:', error);
+      }
+    },
+    
+    // 获取课程信息
     async getCourseInfo() {
       try {
-        // const response = await this.$api.course.getCourseInfo(this.$route.params.id);
-        // this.courseInfo = response.data;
-        // 暂时使用模拟数据
+        const res = await getCourse({ id: this.$route.params.id });
+        if (res.success) {
+          console.log('完整课程数据:', res.result);
+
+          // 转换数据格式，确保字段匹配
+          this.courseInfo = {
+            id: res.result.id,
+            name: res.result.title || res.result.name,
+            instructor: this.getTeacherName(res.result.createBy),
+            Time: this.formatTimeRange(res.result.startTime, res.result.endTime),
+            credits: 3, // 默认学分
+            image: res.result.image,
+            introduction: res.result.content,
+            objectives: res.result.content,
+            status: res.result.status || 'Normal'
+          };
+          this.isEnrolled = res.result.status === 'enrolled';
+        } else {
+          this.$Message.error('获取课程信息失败');
+        }
       } catch (error) {
-        this.$Message.error('Failed to get course information');
+        this.$Message.error('获取课程信息失败');
+      }
+    },
+    
+    getTeacherName(createBy) {
+      if (!createBy) return 'Unknown teacher';
+      const createById = parseInt(createBy);
+      const user = this.users.find(u => u.id === createById);
+      if (user) {
+        return user.username || user.nickname ||  `教师${createBy}`;
+      }
+      return `教师${createBy}`;
+    },
+    
+    formatTimeRange(startTime, endTime) {
+      if (!startTime || !endTime) {
+        return 'Time to be comfirmed';
+      }
+      
+      try {
+        const start = new Date(startTime);
+        const end = new Date(endTime);
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+          return '时间格式错误';
+        }
+        // 只显示年月日，格式：YYYY-MM-DD
+        const startStr = start.toISOString().split('T')[0];
+        const endStr = end.toISOString().split('T')[0];
+        return `${startStr} - ${endStr}`;
+      } catch (error) {
+        return '时间格式错误';
       }
     },
     
     async getCourseReviews() {
       try {
-        // const response = await this.$api.course.getCourseReviews(this.$route.params.id);
-        // this.reviews = response.data;
-        // 暂时使用模拟数据
+        const res = await getAllFeedbacks();
+        if (res.success) {
+          // 过滤出当前课程的评价
+          const courseFeedbacks = res.result.filter(feedback => 
+            feedback.courseId === parseInt(this.$route.params.id)
+          );
+          
+          // 为每个评价添加用户信息
+          this.reviews = courseFeedbacks.map(feedback => {
+            const user = this.users.find(u => u.id === feedback.createBy);
+            return {
+              id: feedback.id,
+              content: feedback.content,
+              rating: feedback.rating || 0,
+              createTime: feedback.createTime,
+              reviewerName: user ? (user.nickname || user.username) : `User${feedback.createBy}`
+            };
+          });
+        } else {
+          this.$Message.error('获取课程评价失败');
+        }
       } catch (error) {
-        this.$Message.error('Failed to get course reviews');
+        this.$Message.error('获取课程评价失败');
       }
+    },
+
+    async refreshReviews() {
+      await this.getCourseReviews();
     },
     
     async getDiscussions() {
       try {
-        // const response = await this.$api.course.getDiscussions(this.$route.params.id);
-        // this.discussions = response.data;
-        // 暂时使用模拟数据
       } catch (error) {
         this.$Message.error('Failed to get discussions');
       }
     },
+
+    handleDiscussionsLoaded(discussions) {
+      this.discussions = discussions;
+    },
+
     // 选课/退课
     async handleEnroll() {
       try {
-        if (this.isEnrolled) {
-          // await this.$api.course.dropCourse(this.$route.params.id);
-          this.$Message.success('Drop Successfully');
-        } else {
-          // await this.$api.course.enrollCourse(this.$route.params.id);
-          this.$Message.success('Add Successfully');
-        }
-        this.isEnrolled = !this.isEnrolled;
-      } catch (error) {
-        this.$Message.error('Operation failed');
-      }
-    },
-    // 显示创建讨论主题的模态框
-    showCreateModal() {
-      this.createModalVisible = true;
-      this.newTopic = {
-        title: '',
-        content: ''
-      };
-    },
-    // 处理创建讨论主题
-    async handleCreateTopic() {
-      if (!this.newTopic.title || !this.newTopic.content) {
-        this.$Message.warning('Please fill in all fields');
-        return;
-      }
-      try {
-        const userInfo = JSON.parse(Cookies.get('userInfo'));
-        const newTopic = {
-          id: Date.now(),
-          title: this.newTopic.title,
-          author: userInfo.nickname,
-          time: new Date().toLocaleString(),
-          content: this.newTopic.content,
-          replyCount: 0,
-          likes: 0,
-          showReplies: false,
-          replies: []
+        const courseData = {
+          ...this.courseInfo,
+          status: this.isEnrolled ? 'unenrolled' : 'enrolled'
         };
-        this.discussions.unshift(newTopic);
-        this.$Message.success('Topic created successfully');
+        const res = await updateCourse(courseData);
+        if (res.success) {
+          this.isEnrolled = !this.isEnrolled;
+          this.$Message.success(this.isEnrolled ? '选课成功' : '退课成功');
+          // 更新课程信息
+          this.getCourseInfo();
+        } else {
+          this.$Message.error(this.isEnrolled ? '退课失败' : '选课失败');
+        }
       } catch (error) {
-        this.$Message.error('Failed to create topic');
+        this.$Message.error(this.isEnrolled ? '退课失败' : '选课失败');
       }
     },
-    // 显示回复模态框
-    showReplyModal(topic) {
-      this.replyModalVisible = true;
-      this.newReply = {
-        content: '',
-        topicIndex: this.discussions.indexOf(topic)
-      };
-    },
-    // 处理回复
-    async handleReply() {
-      if (!this.newReply.content) {
-        this.$Message.warning('Please enter your reply');
-        return;
-      }
+
+    // 调试信息：检查用户角色
+    debugUserRole() {
       try {
-        const topic = this.discussions[this.newReply.topicIndex];
-        const userInfo = JSON.parse(Cookies.get('userInfo'));
-        topic.replies.push({
-          id: Date.now(), // 临时ID
-          author: userInfo.nickname,
-          time: new Date().toLocaleString(),
-          content: this.newReply.content,
-          likes: 0
-        });
-        topic.replyCount = topic.replies.length;
-        topic.showReplies = true;
-        this.$Message.success('Reply posted successfully');
+        const userInfo = Cookies.get('userInfo')
+        if (userInfo) {
+          const user = JSON.parse(userInfo)
+          console.log('用户信息:', user)
+          console.log('角色对象:', user.role)
+          console.log('角色名称:', user.role ? user.role.name : '无')
+          console.log('是否为教师:', this.isTeacher)
+        } else {
+          console.log('未找到用户信息')
+        }
       } catch (error) {
-        this.$Message.error('Failed to post reply');
+        console.error('调试用户角色时出错:', error)
       }
+    },
+
+    saveEditInfo() {
+      this.courseInfo.name = this.editCourseInfo.name
+      this.courseInfo.credits = this.editCourseInfo.credits
+      this.courseInfo.startTime = this.editCourseInfo.startTime
+      this.courseInfo.endTime = this.editCourseInfo.endTime
+      this.showEditInfoModal = false
+      // 可在此处调用API保存
+    },
+
+    updateIntroduction(newIntro) {
+      this.courseInfo.introduction = newIntro
+      // 可在此处调用API保存
+    },
+
+    openEditInfoModal() {
+      this.editCourseInfo = {
+        name: this.courseInfo.name,
+        credits: this.courseInfo.credits,
+        startTime: this.courseInfo.startTime || '',
+        endTime: this.courseInfo.endTime || ''
+      };
+      this.showEditInfoModal = true;
     }
   }
 }
@@ -445,6 +494,18 @@ export default {
         background-color: #2d8cf0;
       }
     }
+  }
+
+  .edit-info-btn {
+    position: absolute;
+    bottom: 15px;
+    right: 50px;
+    border-radius: 22px;
+    min-width: 70px;
+    font-size: 14px;
+    height: 32px;
+    padding: 0 18px;
+    box-sizing: border-box;
   }
 }
 

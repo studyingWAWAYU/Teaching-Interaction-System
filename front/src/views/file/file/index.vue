@@ -34,7 +34,7 @@
     </Card>
 
     <Drawer title="文件上传" closable v-model="uploadVisible" width="500">
-        <Upload action="/wl/upload/file" :headers="accessToken" :on-success="handleSuccess" :on-error="handleError" :max-size="5120" :on-exceeded-size="handleMaxSize" :before-upload="beforeUpload" multiple type="drag" ref="up">
+        <Upload action="/upload/file" :headers="accessToken" :on-success="handleSuccess" :on-error="handleError" :max-size="5120" :on-exceeded-size="handleMaxSize" :before-upload="beforeUpload" multiple type="drag" ref="up">
             <div style="padding: 20px 0">
                 <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
                 <p>点击这里或将文件拖拽到这里上传</p>
@@ -562,7 +562,7 @@ export default {
         handleMaxSize(file) {
             this.$Notice.warning({
                 title: "文件大小过大",
-                desc: "所选文件‘ " + file.name + " ’大小过大, 不得超过 5M."
+                desc: "所选文件' " + file.name + " '大小过大, 不得超过 5M."
             });
         },
         handleSuccess(res, file) {

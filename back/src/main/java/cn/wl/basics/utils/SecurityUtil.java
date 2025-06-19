@@ -62,6 +62,7 @@ public class SecurityUtil {
         /**
          * 填充角色
          */
+/*
         QueryWrapper<Role> roleQw = new QueryWrapper<>();
         roleQw.inSql("id","SELECT role_id FROM user_role WHERE user_id = " + user.getId());
         List<Role> roleList = iRoleService.list(roleQw);
@@ -70,6 +71,16 @@ public class SecurityUtil {
             roles.add(new RoleDTO(role.getName(),role.getId(),role.getDescription()));
         }
         user.setRoles(roles);
+
+ */
+        if (user.getRoleId() != null) {
+            Role role = iRoleService.getById(user.getRoleId());
+            if (role != null) {
+                user.setRole(new RoleDTO(role.getName(), role.getId(), role.getDescription()));
+            }
+        }
+
+
         /**
          * 填充菜单
          */
@@ -104,9 +115,16 @@ public class SecurityUtil {
                     permissionTitleList.add(p.getTitle());
                 }
             }
+            /*
             for(RoleDTO r : selectUser.getRoles()){
                 permissionTitleList.add(r.getName());
             }
+
+             */
+            if (selectUser.getRole() != null) {
+                permissionTitleList.add(selectUser.getRole().getName());
+            }
+
         }
         String ansUserToken = UUID.randomUUID().toString().replace(TOKEN_REPLACE_FRONT_STR, TOKEN_REPLACE_BACK_STR);
         TokenUser tokenUser = new TokenUser(selectUser.getUsername(), permissionTitleList, saved);

@@ -3,6 +3,11 @@ import { getRequest, postRequest, putRequest, postBodyRequest, getNoAuthRequest,
 export const getUserList = (params) => {
     return getRequest('/user/getUserList', params)
 }
+
+export const getAllUsers = (params) => {
+    return getNoAuthRequest('/user/getAll', params)
+}
+
 export const enableUser = (params) => {
     return postRequest('/user/enable', params)
 }

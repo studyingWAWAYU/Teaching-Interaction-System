@@ -22,8 +22,8 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@Api(tags = "留言管理接口")
-@RequestMapping("/wl/posts")
+@Api(tags = "回复帖子接口")
+@RequestMapping("/wl/course/{topicId}/posts")
 @Transactional
 public class PostsController {
     @Autowired
@@ -33,30 +33,31 @@ public class PostsController {
     private SecurityUtil securityUtil;
 
     @RequestMapping(value = "/getOne", method = RequestMethod.GET)
-    @ApiOperation(value = "查询单条留言")
-    public Result<Posts> get(@RequestParam String id){
-        return new ResultUtil<Posts>().setData(iPostsService.getById(id));
+    @ApiOperation(value = "查询单条回复")
+    public Result<Posts> get(@PathVariable Integer topicId,@RequestParam Integer id){
+        return new ResultUtil<Posts>().setData(iPostsService.getByIdAndTopicId(id,topicId));
     }
 
     @RequestMapping(value = "/count", method = RequestMethod.GET)
-    @ApiOperation(value = "查询全部留言个数")
-    public Result<Long> getCount(){
-        return new ResultUtil<Long>().setData(iPostsService.count());
+    @ApiOperation(value = "查询全部回复个数")
+    public Result<Long> getCount(@PathVariable Integer topicId){
+        return new ResultUtil<Long>().setData(iPostsService.countByTopicId(topicId));
     }
 
     @RequestMapping(value = "/getAll", method = RequestMethod.GET)
-    @ApiOperation(value = "查询全部留言")
-    public Result<List<Posts>> getAll(){
-        return new ResultUtil<List<Posts>>().setData(iPostsService.list());
+    @ApiOperation(value = "查询全部回复")
+    public Result<List<Posts>> getAll(@PathVariable Integer topicId){
+        return new ResultUtil<List<Posts>>().setData(iPostsService.listByTopicId(topicId));
     }
 
     @RequestMapping(value="/getAll/sorted_by_likes")
     @ApiOperation(value="查询全部posts，以likes降序排序")
-    public Result<List<Posts>> getAllSorted(){
-        List<Posts> posts = iPostsService.getAllOrderByLikesDesc();
+    public Result<List<Posts>> getAllSorted(@PathVariable Integer topicId){
+        List<Posts> posts = iPostsService.getAllByTopicIdOrderByLikesDesc(topicId);
         return new ResultUtil<List<Posts>>().setData(posts);
     }
 
+    /*
     @RequestMapping(value = "/getByPage", method = RequestMethod.GET)
     @ApiOperation(value = "查询留言")
     public Result<IPage<Posts>> getByPage(@ModelAttribute Posts posts , @ModelAttribute PageVo page){
@@ -64,15 +65,13 @@ public class PostsController {
         if(!WlNullUtils.isNull(posts.getContent())) {
             qw.like("content",posts.getContent());
         }
-        /*
         if(!WlNullUtils.isNull(posts.getCreateBy())) {
             qw.like("user_id",posts.getCreate_by());
         }
-        */
-
         IPage<Posts> data = iPostsService.page(PageUtil.initMpPage(page),qw);
         return new ResultUtil<IPage<Posts>>().setData(data);
     }
+    */
 
     @RequestMapping(value = "/insertOrUpdate", method = RequestMethod.POST)
     @ApiOperation(value = "增改留言")

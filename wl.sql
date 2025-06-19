@@ -21,15 +21,17 @@ CREATE TABLE IF NOT EXISTS `user` (
   `sex` char(10) DEFAULT NULL,
   `avatar` varchar(255) DEFAULT NULL,
   `department` varchar(50) DEFAULT NULL,
-  `my_door` varchar(255) DEFAULT NULL
+  `my_door` varchar(255) DEFAULT NULL,
+  `role_id` integer DEFAULT NULL
 );
 
 DELETE FROM `user`;
-INSERT INTO `user` (`id`, `create_time`, `username`, `password`, `nickname`,`email`, `mobile`, `number`,`sex`, `avatar`, `department`,`my_door`) VALUES
-	(1,'2025-06-10 09:46:20', 'admin','$2a$10$PS04ecXfknNd3V8d.ymLTObQciapMU4xU8.GADBZZsuTZr7ymnagy','admin', '916077357@qq.com','17857054388','20222012345','female', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of AI', 'user-adminWLdepartment-adminWLfile-adminWLrole-manageWLmenu-manageWLlog-manage'),
-	(2,'2025-06-10 09:46:20', 'Evan','$2a$10$E59nactOiILAzQvfcs0JFOYuZp06d4bLhugEadyQuygpmiLc0W.ha', 'Evan', '13600000001@qq.com','13600000001','20222012456','male', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of AI', ''),
-	(3,'2025-06-10 09:46:20', 'Airel','$2a$10$vJyLo1RhFORH/SAu3sc9aeb37I5JRy5UugaN7fIt/e2vvsz6JWJCm','Airel','13600000002@qq.com','13600000002','20222012678','female','https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png','School of AI', ''),
-	(4,'2025-06-11 09:54:05', 'Adam','$2a$10$oeP4aplYnswfQ44pK6lAO.Np9BuPYJGRwo17THO7CUNlIQoVGsPmy', 'Adam', '13600000003@qq.com', '13600000003','20222056789','male','https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of ','');
+INSERT INTO `user` (`id`, `create_time`, `username`, `password`, `nickname`,`email`, `mobile`, `number`,`sex`, `avatar`, `department`,`my_door`,role_id) VALUES
+	(1,'2025-06-10 09:46:20', 'admin','$2a$10$PS04ecXfknNd3V8d.ymLTObQciapMU4xU8.GADBZZsuTZr7ymnagy','admin', '916077357@qq.com','17857054388','20222012345','female', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of AI', 'user-adminWLdepartment-adminWLfile-adminWLrole-manageWLmenu-manage',2),
+	(2,'2025-06-10 09:46:20', 'Evan','$2a$10$E59nactOiILAzQvfcs0JFOYuZp06d4bLhugEadyQuygpmiLc0W.ha', 'Evan', '13600000001@qq.com','13600000001','20222012456','male', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of AI', '',1),
+	(3,'2025-06-10 09:46:20', 'Airel','$2a$10$vJyLo1RhFORH/SAu3sc9aeb37I5JRy5UugaN7fIt/e2vvsz6JWJCm','Airel','13600000002@qq.com','13600000002','20222012678','female','https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png','School of AI', '',0),
+	(4,'2025-06-11 09:54:05', 'Adam','$2a$10$oeP4aplYnswfQ44pK6lAO.Np9BuPYJGRwo17THO7CUNlIQoVGsPmy', 'Adam', '13600000003@qq.com', '13600000003','20222056789','male','https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of','',0);
+
 
 
 DROP TABLE IF EXISTS `student`;
@@ -64,32 +66,20 @@ INSERT INTO `teacher` (`id`, `description`, `title`,user_id) VALUES
 DROP TABLE IF EXISTS `role`;
 CREATE TABLE IF NOT EXISTS `role` (
   `id` integer primary key,
+  `create_time` datetime(0) DEFAULT CURRENT_TIMESTAMP,
   `description` varchar(255) DEFAULT NULL,
   `name` varchar(50) NOT NULL,
   `datatype` int NOT NULL
 );
 
 DELETE FROM `role`;
-INSERT INTO `role` (`id`, `description`, `name`, `datatype`) VALUES
-	(0, 'student', 'ROLE_STUDENT',  0),
-	(1, 'teacher', 'ROLE_TEACHER', 0),
-	(2, 'admin', 'ROLE_ADMIN', 0);
+INSERT INTO `role` (`id`,create_time, `description`, `name`, `datatype`) VALUES
+	(0, '2025-06-17 09:46:20', 'student', 'ROLE_STUDENT',  0),
+	(1, '2025-06-17 09:46:20', 'teacher', 'ROLE_TEACHER', 0),
+	(2, '2025-06-17 09:46:20', 'admin', 'ROLE_ADMIN', 0);
 
 DROP TABLE IF EXISTS `user_role`;
-CREATE TABLE IF NOT EXISTS `user_role` (
-  id integer primary key auto_increment,
-  user_id integer,
-  role_id integer,
-  foreign key (user_id) references user(id),
-  foreign key (role_id) references role(id)
-);
 
-DELETE FROM `user_role`;
-INSERT INTO `user_role` (`id`, `user_id`,`role_id`) VALUES
-	(1, 1, 2),
-	(2,2,1),
-	(3,3,0),
-	(4,4,0);
 
 DROP TABLE IF EXISTS `permission`;
 CREATE TABLE IF NOT EXISTS `permission` (
@@ -290,6 +280,22 @@ INSERT INTO `course` (`id`, `create_by`, `start_time`,end_time, `content`, `imag
 	(1, 2, '2025-06-09 16:27:41', '2025-06-012 16:27:41', 'Java Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071506217668608.png', 'Normal', 'Java Program Design'),
 	(2, 2, '2025-06-09 16:27:58', '2025-06-12 16:27:41', 'Python Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071540472549376.png', 'Normal', 'Python Program Design');
 
+DROP TABLE IF EXISTS `gradebook`;
+CREATE TABLE IF NOT EXISTS `gradebook` (
+   id integer primary key auto_increment,
+   user_id integer,
+   foreign key (user_id) references user(id),
+    course_id integer,
+    foreign key (course_id) references course(id),
+    course_garde integer DEFAULT NULL
+    );
+
+DELETE FROM `gradebook`;
+INSERT INTO `gradebook` (`id`, `user_id`, `course_id`,course_garde) VALUES
+    (1, 3, 1,NULL),
+    (2, 3, 2,NULL),
+    (3, 4, 1,NULL),
+    (4, 4, 2,NULL);
 
 DROP TABLE IF EXISTS `feedback`;
 CREATE TABLE IF NOT EXISTS `feedback` (
@@ -384,7 +390,8 @@ CREATE TABLE IF NOT EXISTS `topics` (
   description varchar(5000) DEFAULT NULL,
   course_id integer,
   foreign key (course_id) references course(id),
-  likes integer DEFAULT 0
+  likes integer DEFAULT 0,
+  similar_topic varchar(255) DEFAULT NULL
 );
 
 DELETE FROM `topics`;

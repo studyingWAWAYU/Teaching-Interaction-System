@@ -43,7 +43,7 @@ public class Course{
     private Date startTime;
 
     @ApiModelProperty(value = "课程结束时间")
-    private Date end_time;
+    private Date endTime;
 
     @ApiModelProperty(value = "课程介绍")
     private String content;

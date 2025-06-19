@@ -5,6 +5,13 @@ import { Message } from 'view-design';
 import Cookies from 'js-cookie';
 let base = '/wl';
 
+
+// 在这里加上全局配置
+const accessToken = localStorage.getItem('accessToken') || Cookies.get('accessToken');
+// 设置请求头，将 accessToken 作为 Bearer token 发送
+axios.defaults.headers.common['accessToken'] = `Bearer ${accessToken}`;
+
+axios.defaults.withCredentials = true;
 axios.defaults.timeout = 15000;
 axios.interceptors.request.use(config => {
     return config;
@@ -18,6 +25,7 @@ axios.interceptors.response.use(response => {
 
     switch (data.code) {
         case 401:
+            console.log('401')
             Cookies.set('userInfo', '');
             setStore('accessToken', '');
             if (router.history.current.name != "login") {

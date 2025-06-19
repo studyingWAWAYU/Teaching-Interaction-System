@@ -13,6 +13,8 @@ import org.hibernate.annotations.DynamicUpdate;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -30,6 +32,8 @@ public class Role{
     @Id
     @TableId
     private Integer id;
+
+    private Date createTime;
 
     @ApiModelProperty(value = "角色名称")
     private String name;

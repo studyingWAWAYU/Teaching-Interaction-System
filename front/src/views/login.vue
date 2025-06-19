@@ -49,7 +49,7 @@
                 <Row>
                   <Button class="login-btn" type="primary" size="large" :loading="loading" @click="submitLogin" long>
                     <span v-if="!loading" style=" font-weight:bold">Login</span>
-                    <span v-else>Logging in... Please wait}</span>
+                    <span v-else>Logging in... Please wait</span>
                   </Button>
                 </Row>
               </div>
@@ -89,15 +89,12 @@
 </template>
 
 <script>
-import {
-  login,
-  userInfo,
-} from "@/api/index";
+import { login, userInfo } from "@/api/index";
 import Cookies from "js-cookie";
 import util from "@/libs/util.js";
+import { setStore, getStore, removeStore } from "@/libs/storage";
+
 export default {
-  components: {
-  },
   data() {
     return {
       tabName: "userAndPassword",
@@ -122,56 +119,130 @@ export default {
     };
   },
   methods: {
-    afterLogin(res) {
-      let accessToken = res.result;
-      this.setStore("accessToken", accessToken);
-      userInfo().then((res) => {
-        if (res.success) {
-          delete res.result.permissions;
-          let roles = [];
-          res.result.roles.forEach((e) => {
-            roles.push(e.name);
-          });
-          delete res.result.roles;
-          this.setStore("roles", roles);
-          this.setStore("saveLogin", this.saveLogin);
-          if (this.saveLogin) {
-            Cookies.set("userInfo", JSON.stringify(res.result), {
-              expires: 100,
-            });
-          } else {
-            Cookies.set("userInfo", JSON.stringify(res.result));
-          }
-          this.setStore("userInfo", res.result);
-          this.$store.commit("setAvatarPath", res.result.avatar);
-          util.initRouter(this);
-          this.$router.push({
-            name: "home_index",
-          });
-        } else {
-          this.loading = false;
+    async afterLogin(res) {
+      try {
+        // 1. 检查登录响应
+        if (!res || !res.success) {
+          throw new Error(res?.message || "登录失败，请检查用户名和密码");
         }
-      });
+
+        // 2. 提取并存储token (兼容多种返回格式)
+        let accessToken = res.result?.token || 
+                         res.result?.accessToken || 
+                         res.result?.access_token || 
+                         res.token || 
+                         res.result;
+        
+        if (!accessToken) {
+          throw new Error("未能获取有效的访问令牌");
+        }
+
+        // 存储token到localStorage
+        setStore("accessToken", accessToken);
+        
+        // 3. 获取用户信息
+        const userRes = await userInfo();
+        if (!userRes?.success) {
+          throw new Error(userRes?.message || "获取用户信息失败");
+        }
+
+        const user = userRes.result || {};
+        
+        // 4. 处理用户角色 (兼容多种后端返回结构)
+        let roles = [];
+        
+        // 情况1: 角色数组
+        if (Array.isArray(user.roles)) {
+          roles = user.roles.map(role => role.name || role);
+        } 
+        // 情况2: 单角色对象
+        else if (user.role && typeof user.role === 'object') {
+          roles = [user.role.name || user.role];
+        }
+        // 情况3: 角色名字符串
+        else if (user.role) {
+          roles = [user.role];
+        }
+        // 情况4: 权限列表
+        else if (user.authorities) {
+          roles = user.authorities.map(auth => auth.authority);
+        }
+        
+        // 如果没有获取到角色，使用默认角色
+        if (roles.length === 0) {
+          console.warn("未获取到角色信息，使用默认角色");
+          roles = ["ROLE_USER"]; // 默认角色
+        }
+
+        // 5. 存储用户数据
+        setStore("roles", roles);
+        setStore("userInfo", user);
+        
+        // 记住登录状态
+        if (this.saveLogin) {
+          Cookies.set("userInfo", JSON.stringify(user), { expires: 7 }); // 7天有效期
+          Cookies.set("accessToken", accessToken, { expires: 7 });
+        } else {
+          Cookies.set("userInfo", JSON.stringify(user));
+          Cookies.set("accessToken", accessToken);
+        }
+
+        // 6. 更新Vuex中的头像
+        if (user.avatar) {
+          this.$store.commit("setAvatarPath", user.avatar);
+        }
+
+        // 7. 初始化路由
+        await util.initRouter(this);
+        
+        // 8. 跳转到首页
+        const redirect = this.$route.query.redirect || "/";
+        this.$router.push(redirect);
+
+      } catch (error) {
+        console.error("登录过程出错:", error);
+        this.loading = false;
+        this.$Message.error(error.message || "登录失败，请重试");
+        
+        // 清除可能存储的不完整数据
+        removeStore("accessToken");
+        removeStore("userInfo");
+        removeStore("roles");
+        Cookies.remove("userInfo");
+        Cookies.remove("accessToken");
+      }
     },
+
     submitLogin() {
       this.$refs.usernameLoginForm.validate(valid => {
         if (valid) {
           this.loading = true;
+          
+          // 清除旧的token
+          removeStore("accessToken");
+          Cookies.remove("accessToken");
+          
           login({
             username: this.form.username,
             password: this.form.password,
             saveLogin: this.saveLogin
-          }).then(res => {
-            if (res.success) {
-              this.afterLogin(res);
-            } else {
-              this.loading = false;
-            }
+          })
+          .then(res => this.afterLogin(res))
+          .catch(err => {
+            this.loading = false;
+            this.$Message.error(err.message || "网络错误，请稍后重试");
           });
         }
       });
     }
   },
+  mounted() {
+    // 检查是否有已保存的登录状态
+    const savedToken = getStore("accessToken") || Cookies.get("accessToken");
+    if (savedToken && this.$route.path === "/login") {
+      this.$router.push("/");
+    }
+  }
 };
 </script>
 

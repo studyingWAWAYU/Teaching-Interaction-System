@@ -74,7 +74,7 @@ public class User {
 
 
     @ApiModelProperty(value = "学工号")
-    @NotNull(message = "Teacher/Student ID cannot be empty.")
+//    @NotNull(message = "Teacher/Student ID cannot be empty.")
     private String number;
 
     @ApiModelProperty(value = "性别")
@@ -93,10 +93,21 @@ public class User {
     @TableField(exist=false)
     @ApiModelProperty(value = "用户拥有的菜单列表")
     private List<PermissionDTO> permissions;
-
+/*
     @Transient
     @TableField(exist=false)
-    @ApiModelProperty(value = "用户拥有的角色列表")
+    @ApiModelProperty(value = "用户拥有的角色")
     private List<RoleDTO> roles;
+
+
+ */
+    @ApiModelProperty(value = "用户角色")
+    private Integer roleId;
+
+    @Transient
+    @TableField(exist = false)
+    @ApiModelProperty(value = "角色对象")
+    private RoleDTO role;
+
 
 }

@@ -156,7 +156,7 @@ export default {
     }
   },
   created() {
-    this.courseId = this.$route.params.courseId
+    this.courseId = this.$route.params.id
     this.fetchAssignments()
   },
   methods: {

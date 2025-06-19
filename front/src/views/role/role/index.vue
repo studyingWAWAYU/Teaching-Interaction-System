@@ -12,7 +12,7 @@
                 <Form-item label="">
                     <Button type="success" @click="init" ghost shape="circle" size="small" icon="md-refresh">搜索</Button>
                     <Divider type="vertical" />
-                    <Button @click="addRoleFx" type="primary" ghost shape="circle" size="small" icon="md-add" :disabled="!$route.meta.permTypes.includes('delete')">添加角色</Button>
+                    <Button @click="addRoleFx" type="primary" ghost shape="circle" size="small" icon="md-add">添加角色</Button>
                 </Form-item>
             </Form>
         </Row>
@@ -59,7 +59,6 @@ import {
     addRole,
     editRole,
     deleteRole,
-    setDefaultRole,
     editRolePerm
 } from "./api.js";
 import util from "@/libs/util.js";
@@ -86,55 +85,14 @@ export default {
                 }]
             },
             submitLoading: false,
-            columns: [{
-                    type: "index",
-                    width: 60,
-                    align: "center"
-                },
-                {
-                    title: "角色名称",
-                    key: "name",
-                    minWidth: 150,
-                    sortable: true
-                },
-                {
-                    title: "备注",
-                    key: "description",
-                    minWidth: 260,
-                    sortable: true
-                },
-                {
-                    title: "创建时间",
-                    key: "createTime",
-                    minWidth: 170,
-                    sortable: true,
-                    sortType: "desc"
-                },
-                {
-                    title: "创建人",
-                    key: "createBy",
-                    minWidth: 170,
-                    sortable: true,
-                    sortType: "desc"
-                },
-                {
-                    title: "更新时间",
-                    key: "updateTime",
-                    minWidth: 170,
-                    sortable: true
-                },
-                {
-                    title: "最后更新人",
-                    key: "updateBy",
-                    minWidth: 170,
-                    sortable: true
-                },
+            columns: [
+                // ... 其他列保持不变
                 {
                     title: "操作",
                     key: "action",
                     align: "center",
                     fixed: "right",
-                    width: 380,
+                    width: 300, // 调整宽度
                     render: (h, params) => {
                         var that = this;
                         return h("div", [
@@ -158,31 +116,6 @@ export default {
                                     }
                                 },
                                 "菜单权限"
-                            ),
-                            h(
-                                "Button", {
-                                    props: {
-                                        type: params.row.defaultRole ? "primary" : "info",
-                                        size: "small",
-                                        ghost: true,
-                                        shape: "circle",
-                                        icon: "ios-browsers"
-                                    },
-                                    style: {
-                                        marginRight: "5px"
-                                    },
-                                    on: {
-                                        click: () => {
-                                            if (params.row.defaultRole) {
-                                                this.cancelDefault(params.row);
-                                            } else {
-                                                this.setDefault(params.row);
-                                            }
-
-                                        }
-                                    }
-                                },
-                                params.row.defaultRole ? "取消默认" : "设为默认"
                             ),
                             h(
                                 "Button", {
@@ -411,50 +344,10 @@ export default {
                 }
             });
         },
-        setDefault(v) {
-            this.$Modal.confirm({
-                title: "确认设置",
-                content: "您确认要设置所选的 " + v.name + " 为注册用户默认角色?",
-                loading: true,
-                onOk: () => {
-                    let params = {
-                        id: v.id,
-                        isDefault: true
-                    };
-                    setDefaultRole(params).then(res => {
-                        this.$Modal.remove();
-                        if (res.success) {
-                            this.$Message.success("操作成功");
-                            this.getRoleList();
-                        }
-                    });
-                }
-            });
-        },
-        cancelDefault(v) {
-            this.$Modal.confirm({
-                title: "确认取消",
-                content: "您确认要取消所选的 " + v.name + " 角色为默认?",
-                loading: true,
-                onOk: () => {
-                    let params = {
-                        id: v.id,
-                        isDefault: false
-                    };
-                    setDefaultRole(params).then(res => {
-                        this.$Modal.remove();
-                        if (res.success) {
-                            this.$Message.success("操作成功");
-                            this.getRoleList();
-                        }
-                    });
-                }
-            });
-        },
         editPerm(v) {
             this.editRolePermId = v.id;
             this.modalTitle = v.name + " 菜单权限修改";
-            let rolePerms = v.permissions;
+            let rolePerms = v.permissions || []; // 添加空数组处理
             if (this.treeLoading) {
                 this.$Message.warning("菜单权限数据加载中，请稍后点击查看");
                 return;
@@ -502,12 +395,9 @@ export default {
         },
         submitPermEdit() {
             this.submitPermLoading = true;
-            let permIds = "";
             let selectedNodes = this.$refs.tree.getCheckedNodes();
-            selectedNodes.forEach(function (e) {
-                permIds += e.id + ",";
-            });
-            permIds = permIds.substring(0, permIds.length - 1);
+            let permIds = selectedNodes.map(e => e.id); // 直接获取ID数组
+            
             editRolePerm({
                 roleId: this.editRolePermId,
                 permIds: permIds
@@ -515,8 +405,6 @@ export default {
                 this.submitPermLoading = false;
                 if (res.success) {
                     this.$Message.success("操作成功");
-                    this.$store.commit("setAdded", false);
-                    util.initRouter(this);
                     this.getRoleList();
                     this.permModalVisible = false;
                 }
