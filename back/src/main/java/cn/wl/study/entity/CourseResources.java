@@ -50,4 +50,8 @@ public class CourseResources{
 
     @ApiModelProperty(value = "文件")
     private String fileUrl;
+
+    public String getFileUrl() {
+        return fileUrl;
+    }
 }
