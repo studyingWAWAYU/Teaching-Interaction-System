@@ -42,11 +42,11 @@ export default {
     size: String,
     placeholder: {
       type: String,
-      default: "可输入文件链接"
+      default: "Can enter file link"
     },
     buttonTitle: {
       type: String,
-      default: "上传文件"
+      default: "Upload File"
     },
     disabled: {
       type: Boolean,
@@ -100,21 +100,21 @@ export default {
     handleFormatError(file) {
       this.loading = false;
       this.$Notice.warning({
-        title: "不支持的文件格式",
+        title: "Unsupported file format",
         desc:
-          "所选文件‘ " +
+          "The selected file ' " +
           file.name +
-          " ’格式不正确, 请选择 "+this.accept+" 格式文件"
+          " ' has an incorrect format. Please select " + this.accept + " format files."
       });
     },
     handleMaxSize(file) {
       this.loading = false;
       this.$Notice.warning({
-        title: "文件大小过大",
+        title: "File size exceeds limit",
         desc:
-          "所选文件‘ " +
+          "The selected file ' " +
           file.name +
-          " ’大小过大, 不得超过 " +
+          " ' is too large. It must not exceed " +
           this.maxSize +
           "M."
       });
@@ -159,4 +159,3 @@ export default {
   }
 };
 </script>
-

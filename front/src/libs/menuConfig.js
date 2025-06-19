@@ -11,7 +11,7 @@ export const menuConfig = [
       {
         id: 2,
         name: 'userTwoMenu',
-        title: '系统基础模块',
+        title: 'Basic Module',
         icon: 'md-analytics',
         type: 0,
         level: 1,
@@ -21,7 +21,7 @@ export const menuConfig = [
           {
             id: 60,
             name: 'user-admin',
-            title: '用户管理',
+            title: 'User Management',
             icon: 'md-person',
             type: 0,
             level: 2,
@@ -32,7 +32,7 @@ export const menuConfig = [
           {
             id: 58,
             name: 'department-admin',
-            title: '学院管理',
+            title: 'Institute Management',
             icon: 'md-git-branch',
             type: 0,
             level: 2,
@@ -43,7 +43,7 @@ export const menuConfig = [
           {
             id: 61,
             name: 'role-manage',
-            title: '角色管理',
+            title: 'Role Management',
             icon: 'md-contacts',
             type: 0,
             level: 2,
@@ -65,7 +65,7 @@ export const menuConfig = [
           {
             id: 63,
             name: 'file-admin',
-            title: '文件管理',
+            title: 'File Management',
             icon: 'ios-folder',
             type: 0,
             level: 2,
@@ -76,7 +76,7 @@ export const menuConfig = [
           {
             id: 3,
             name: 'dict',
-            title: '数据字典',
+            title: 'Data Dictionary',
             icon: 'ios-apps',
             type: 0,
             level: 2,
@@ -111,7 +111,7 @@ export const menuConfig = [
       {
         id: 5,
         name: 'classMenu',
-        title: '旧课程管理模块',
+        title: 'Course Management',
         icon: 'ios-apps',
         type: 0,
         level: 1,
@@ -121,7 +121,7 @@ export const menuConfig = [
           {
             id: 6,
             name: 'curriculum',
-            title: '旧课程模块',
+            title: 'Course',
             icon: 'md-aperture',
             type: 0,
             level: 2,

@@ -235,12 +235,11 @@
 <script>
 import {
   getFileListData,
-  copyFile,
   renameFile,
   deleteFile,
   getOneSetting,
   setOneSetting
-} from "./api.js";
+} from "./api.js"; // 移除了copyFile引入
 import "viewerjs/dist/viewer.css";
 import Viewer from "viewerjs";
 var dp;
@@ -467,7 +466,7 @@ export default {
           key: "action",
           align: "center",
           fixed: "right",
-          minWidth: 310,
+          minWidth: 280, // 调整宽度以适应删除按钮后的布局
           render: (h, params) => {
             var that = this;
             return h("div", [
@@ -508,25 +507,6 @@ export default {
                   }
                 },
                 "Rename"
-              ),
-              h(
-                "Button", {
-                  props: {
-                    type: "info",
-                    size: "small",
-                    ghost: true,
-                    shape: "circle"
-                  },
-                  style: {
-                    marginRight: "5px"
-                  },
-                  on: {
-                    click: () => {
-                      this.copy(params.row);
-                    }
-                  }
-                },
-                "Copy"
               ),
               h(
                 "Button", {
@@ -729,27 +709,6 @@ export default {
     },
     showFile(v) {
       window.open(v.url + "?preview=true");
-    },
-    copy(v) {
-      this.$Modal.confirm({
-        title: "Confirm Copy",
-        content: "Are you sure you want to copy file " + v.name + " ?",
-        loading: true,
-        onOk: () => {
-          copyFile({
-            id: v.id,
-            key: v.fkey
-          }).then(res => {
-            this.$Modal.remove();
-            if (res.success) {
-              this.$Message.success(
-                "File copied successfully, new file name is " + v.name + "_copy"
-              );
-              this.getDataList();
-            }
-          });
-        }
-      });
     },
     removeAll() {
       if (this.selectCount <= 0) {
