@@ -279,6 +279,22 @@ INSERT INTO `course` (`id`, `create_by`, `start_time`,end_time, `content`, `imag
 	(1, 2, '2025-06-09 16:27:41', '2025-06-012 16:27:41', 'Java Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071506217668608.png', 'Normal', 'Java Program Design'),
 	(2, 2, '2025-06-09 16:27:58', '2025-06-12 16:27:41', 'Python Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071540472549376.png', 'Normal', 'Python Program Design');
 
+DROP TABLE IF EXISTS `gradebook`;
+CREATE TABLE IF NOT EXISTS `gradebook` (
+   id integer primary key auto_increment,
+   user_id integer,
+   foreign key (user_id) references user(id),
+    course_id integer,
+    foreign key (course_id) references course(id),
+    course_garde integer DEFAULT NULL
+    );
+
+DELETE FROM `gradebook`;
+INSERT INTO `gradebook` (`id`, `user_id`, `course_id`,course_garde) VALUES
+    (1, 3, 1,NULL),
+    (2, 3, 2,NULL),
+    (3, 4, 1,NULL),
+    (4, 4, 2,NULL);
 
 DROP TABLE IF EXISTS `feedback`;
 CREATE TABLE IF NOT EXISTS `feedback` (
@@ -374,7 +390,7 @@ CREATE TABLE IF NOT EXISTS `topics` (
   course_id integer,
   foreign key (course_id) references course(id),
   likes integer DEFAULT 0,
-  similar_topic varchar(255) DEFAULT NULL,
+  similar_topic varchar(255) DEFAULT NULL
 );
 
 DELETE FROM `topics`;
