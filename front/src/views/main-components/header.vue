@@ -2,7 +2,7 @@
 <div>
     <Row class="header">
         <img src="../../assets/logo.png" width="220px">
-        <div class="description">Teaching interaction system</div>
+        <div class="description">Teaching Interaction System</div>
     </Row>
 </div>
 </template>

@@ -1,24 +1,23 @@
-
 <template>
 <div>
-    <Card class="change-pass">
+    <Card class="change-password">
         <p slot="title">
-            <Icon type="key"></Icon>修改密码
+            <Icon type="key"></Icon>Change Password
         </p>
         <div>
             <Form ref="editPasswordForm" :model="editPasswordForm" :label-width="100" label-position="right" :rules="passwordValidate" style="width:450px">
-                <FormItem label="原密码" prop="oldPass">
-                    <Input type="password" v-model="editPasswordForm.oldPass" placeholder="请输入现在使用的密码"></Input>
+                <FormItem label="Original Password" prop="oldPass">
+                    <Input type="password" v-model="editPasswordForm.oldPass" placeholder="Please enter your current password"></Input>
                 </FormItem>
-                <FormItem label="新密码" prop="newPass">
+                <FormItem label="New Password" prop="newPass">
                     <SetPassword v-model="editPasswordForm.newPass" @on-change="changeInputPass" />
                 </FormItem>
-                <FormItem label="确认新密码" prop="rePass">
-                    <Input type="password" v-model="editPasswordForm.rePass" placeholder="请再次输入新密码"></Input>
+                <FormItem label="Confirm New Password" prop="rePass">
+                    <Input type="password" v-model="editPasswordForm.rePass" placeholder="Please re-enter the new password"></Input>
                 </FormItem>
                 <FormItem>
-                    <Button type="primary" style="width: 100px;margin-right:5px" :loading="savePassLoading" @click="saveEditPass">保存</Button>
-                    <Button @click="cancelEditPass">取消</Button>
+                    <Button type="primary" style="width: 100px;margin-right:5px" :loading="savePassLoading" @click="saveEditPass">Save</Button>
+                    <Button @click="cancelEditPass">Cancel</Button>
                 </FormItem>
             </Form>
         </div>
@@ -32,14 +31,14 @@ import {
 } from "./api.js";
 import SetPassword from "@/views/template/set-password";
 export default {
-    name: "change_pass",
+    name: "change_password",
     components: {
         SetPassword
     },
     data() {
         const valideRePassword = (rule, value, callback) => {
             if (value !== this.editPasswordForm.newPass) {
-                callback(new Error("两次输入密码不一致"));
+                callback(new Error("The two passwords do not match"));
             } else {
                 callback();
             }
@@ -55,28 +54,28 @@ export default {
             passwordValidate: {
                 oldPass: [{
                     required: true,
-                    message: "请输入原密码",
+                    message: "Please enter the original password",
                     trigger: "blur"
                 }],
                 newPass: [{
                         required: true,
-                        message: "请输入新密码",
+                        message: "Please enter the new password",
                         trigger: "blur"
                     },
                     {
                         min: 6,
-                        message: "请至少输入6个字符",
+                        message: "Please enter at least 6 characters",
                         trigger: "blur"
                     },
                     {
                         max: 32,
-                        message: "最多输入32个字符",
+                        message: "Maximum 32 characters",
                         trigger: "blur"
                     }
                 ],
                 rePass: [{
                         required: true,
-                        message: "请再次输入新密码",
+                        message: "Please re-enter the new password",
                         trigger: "blur"
                     },
                     {
@@ -104,8 +103,8 @@ export default {
                         this.savePassLoading = false;
                         if (res.success) {
                             this.$Modal.success({
-                                title: "修改密码成功",
-                                content: "修改密码成功，需重新登录",
+                                title: "Password changed successfully",
+                                content: "Password changed successfully, please log in again",
                                 onOk: () => {
                                     this.$store.commit("logout", this);
                                     this.$store.commit("clearOpenedSubmenu");
@@ -140,7 +139,7 @@ export default {
 };
 </script>
 <style lang="less">
-.change-pass {
+.change-password {
     &-btn-box {
         margin-bottom: 10px;
 
