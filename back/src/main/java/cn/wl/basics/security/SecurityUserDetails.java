@@ -1,6 +1,5 @@
 package cn.wl.basics.security;
 
-import cn.wl.basics.parameter.CommonConstant;
 import cn.wl.data.entity.User;
 import cn.wl.data.utils.WlNullUtils;
 import cn.wl.data.vo.PermissionDTO;
