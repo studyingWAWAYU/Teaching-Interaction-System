@@ -19,7 +19,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -48,7 +47,7 @@ public class Topics{
     @TableField(fill = FieldFill.UPDATE)
     @LastModifiedDate
     @ApiModelProperty(value = "最后一次更新时间")
-    private LocalDate updateTime;
+    private Date updateTime;
 
     @ApiModelProperty(value="标题")
     private String title;
