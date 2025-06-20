@@ -2,10 +2,10 @@
 <div>
     <div style="display:flex">
         <Input v-model="currentValue" @on-change="handleChange" :placeholder="placeholder" :size="size" :disabled="disabled" :readonly="readonly" :maxlength="maxlength" :icon="currentValue" />
-        <Button @click="iconModalVisible=true" :size="size" :disabled="disabled" :icon="icon" style="margin-left:10px">选择图标</Button>
+        <Button @click="iconModalVisible=true" :size="size" :disabled="disabled" :icon="icon" style="margin-left:10px">Select Icon</Button>
     </div>
 
-    <Modal title="选择图标" v-model="iconModalVisible" :width="950" :styles="{top: '30px'}" footer-hide :z-index="1060">
+    <Modal title="Select Icon" v-model="iconModalVisible" :width="950" :styles="{top: '30px'}" footer-hide :z-index="1060">
         <div class="icon-search">
             <input type="text" v-model="key" :placeholder="tip" @input="handleInput" @focus="handleFocus" @blur="handleBlur">
         </div>
@@ -35,7 +35,7 @@ export default {
         size: String,
         placeholder: {
             type: String,
-            default: "输入图标名或选择图标"
+            default: "Enter icon name or select icon"
         },
         disabled: {
             type: Boolean,
@@ -57,7 +57,7 @@ export default {
             currentValue: this.value,
             iconData: [],
             key: "",
-            tip: "输入英文关键词搜索，比如 success"
+            tip: "Search with English keywords, such as success"
         };
     },
     methods: {
@@ -72,7 +72,7 @@ export default {
         },
         handleInput() {
             if (this.key) {
-                // 搜索
+                // Search
                 let re = [];
                 icons.forEach(e => {
                     e.tags.forEach(item => {
@@ -95,7 +95,7 @@ export default {
         },
         handleBlur() {
             if (!this.key) {
-                this.tip = "输入英文关键词搜索，比如 success";
+                this.tip = "Search with English keywords, such as success";
             }
         },
         handleChange(v) {

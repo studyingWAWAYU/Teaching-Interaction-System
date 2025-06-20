@@ -3,7 +3,7 @@
     <Poptip transfer trigger="focus" placement="right" width="250">
         <Input type="password" password :maxlength="maxlength" v-model="currentValue" @on-change="handleChange" :size="size" :placeholder="placeholder" :disabled="disabled" :readonly="readonly" />
         <div :class="tipStyle" slot="content">
-            <div class="words">强度 : {{strength}}</div>
+            <div class="words">Strength : {{strength}}</div>
             <Progress :percent="strengthValue" :status="progressStatus" hide-info style="margin: 13px 0;" />
         </div>
     </Poptip>
@@ -18,7 +18,7 @@ export default {
         size: String,
         placeholder: {
             type: String,
-            default: "请输入密码，长度为6-20个字符"
+            default: "Enter password, 6-20 characters"
         },
         disabled: {
             type: Boolean,
@@ -39,25 +39,25 @@ export default {
             tipStyle: "password-tip-none",
             strengthValue: 0,
             progressStatus: "normal",
-            strength: "无",
+            strength: "None",
             grade: 0
         };
     },
     methods: {
         checkStrengthValue(v) {
-            // 评级制判断密码强度 最高5
+            // Rating system for password strength, maximum 5
             let grade = 0;
             if (/\d/.test(v)) {
-                grade++; //数字
+                grade++; // Number
             }
             if (/[a-z]/.test(v)) {
-                grade++; //小写
+                grade++; // Lowercase
             }
             if (/[A-Z]/.test(v)) {
-                grade++; //大写
+                grade++; // Uppercase
             }
             if (/\W/.test(v)) {
-                grade++; //特殊字符
+                grade++; // Special character
             }
             if (v.length >= 10) {
                 grade++;
@@ -68,7 +68,7 @@ export default {
         strengthChange() {
             if (!this.currentValue) {
                 this.tipStyle = "password-tip-none";
-                this.strength = "无";
+                this.strength = "None";
                 this.strengthValue = 0;
                 return;
             }
@@ -76,17 +76,17 @@ export default {
             if (grade <= 1) {
                 this.progressStatus = "wrong";
                 this.tipStyle = "password-tip-weak";
-                this.strength = "弱";
+                this.strength = "Weak";
                 this.strengthValue = 33;
             } else if (grade >= 2 && grade <= 4) {
                 this.progressStatus = "normal";
                 this.tipStyle = "password-tip-middle";
-                this.strength = "中";
+                this.strength = "Medium";
                 this.strengthValue = 66;
             } else {
                 this.progressStatus = "success";
                 this.tipStyle = "password-tip-strong";
-                this.strength = "强";
+                this.strength = "Strong";
                 this.strengthValue = 100;
             }
         },
