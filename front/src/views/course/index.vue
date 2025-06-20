@@ -87,7 +87,7 @@
           <Input v-model="editCourseInfo.name" />
         </FormItem>
         <FormItem label="Credits">
-          <InputNumber v-model="editCourseInfo.credits" :min="1.00" :max="10.00" :step="0.10" :precision="2" style="width:100%;" />
+          <InputNumber v-model="editCourseInfo.credits" :min="1.00" :max="10.00" :step="0.50" :precision="2" style="width:100%;" />
         </FormItem>
         <FormItem label="Start Time">
           <DatePicker v-model="editCourseInfo.startTime" type="date" format="yyyy-MM-dd" style="width:100%"  />
@@ -211,10 +211,8 @@ export default {
           };
           this.isEnrolled = res.result.status === 'enrolled';
         } else {
-          this.$Message.error('获取课程信息失败');
         }
       } catch (error) {
-        this.$Message.error('获取课程信息失败');
       }
     },
     
@@ -250,10 +248,8 @@ export default {
             };
           });
         } else {
-          this.$Message.error('获取课程评价失败');
         }
       } catch (error) {
-        this.$Message.error('获取课程评价失败');
       }
     },
 
@@ -264,7 +260,6 @@ export default {
     async getDiscussions() {
       try {
       } catch (error) {
-        this.$Message.error('Failed to get discussions');
       }
     },
 
@@ -282,13 +277,11 @@ export default {
         const res = await updateCourse(courseData);
         if (res.success) {
           this.isEnrolled = !this.isEnrolled;
-          this.$Message.success(this.isEnrolled ? '选课成功' : '退课成功');
+          this.$Message.success(this.isEnrolled ? 'Add Successfully' : 'Drop Successfully');
           this.getCourseInfo();
         } else {
-          this.$Message.error(this.isEnrolled ? '退课失败' : '选课失败');
         }
       } catch (error) {
-        this.$Message.error(this.isEnrolled ? '退课失败' : '选课失败');
       }
     },
 
@@ -316,10 +309,8 @@ export default {
           this.showEditInfoModal = false;
           await this.getCourseInfo();
         } else {
-          this.$Message.error(res.message || 'Failed to update course info');
         }
       } catch (error) {
-        this.$Message.error('Failed to update course info');
       }
     },
 

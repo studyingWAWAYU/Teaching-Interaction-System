@@ -43,8 +43,8 @@
         </template>
       </Table>
     </div>
-    <Modal v-model="showAddModal" title="Add Student" @on-ok="handleAddStudent">
-      <Form :model="addForm" :label-width="80" :rules="addFormRules" ref="addFormRef">
+    <Modal v-model="showAddModal" title="Add Student" @on-ok="handleAddStudent" ok-text="OK" cancel-text="Cancel">
+      <Form :model="addForm" :label-width="120" :rules="addFormRules" ref="addFormRef">
         <FormItem label="Name" prop="name">
           <Input v-model="addForm.name"/>
         </FormItem>
@@ -53,7 +53,7 @@
         </FormItem>
       </Form>
     </Modal>
-    <Modal v-model="showDeleteModal" title="Confirm Delete">
+    <Modal v-model="showDeleteModal" title="Confirm Delete" >
       <p>Are you sure you want to delete student "{{ deleteStudent.name }}"?</p>
       <div slot="footer">
         <Button @click="showDeleteModal = false">Cancel</Button>
@@ -67,36 +67,28 @@
 const mockStudents = [
   {
     id: 1,
-    name: 'John Smith',
-    studentId: '2023001',
-    email: 'john.smith@example.com',
-    department: 'Software Engineering',
+    name: 'Airel',
+    studentId: '20222012678',
+    email: '13600000002@qq.com',
+    department: 'Software Engineer',
     score: null
   },
   {
     id: 2,
-    name: 'Emily Johnson',
-    studentId: '2023002',
-    email: 'emily.johnson@example.com',
+    name: 'Adam',
+    studentId: '20222056789',
+    email: '13600000003@qq.com',
     department: 'Computer Science',
     score: null
   },
-  {
-    id: 3,
-    name: 'Michael Brown',
-    studentId: '2023003',
-    email: 'michael.brown@example.com',
-    department: 'Artificial Intelligence',
-    score: null
-  },
-  {
-    id: 4,
-    name: 'Sophia Davis',
-    studentId: '2023004',
-    email: 'sophia.davis@example.com',
-    department: 'Cyber Security',
-    score: null
-  }
+  // {
+  //   id: 3,
+  //   name: 'Ben',
+  //   studentId: '20222056790',
+  //   email: '13600000004@qq.com',
+  //   department: 'Software Engineer',
+  //   score: null
+  // }
 ]
 
 export default {
@@ -193,7 +185,6 @@ export default {
     },
     toggleScoreMode() {
       if (this.scoreMode) {
-        // 保存分数，实际可在此处调用API
         this.$Message.success('Scores saved')
       }
       this.scoreMode = !this.scoreMode
