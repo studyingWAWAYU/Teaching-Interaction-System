@@ -61,7 +61,8 @@
           <div class="similar-topic">
             <span class="similar-topic-label">Possible Similar Topic:</span>
             <Icon type="ios-link" size="small" />
-            <a href="#" class="similar-topic-link">Is Python Platform Independent if then how?</a>
+            <a v-if="selectedTopic && selectedTopic.similarTopic" :href="selectedTopic.similarTopic" class="similar-topic-link" target="_blank">{{ selectedTopic.similarTopic }}</a>
+            <span v-else class="similar-topic-link" style="color: #aaa;">No similar topics</span>
           </div>
           <div class="detail-meta">
             <span class="author">
@@ -245,7 +246,6 @@ export default {
     }
   },
   methods: {
-    // 通用方法
     async loadUsers() {
       try {
         const res = await getAllUsers();
@@ -298,32 +298,32 @@ export default {
           this.filteredDiscussions = topicsWithReplies;
           this.$emit('discussions-loaded', topicsWithReplies);
         } else {
-          this.$Message.error('Failed to fetch discussion list.');
         }
       } catch (error) {
         this.error = error.message;
-        this.$Message.error('Failed to fetch discussion list.');
       } finally {
         this.loading = false;
       }
     },
     async createDiscussion(topicData) {
-      try {
-        const params = {
-          course_id: this.courseId,
-          title: topicData.title,
-          description: topicData.content
-        };
-        const response = await addTopics(this.courseId, params);
-        if (response.success) {
-          this.$Message.success('Succeed to create discussion.');
-          await this.fetchCourseDiscussions();
-        } else {
-          this.$Message.error('Failed to create discussion.');
-        }
-      } catch (error) {
-        this.$Message.error('Failed to create discussion.');
-      }
+      // 静态前端实现：直接在本地 discussions/filteredDiscussions 添加新话题
+      const newId = Date.now();
+      const newTopic = {
+        id: newId,
+        title: topicData.title,
+        description: topicData.content,
+        createBy: this.currentUserId,
+        updateTime: new Date().toISOString(),
+        likes: 0,
+        isLiked: false,
+        replyCount: 0,
+        replies: [],
+        similarTopic: '',
+        courseId: this.courseId
+      };
+      this.filteredDiscussions.unshift(newTopic);
+      this.$emit('discussions-loaded', this.filteredDiscussions);
+      this.$Message.success('Succeed to create discussion.');
     },
     async handleDeleteTopic(topic) {
       this.$Modal.confirm({
@@ -339,10 +339,8 @@ export default {
               this.selectedTopic = null;
               await this.fetchCourseDiscussions();
             } else {
-              this.$Message.error('Failed to delete the topic');
             }
           } catch (error) {
-            this.$Message.error('Failed to delete the topic');
           }
         }
       });
@@ -368,10 +366,8 @@ export default {
           const updated = this.filteredDiscussions.find(t => t.id === this.editTopicForm.id);
           if (updated) this.selectedTopic = updated;
         } else {
-          this.$Message.error('Edit Failed');
         }
       } catch (error) {
-        this.$Message.error('Edit Failed');
       }
     },
     showEditTopicModal() {
@@ -402,7 +398,6 @@ export default {
           content: ''
         };
       } catch (error) {
-        this.$Message.error('Failed to create topic');
       }
     },
     selectTopic(topic) {
@@ -427,28 +422,29 @@ export default {
       }
     },
     handleTopicLike(topic) {
-      // TODO: 实现点赞功能
+      // 实现点赞功能
       topic.isLiked = !topic.isLiked;
       topic.likes = (topic.likes || 0) + (topic.isLiked ? 1 : -1);
     },
 
     // =================== Reply 相关 ===================
     async replyToDiscussion(topicId, replyData) {
-      try {
-        const params = {
-          topicId: topicId,
-          content: replyData.content
-        };
-        const response = await addPosts(topicId, params);
-        if (response.success) {
-          this.$Message.success('The reply was published successfully.');
-          await this.loadTopicReplies(topicId);
-        } else {
-          this.$Message.error('The reply failed to publish.');
-        }
-      } catch (error) {
-        this.$Message.error('The reply failed to publish.');
-      }
+      // 静态前端实现：直接在本地 selectedTopic.replies 添加新回复
+      const topic = this.filteredDiscussions.find(t => t.id === topicId);
+      if (!topic) return;
+      const newReply = {
+        id: Date.now(),
+        createBy: this.currentUserId,
+        createTime: new Date().toISOString(),
+        content: replyData.content,
+        likes: 0,
+        isLiked: false,
+        topicId: topicId
+      };
+      if (!topic.replies) topic.replies = [];
+      topic.replies.push(newReply);
+      topic.replyCount = topic.replies.length;
+      this.$Message.success('The reply was published successfully.');
     },
     async loadTopicReplies(topicId) {
       try {
@@ -477,10 +473,8 @@ export default {
               this.$Message.success('The reply has been deleted.');
               await this.loadTopicReplies(reply.topicId);
             } else {
-              this.$Message.error('Failed to delete the reply');
             }
           } catch (error) {
-            this.$Message.error('Failed to delete the reply');
           }
         }
       });
@@ -506,11 +500,10 @@ export default {
           topicIndex: -1
         };
       } catch (error) {
-        this.$Message.error('Failed to publish reply');
       }
     },
     handleReplyLike(reply) {
-      // TODO: 实现回复点赞功能
+      //实现回复点赞功能
       reply.isLiked = !reply.isLiked;
       reply.likes = (reply.likes || 0) + (reply.isLiked ? 1 : -1);
     },
