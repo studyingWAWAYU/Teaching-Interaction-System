@@ -11,5 +11,4 @@ public interface ITopicsService  extends IService<Topics> {
     List<Topics> listByCourseId(Integer courseId);
     List<Topics> getAllByCourseIdOrderByLikesDesc(Integer courseId);
     Result<Topics> saveOrUpdateTopics(Topics topics);
-
 }

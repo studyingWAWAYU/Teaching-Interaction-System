@@ -1,6 +1,6 @@
 <template>
 <div>
-    <Cascader v-model="selectDep" :data="department" :load-data="loadData" @on-change="handleChangeDep" change-on-select filterable clearable placeholder="Select Institute"></Cascader>
+    <Cascader v-model="selectDep" :data="department" :load-data="loadData" @on-change="handleChangeDep" change-on-select filterable clearable placeholder="选择部门"></Cascader>
 </div>
 </template>
 
@@ -34,7 +34,7 @@ export default {
                             e.label = e.title;
                         }
                         if (e.status == -1) {
-                            e.label = "[Disabled] " + e.label;
+                            e.label = "[已禁用] " + e.label;
                             e.disabled = true;
                         }
                     });
@@ -60,7 +60,7 @@ export default {
                             e.label = e.title;
                         }
                         if (e.status == -1) {
-                            e.label = "[Disabled] " + e.label;
+                            e.label = "[已禁用] " + e.label;
                             e.disabled = true;
                         }
                     });

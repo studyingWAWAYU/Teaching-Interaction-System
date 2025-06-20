@@ -4,7 +4,9 @@ export const loginRouter = {
     path: '/login',
     name: 'login',
     meta: {
+
         title: 'Login - Teaching Interaction System'
+
     },
     component: () => import('@/views/login.vue')
 };
@@ -13,6 +15,7 @@ export const registRouter = {
     path: '/regist',
     name: 'regist',
     meta: {
+
         title: 'Registration - Teaching Interaction System'
     },
     component: () => import('@/views/regist.vue')

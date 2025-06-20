@@ -329,7 +329,7 @@ export default {
       this.$Modal.confirm({
         title: 'Confirm deletion',
         content: 'Are you sure you want to delete this topic?',
-        okText: 'OK',
+        okText: 'del',
         cancelText: 'Cancel',
         onOk: async () => {
           try {
@@ -468,7 +468,7 @@ export default {
       this.$Modal.confirm({
         title: 'Confirm deletion',
         content: 'Are you sure you want to delete this reply?',
-        okText: 'OK',
+        okText: 'del',
         cancelText: 'Cancel',
         onOk: async () => {
           try {
