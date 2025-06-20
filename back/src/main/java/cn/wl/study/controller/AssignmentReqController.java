@@ -28,7 +28,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -61,7 +60,7 @@ public class AssignmentReqController {
     @ApiOperation(value = "生成课程作业")
     public Result<AssignmentReq> create(@RequestParam String title, @RequestParam String status,
                                         @RequestParam String file,
-                                        @RequestParam LocalDate startTime, @RequestParam LocalDate endTime,
+                                        @RequestParam Date startTime, @RequestParam Date endTime,
                                         @RequestParam Integer courseId, @RequestParam String description){
         Course course = iCourseService.getById(courseId);
         if(course == null) {
@@ -85,7 +84,7 @@ public class AssignmentReqController {
             a.setDescription(description);
             a.setStartTime(startTime);
             a.setEnd_time(endTime);
-            a.setUploadTime(LocalDate.now());
+            a.setUploadTime(new Date(DateUtil.now()));
             a.setStatus(status);
             iAssignmentReqService.saveOrUpdate(a);
         }

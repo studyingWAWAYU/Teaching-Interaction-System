@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -64,7 +63,7 @@ public class AssignmentAnsController {
         a.setTitle(title);
         a.setFile(file);
         a.setStudentId(currUser.getId());
-        a.setUploadTime(LocalDate.now());
+        a.setUploadTime(new Date(DateUtil.now()));
         a.setReqId(reqId);
         iAssignmentAnsService.saveOrUpdate(a);
         return ResultUtil.success();

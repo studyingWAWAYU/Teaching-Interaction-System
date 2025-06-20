@@ -10,7 +10,7 @@ export default {
     props: {
         text: {
             type: String,
-            default: "Submit"
+            default: "提交"
         },
         autoCountDown: {
             type: Boolean,
@@ -22,7 +22,7 @@ export default {
         },
         suffixText: {
             type: String,
-            default: "seconds left"
+            default: "后重试"
         },
         type: String,
         size: String,
@@ -73,7 +73,7 @@ export default {
                 this.buttonText = this.text;
                 return;
             } else {
-                this.buttonText = this.count + " " + this.suffixText;
+                this.buttonText = this.count + " 秒" + this.suffixText;
                 this.count--;
             }
             setTimeout(function () {

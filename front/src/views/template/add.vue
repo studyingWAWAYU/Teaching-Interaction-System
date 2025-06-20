@@ -3,14 +3,14 @@
 <template>
 <div>
     <Card>
-        <p slot="title">Add</p>
+        <p slot="title">添加</p>
         <Form ref="form" :model="form" :label-width="90" :rules="formValidate">
-            <FormItem label="Name" prop="name">
+            <FormItem label="名称" prop="name">
                 <Input v-model="form.name" style="width: 400px" />
             </FormItem>
             <Form-item class="br">
-                <Button @click="handleSubmit" :loading="submitLoading" type="primary">Submit and Save</Button>
-                <Button @click="handleReset">Reset</Button>
+                <Button @click="handleSubmit" :loading="submitLoading" type="primary">提交并保存</Button>
+                <Button @click="handleReset">重置</Button>
             </Form-item>
         </Form>
     </Card>
@@ -22,17 +22,17 @@ export default {
     name: "add",
     data() {
         return {
-            loading: true, // Form loading status
-            submitLoading: false, // Form submission status
+            loading: true, // 表单加载状态
+            submitLoading: false, // 表单提交状态
             form: {
                 id: "",
                 name: ""
             },
-            // Form validation rules
+            // 表单验证规则
             formValidate: {
                 name: [{
                     required: true,
-                    message: "Cannot be empty",
+                    message: "不能为空",
                     trigger: "blur"
                 }]
             },
@@ -49,14 +49,14 @@ export default {
         handleSubmit() {
             this.$refs.form.validate(valid => {
                 if (valid) {
-                    // Simulate success
+                    // 模拟成功
                     this.submitLoading = false;
-                    this.$Message.success("Added successfully");
+                    this.$Message.success("添加成功");
                     this.closeCurrentPage();
                 }
             });
         },
-        // Close current page
+        // 关闭当前页面
         closeCurrentPage() {
             this.$store.commit("removeTag", "add");
             localStorage.pageOpenedList = JSON.stringify(

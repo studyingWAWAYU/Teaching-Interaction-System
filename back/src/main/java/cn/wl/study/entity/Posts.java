@@ -20,7 +20,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import jakarta.persistence.EntityListeners;
 
-import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -44,8 +43,12 @@ public class Posts{
     @ApiModelProperty(value="留言人ID")
     private Integer createBy;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @TableField(fill = FieldFill.INSERT)
+    @CreatedDate
     @ApiModelProperty(value = "创建时间")
-    private LocalDate createTime;
+    private Date createTime;
 
     @ApiModelProperty(value="内容")
     @Size(max = 5000, message = "Content length cannot exceed 5000 characters.")

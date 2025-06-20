@@ -22,7 +22,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import org.springframework.data.annotation.CreatedBy;
 
-import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -52,9 +51,9 @@ public class File{
     @TableField(fill = FieldFill.UPDATE)
     @LastModifiedDate
     @ApiModelProperty(value = "更新时间")
-    private LocalDate updateTime;
+    private Date updateTime;
 
-    private LocalDate createTime;
+    private Date createTime;
 
     @ApiModelProperty(value = "上传文件名")
     private String name;

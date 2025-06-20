@@ -17,8 +17,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
-
-import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -37,8 +35,12 @@ public class CourseResources{
     @TableId
     private Integer id;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @TableField(fill = FieldFill.UPDATE)
+    @LastModifiedDate
     @ApiModelProperty(value = "更新时间")
-    private LocalDate updateTime;
+    private Date updateTime;
 
     @ApiModelProperty(value = "课程ID")
     private Integer courseId;
