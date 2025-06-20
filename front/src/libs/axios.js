@@ -21,7 +21,7 @@ axios.interceptors.request.use(config => {
     }
     return config;
 }, err => {
-    Message.error('请求超时');
+    // Message.error('请求超时');
     return Promise.resolve(err);
 });
 
@@ -37,7 +37,7 @@ axios.interceptors.response.use(response => {
                 if (data.message !== null) {
                     Message.error(data.message);
                 } else {
-                    Message.error("未知错误，请重新登录");
+                    // Message.error("未知错误，请重新登录");
                 }
                 router.push('/login');
             }
@@ -46,23 +46,22 @@ axios.interceptors.response.use(response => {
             if (data.message !== null) {
                 Message.error(data.message);
             } else {
-                Message.error("未知错误");
+                // Message.error("未知错误");
             }
             break;
         case 500:
             if (data.message !== null) {
                 Message.error(data.message);
             } else {
-                Message.error("未知错误");
+                // Message.error("未知错误");
             }
             break;
         default:
             return data;
     }
-
     return data;
 }, (err) => {
-    Message.error(err.toString());
+    // Message.error(err.toString());
     return Promise.resolve(err);
 });
 
