@@ -82,6 +82,8 @@
 
 <script>
 import Cookies from 'js-cookie'
+import { getAllCourseResources, addCourseResources, deleteCoursesResources, saveOrUpdateCourseResources } from '@/api/courseResources';
+import { getAllUsers } from '@/views/roster/user/api';
 
 const mockFiles = [
   {
