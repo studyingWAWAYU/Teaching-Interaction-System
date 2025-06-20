@@ -87,8 +87,7 @@ public class TopicsController {
     public Result<Topics> insert(Topics topics){
         User currUser = securityUtil.getCurrUser();
         topics.setCreateBy(currUser.getId());
-        iTopicsService.saveOrUpdateTopics(topics);
-        return new ResultUtil<Topics>().setData(topics);
+        return iTopicsService.saveOrUpdateTopics(topics);
     }
 
     @RequestMapping(value = "/delByIds", method = RequestMethod.POST)
