@@ -2,7 +2,7 @@
 <div>
     <Row class="header">
         <img src="../../assets/logo.png" width="220px">
-        <div class="description">教学资源共享平台</div>
+        <div class="description">Teaching Interaction System</div>
     </Row>
 </div>
 </template>

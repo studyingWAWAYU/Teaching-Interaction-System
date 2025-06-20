@@ -18,7 +18,9 @@ let util = {
 };
 
 util.title = function (title) {
-    title = title || '教学资源共享平台';
+
+    title = title || 'Teaching Interaction System';
+
     window.document.title = title;
 };
 
@@ -447,7 +449,7 @@ util.initRouterNode = function (routers, data) {
         let meta = {};
         // 给页面添加权限、标题、第三方网页链接
         meta.permTypes = menu.permTypes ? menu.permTypes : null;
-        meta.title = menu.title ? menu.title + " - 教学资源共享平台" : null;
+        meta.title = menu.title ? menu.title + " - Teaching Interaction System" : null;
         meta.url = menu.url ? menu.url : null;
         menu.meta = meta;
 

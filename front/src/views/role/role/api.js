@@ -26,11 +26,11 @@ export const deleteRole = (params) => {
 export const editRolePerm = (params) => {
     return postRequest('/role/editRolePerm', params)
 }
-// 获取一级部门
+// 获取一级学院
 export const initDepartment = (params) => {
     return getRequest('/department/getByParentId', params)
 }
-// 加载部门子级数据
+// 加载学院子级数据
 export const loadDepartment = (params) => {
     return getRequest('/department/getByParentId', params)
 }

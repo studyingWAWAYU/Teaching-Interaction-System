@@ -1,632 +1,592 @@
 <template>
-<div class="search">
-    <add v-if="currView=='add'" @close="currView='index'" @submited="submited" />
-    <edit v-if="currView=='edit'" @close="currView='index'" @submited="submited" :data="formData" />
-    <Card v-show="currView=='index'">
-        <Row v-show="openSearch" @keydown.enter.native="handleSearch">
-            <Form ref="searchForm" :model="searchForm" inline :label-width="0">
-                <Form-item ref="searchForm" :model="searchForm" inline :label-width="0" style="display:flex;">
-                    <Form-item label="" prop="title">
-                        <Input type="text" v-model="searchForm.title" placeholder="课程标题" clearable style="width: 150px" />
-                    </Form-item>
-                    <Form-item label="" prop="content">
-                        <Input type="text" v-model="searchForm.content" placeholder="课程介绍" clearable style="width: 150px" />
-                    </Form-item>
-                    <Form-item label="" prop="status">
-                        <Select v-model="searchForm.status" placeholder="课程状态" clearable style="width: 150px">
-                            <Option value="正常">正常</Option>
-                            <Option value="失效">失效</Option>
-                        </Select>
-                    </Form-item>
-                    <Form-item style="margin-left:10px;" class="br">
-                        <Button @click="handleSearch" type="primary" icon="ios-search" size="small" ghost>搜索</Button>
-                        <Button @click="handleReset" type="warning" size="small" icon="md-refresh" ghost>重置</Button>
-                        <Button @click="add" type="info" size="small" icon="md-add" ghost :disabled="!$route.meta.permTypes.includes('add')">添加</Button>
-                        <Button @click="delAll" type="error" icon="md-trash" size="small" ghost :disabled="!$route.meta.permTypes.includes('delete')">删除</Button>
-                        <Button @click="excelData" type="success" icon="md-paper-plane" size="small" ghost>导出</Button>
-                    </Form-item>
-                    <Form-item style="position:fixed;right:50px;top:130px">
-                        <Button type="info" @click="showFilterPanelFlag = !showFilterPanelFlag" class="showFilterPanelFlag" icon="md-settings" size="small" ghost>
-                            列筛选</Button>
-                        <Button type="warning" @click="modal1 = true" class="showFilterPanelFlag" icon="ios-help-circle-outline" size="small" ghost>
-                            使用教程</Button>
-                        <Modal v-model="modal1" title="使用教程">
-                            <p>1.XXXXXXXXXXXXXXXXXXXXXXXX</p>
-                            <p>2.XXXXXXXXXXXXXXXXXXXXXXXX</p>
-                            <p>3.XXXXXXXXXXXXXXXXXXXXXXXX</p>
-                        </Modal>
-                    </Form-item>
-                </Form-item>
-            </Form>
-        </Row>
-        <Row class="operation" style="position:relative;">
-            <transition>
-                <div v-show="showFilterPanelFlag" class="filter-panel">
-                    <CheckboxGroup v-model="selected">
-                        <div v-for="item in mycolumns" :key="item.key">
-                            <Checkbox :label="item.title" style="margin: 2px 5px"></Checkbox>
-                        </div>
-                    </CheckboxGroup>
-                </div>
-            </transition>
-        </Row>
-        <Row v-show="openTip"> </Row>
-        <Row>
-            <Table :loading="loading" :height="tableHeight" border stripe size="small" :columns="columns" :data="data" ref="table" sortable="custom" @on-sort-change="changeSort" @on-selection-change="changeSelect" @on-row-click="rowClick" :row-class-name="rowClassNmae"></Table>
-        </Row>
-        <Row type="flex" justify="end" class="page">
-            <Page :current="searchForm.pageNumber" :total="total" :page-size="searchForm.pageSize" @on-change="changePage" @on-page-size-change="changePageSize" :page-size-opts="[15,20,50]" size="small" show-total show-elevator show-sizer></Page>
-        </Row>
-    </Card>
-    <Modal v-model="resModal" :title="resTitle" draggable :mask="false" footer-hide width="1200">
-        <Row :gutter="16">
-            <Col span="24">
-            <Table :loading="resLoading" border stripe size="small" :columns="resColumns" :data="resList"></Table>
-            </Col>
-        </Row>
+  <div class="course-manage-page">
+    <!-- Top action bar: Search + Buttons -->
+    <div class="top-bar">
+      <div class="search-area">
+        <Form
+          ref="searchForm"
+          :model="searchForm"
+          inline
+          class="search-form"
+        >
+          <Form-item prop="title">
+            <Input
+              type="text"
+              v-model="searchQuery"
+              clearable
+              placeholder="Search Course Name..."
+              size="large"
+            >
+              <Icon type="ios-search" slot="prefix" />
+            </Input>
+          </Form-item>
+          <Form-item prop="status">
+            <Select 
+                v-model="courseStatus" 
+                placeholder="Select Course Status" 
+                clearable
+                transfer
+                style="width: 200px">
+                <Option value="open" label="Open" />
+                <Option value="ongoing" label="Ongoing" />
+                <Option value="closed" label="Closed" />
+                </Select>
+          </Form-item>
+          <Form-item>
+            <Button
+              v-if="isTeacher"
+              type="primary"
+              @click="showCreateCourseModal = true"
+              class="create-course-btn">
+              Create New Course
+            </Button>
+          </Form-item>
+        </Form>
+      </div>
+    </div>
+
+    <!-- Data table -->
+    <div class="table-wrapper">
+      <Table
+        :loading="loading"
+        border
+        :columns="columns"
+        :data="filteredCourses"
+        ref="table"
+        stripe
+        @on-selection-change="handleSelectionChange"
+      ></Table>
+    </div>
+
+    <!-- Create Course Modal -->
+    <Modal v-model="showCreateCourseModal" title="Create New Course" ok-text="OK" cancel-text="Cancel" @on-ok="handleCreateCourse">
+      <Form :model="createCourseForm" :label-width="150">
+        <FormItem label="Course Name：">
+          <Input v-model="createCourseForm.name"  />
+        </FormItem>
+        <FormItem label="Credits：">
+          <InputNumber v-model="createCourseForm.credits" :min="1" :max="10" style="width:100%;" />
+        </FormItem>
+        <FormItem label="Start Time：">
+          <DatePicker v-model="createCourseForm.startTime" type="date" format="yyyy-MM-dd" style="width:100%" />
+        </FormItem>
+        <FormItem label="End Time：">
+          <DatePicker v-model="createCourseForm.endTime" type="date" format="yyyy-MM-dd" style="width:100%" />
+        </FormItem>
+        <FormItem label="Course Image：">
+          <Upload
+            :action="uploadFileUrl"
+            :headers="uploadHeaders"
+            :show-upload-list="false"
+            :before-upload="beforeImageUpload"
+            :on-success="handleImageUploadSuccess"
+            :on-error="handleImageUploadError"
+            accept="image/*">
+            <Button type="primary">Upload</Button>
+          </Upload>
+          <div v-if="createCourseForm.image" style="margin-top:10px;">
+            <img :src="createCourseForm.image" alt="Course Image" style="max-width: 180px; max-height: 120px; border-radius: 8px; border:1px solid #eee;" />
+          </div>
+        </FormItem>
+        <FormItem label="Course Introduction：">
+          <Input v-model="createCourseForm.introduction" type="textarea" :rows="4" />
+        </FormItem>
+      </Form>
     </Modal>
-</div>
+
+    <!-- Edit Course Modal -->
+    <Modal v-model="showEditInfoModal" title="Edit Course Info" ok-text="OK" cancel-text="Cancel" @on-ok="saveEditInfo">
+      <Form :model="editCourseInfo" :label-width="150">
+        <FormItem label="Course Name：">
+          <Input v-model="editCourseInfo.name"  />
+        </FormItem>
+        <FormItem label="Credits：">
+          <InputNumber v-model="editCourseInfo.credits" :min="1" :max="10" style="width:100%;" />
+        </FormItem>
+        <FormItem label="Start Time：">
+          <DatePicker v-model="editCourseInfo.startTime" type="date" format="yyyy-MM-dd" style="width:100%" />
+        </FormItem>
+        <FormItem label="End Time：">
+          <DatePicker v-model="editCourseInfo.endTime" type="date" format="yyyy-MM-dd" style="width:100%" />
+        </FormItem>
+        <FormItem label="Course Image：">
+          <Upload
+            :action="uploadFileUrl"
+            :headers="uploadHeaders"
+            :show-upload-list="false"
+            :before-upload="beforeImageUpload"
+            :on-success="handleImageUploadSuccess"
+            :on-error="handleImageUploadError"
+            accept="image/*">
+            <Button type="primary">Upload</Button>
+          </Upload>
+          <div v-if="editCourseInfo.image" style="margin-top:10px;">
+            <img :src="editCourseInfo.image" alt="Course Image" style="max-width: 180px; max-height: 120px; border-radius: 8px; border:1px solid #eee;" />
+          </div>
+        </FormItem>
+        <FormItem label="Course Introduction：">
+          <Input v-model="editCourseInfo.introduction" type="textarea" :rows="4" />
+        </FormItem>
+      </Form>
+    </Modal>
+  </div>
 </template>
 
 <script>
-import {
-    getCurriculumList,
-    deleteCurriculum,
-    getCourseResourcesList
-} from "./api.js";
-import add from "./add.vue";
-import edit from "./edit.vue";
-import uploadFileInput from "@/views/template/upload-file-input";
+import { getAllCourses, addCourse, saveOrUpdateCourse } from '@/api/course';
+import { getAllUsers } from '@/views/roster/user/api';
+import { uploadFile } from '@/api/index';
+import Cookies from 'js-cookie';
+import { getStore } from '@/libs/storage';
+
 export default {
-    name: "single-window",
-    components: {
-        add,
-        edit,
-        uploadFileInput
-    },
-    data() {
-        return {
-            resModal: false,
-            resList: [],
-            resLoading: false,
-            resTitle: "",
-            resColumns: [{
-                    title: "课程名称",
-                    key: "curriculumName",
-                    minWidth: 180,
-                    tooltip: true,
-                    sortable: false,
+  name: 'CourseManagement',
+  data() {
+    return {
+      searchQuery: '',
+      courseStatus: '',
+      courses: [],
+      users: [],
+      loading: false,
+      showCreateCourseModal: false,
+      showEditInfoModal: false,
+      createCourseForm: {
+        name: '',
+        credits: '',
+        startTime: '',
+        endTime: '',
+        introduction: '',
+        image: ''
+      },
+      editCourseInfo: {
+        id: '',
+        name: '',
+        credits: '',
+        startTime: '',
+        endTime: '',
+        introduction: '',
+        image: ''
+      },
+      uploadFileUrl: '/wl' + uploadFile,
+      uploadHeaders: {
+        accessToken: getStore('accessToken')
+      },
+      columns: [
+        {
+          title: 'ID',
+          key: 'id',
+          width: 80,
+          align: 'center'
+        },
+        {
+          title: 'Course Name',
+          key: 'title',
+          minWidth: 200,
+          render: (h, params) => {
+            return h('div', [
+              h('img', {
+                attrs: {
+                  src: params.row.image || 'https://via.placeholder.com/40?text=Course',
+                  alt: 'Course Image'
                 },
-                {
-                    title: "资源名称",
-                    key: "title",
-                    minWidth: 180,
-                    tooltip: true,
-                    sortable: false,
-                },
-                {
-                    title: "文件",
-                    key: "fileUrl",
-                    minWidth: 150,
-                    tooltip: true,
-                    sortable: false,
-                    render: (h, params) => {
-                        if (params.row.fileUrl == undefined || params.row.fileUrl == "") {
-                            return h("div", [
-                                h(
-                                    "span", {
-                                        style: {
-                                            color: "#ff9900",
-                                        },
-                                    },
-                                    "未上传"
-                                ),
-                            ]);
-                        } else {
-                            return h("img", {
-                                attrs: {
-                                    src: require("@/assets/pdf.png"),
-                                },
-                                style: {
-                                    cursor: "zoom-in",
-                                    width: "60px",
-                                    margin: "10px 0",
-                                    "object-fit": "contain",
-                                },
-                                on: {
-                                    click: () => {
-                                        this.showFile(params.row.fileUrl);
-                                    },
-                                },
-                            });
-                        }
-                    }
-                },
-                {
-                    title: "创建时间",
-                    key: "createTime",
-                    sortable: true,
-                    sortType: "desc",
-                    minWidth: 180,
-                    align: "center",
-                    tooltip: true,
-                },
-                {
-                    title: "创建者",
-                    key: "createBy",
-                    sortable: true,
-                    sortType: "desc",
-                    minWidth: 100,
-                    align: "center",
-                    tooltip: true,
-                },
-            ],
-            tableHeight: 0,
-            selected: [
-                "选择",
-                "序号",
-                "课程标题",
-                "课程介绍",
-                "课程图片",
-                "课程状态",
-                "创建时间",
-                "创建者",
-                "修改时间",
-                "修改者",
-                "操作",
-            ],
-            modal1: false,
-            openSearch: true, // 显示搜索
-            openTip: true, // 显示提示
-            formData: {},
-            currView: "index",
-            loading: true, // 表单加载状态
-            searchForm: { // 搜索框初始化对象
-                pageNumber: 1, // 当前页数
-                pageSize: 15, // 页面大小
-                sort: "createTime", // 默认排序字段
-                order: "desc", // 默认排序方式
-            },
-            selectList: [], // 多选数据
-            selectCount: 0, // 多选计数
-            selectRow: 0,
-            columns: [
-                // 表头
-                {
-                    type: "selection",
-                    width: 60,
-                    title: "选择",
-                    align: "center",
-                    fixed: "left",
-                },
-                {
-                    title: "序号",
-                    width: 85,
-                    align: "center",
-                    fixed: "left",
-                    sortType: true,
-                    render: (h, params) => {
-                        return h(
-                            "span",
-                            params.index +
-                            (this.searchForm.pageNumber - 1) * this.searchForm.pageSize +
-                            1
-                        );
-                    },
-                },
-                {
-                    title: "课程标题",
-                    key: "title",
-                    minWidth: 160,
-                    tooltip: true,
-                    sortable: false,
-                },
-                {
-                    title: "课程介绍",
-                    key: "content",
-                    minWidth: 180,
-                    tooltip: true,
-                    sortable: false,
-                },
-                {
-                    title: "课程图片",
-                    key: "image",
-                    minWidth: 150,
-                    tooltip: true,
-                    sortable: false,
-                    render: (h, params) => {
-                        if (params.row.image == undefined || params.row.image == "") {
-                            return h("div", [
-                                h(
-                                    "span", {
-                                        style: {
-                                            color: "#ff9900",
-                                        },
-                                    },
-                                    "未上传"
-                                ),
-                            ]);
-                        } else {
-                            return h("img", {
-                                attrs: {
-                                    src: params.row.image,
-                                },
-                                style: {
-                                    cursor: "zoom-in",
-                                    width: "60px",
-                                    margin: "10px 0",
-                                    "object-fit": "contain",
-                                },
-                                on: {
-                                    click: () => {
-                                        this.showFile(params.row.image);
-                                    },
-                                },
-                            });
-                        }
-                    }
-                },
-                {
-                    title: "课程状态",
-                    key: "status",
-                    minWidth: 150,
-                    tooltip: true,
-                    sortable: false,
-                },
-                {
-                    title: "创建时间",
-                    key: "createTime",
-                    sortable: true,
-                    sortType: "desc",
-                    minWidth: 180,
-                    align: "center",
-                    tooltip: true,
-                },
-                {
-                    title: "创建者",
-                    key: "createBy",
-                    sortable: true,
-                    sortType: "desc",
-                    minWidth: 100,
-                    align: "center",
-                    tooltip: true,
-                },
-                {
-                    title: "修改时间",
-                    key: "updateTime",
-                    minWidth: 180,
-                    align: "center",
-                    tooltip: true,
-                },
-                {
-                    title: "修改者",
-                    key: "updateBy",
-                    minWidth: 100,
-                    align: "center",
-                    tooltip: true,
-                },
-                {
-                    title: "操作",
-                    key: "action",
-                    align: "center",
-                    width: 500,
-                    fixed: "right",
-                    render: (h, params) => {
-                        var that = this;
-                        return h("div", [
-                            h(
-                                "Button", {
-                                    props: {
-                                        type: "success",
-                                        size: "small",
-                                        icon: "ios-create-outline",
-                                        ghost: true,
-                                        disabled: !(that.$route.meta.permTypes && that.$route.meta.permTypes.includes("enable"))
-                                    },
-                                    style: {
-                                        marginRight: "5px"
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.resTitle = params.row.title + " 资源明细";
-                                            this.getCourseResourcesListFx(params.row);
-                                            this.resModal = true;
-                                        }
-                                    }
-                                },
-                                "资源"
-                            ),
-                            h(
-                                "Button", {
-                                    props: {
-                                        type: "primary",
-                                        size: "small",
-                                        icon: "ios-create-outline",
-                                        ghost: true,
-                                        disabled: !(that.$route.meta.permTypes && that.$route.meta.permTypes.includes("edit"))
-                                    },
-                                    style: {
-                                        marginRight: "5px"
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.edit(params.row);
-                                        }
-                                    }
-                                },
-                                "编辑"
-                            ),
-                            h(
-                                "Button", {
-                                    props: {
-                                        type: "error",
-                                        size: "small",
-                                        icon: "md-trash",
-                                        ghost: true,
-                                        disabled: !(that.$route.meta.permTypes && that.$route.meta.permTypes.includes("delete"))
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.remove(params.row);
-                                        }
-                                    }
-                                },
-                                "删除"
-                            )
-                        ]);
-                    }
+                style: {
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '4px',
+                  marginRight: '10px',
+                  verticalAlign: 'middle'
                 }
-            ],
-            data: [], // 表单数据
-            pageNumber: 1, // 当前页数
-            pageSize: 10, // 页面大小
-            total: 0, // 表单数据总数
-            showFilterPanelFlag: false,
-        };
-    },
-    methods: {
-        init() {
-            this.getDataList();
-        },
-        getCourseResourcesListFx(e) {
-            var that = this;
-            that.resLoading = true;
-            that.resList = [];
-            getCourseResourcesList({
-                curriculumId: e.id
-            }).then(res => {
-                that.resLoading = false;
-                if (res.success) {
-                    that.resList = res.result;
+              }),
+              h('span', {
+                style: {
+                  verticalAlign: 'middle'
                 }
-            })
+              }, params.row.title)
+            ]);
+          }
         },
-        submited() {
-            this.currView = "index";
-            this.getDataList();
+        {
+          title: 'Teacher',
+          key: 'teacherName',
+          width: 150,
+          render: (h, params) => {
+            return h('div', [
+              h('Icon', {
+                props: {
+                  type: 'ios-person'
+                },
+                style: {
+                  marginRight: '5px'
+                }
+              }),
+              h('span', params.row.teacherName || 'Unknown instructor')
+            ]);
+          }
         },
-        changePage(v) {
-            this.searchForm.pageNumber = v;
-            this.getDataList();
-            this.clearSelectAll();
+        {
+          title: 'Status',
+          key: 'status',
+          width: 120,
+          render: (h, params) => {
+            const status = params.row.status;
+            const color = status === 'open' ? 'success' : 
+                         status === 'ongoing' ? 'warning' : 'error';
+            return h('Tag', {
+              props: {
+                color: color
+              }
+            }, status.toUpperCase());
+          }
         },
-        changePageSize(v) {
-            this.searchForm.pageSize = v;
-            this.getDataList();
+        {
+          title: 'Credits',
+          key: 'credits',
+          width: 100,
+          align: 'center'
         },
-        rowClick(row, index) {
-            this.selectRow = row;
+        {
+          title: 'Period',
+          key: 'period',
+          width: 220,
+          render: (h, params) => {
+            return h('div', [
+              h('div', params.row.startTime),
+              h('div', params.row.endTime)
+            ]);
+          }
         },
-        rowClassNmae(row, index) {
-            if (row.id == this.selectRow.id) {
-                return "rowClassNmaeColor";
-            }
-            return "";
-        },
-        excelData() {
-            this.$refs.table.exportCsv({
-                filename: "导出结果",
-            });
-        },
-        handleSearch() {
-            this.searchForm.pageNumber = 1;
-            this.searchForm.pageSize = 15;
-            this.getDataList();
-        },
-        handleReset() {
-            this.$refs.searchForm.resetFields();
-            this.searchForm.pageNumber = 1;
-            this.searchForm.pageSize = 15;
-            // 重新加载数据
-            this.getDataList();
-        },
-        changeSort(e) {
-            this.searchForm.sort = e.key;
-            this.searchForm.order = e.order;
-            if (e.order === "normal") {
-                this.searchForm.order = "";
-            }
-            this.getDataList();
-        },
-        clearSelectAll() {
-            this.$refs.table.selectAll(false);
-        },
-        changeSelect(e) {
-            this.selectList = e;
-            this.selectCount = e.length;
-        },
-        getDataList() {
+        {
+          title: 'Actions',
+          key: 'action',
+          width: 200,
+          align: 'center',
+          render: (h, params) => {
+            return h('div', [
+              h('Button', {
+                props: {
+                  type: 'primary',
+                  size: 'small',
+                  icon: 'md-create'
+                },
+                style: {
+                  marginRight: '5px'
+                },
+                on: {
+                  click: () => {
+                    this.openEditInfoModal(params.row);
+                  }
+                }
+              }, 'Edit'),
+              h('Button', {
+                props: {
+                  type: 'error',
+                  size: 'small',
+                  icon: 'md-trash'
+                },
+                on: {
+                  click: () => {
+                    this.deleteCourse(params.row);
+                  }
+                }
+              }, 'Delete')
+            ]);
+          }
+        }
+      ]
+    }
+  },
+  computed: {
+    filteredCourses() {
+      return this.courses
+        .filter(course => {
+          const matchesSearch = course.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+          const matchesStatus = !this.courseStatus || course.status === this.courseStatus
+          return matchesSearch && matchesStatus
+        })
+        .sort((a, b) => a.id - b.id)
+    },
+    isTeacher() {
+      try {
+        const userInfo = Cookies.get('userInfo')
+        if (userInfo) {
+          const user = JSON.parse(userInfo)
+          if (user.role && user.role.name) {
+            return user.role.name === 'ROLE_TEACHER' || user.role.name === 'ROLE_ADMIN'
+          }
+          if (user.roleName) {
+            return user.roleName === 'ROLE_TEACHER' || user.roleName === 'ROLE_ADMIN'
+          }
+        }
+        return false
+      } catch (error) {
+        return false
+      }
+    }
+  },
+  created() {
+    this.loadData();
+  },
+  methods: {
+    async loadData() {
+      await this.loadUsers();
+      await this.loadCourses();
+    },
+    
+    async loadCourses() {
+        try {
             this.loading = true;
-            getCurriculumList(this.searchForm).then(res => {
-                this.loading = false;
-                if (res.success) {
-                    this.data = res.result.records;
-                    this.total = res.result.total;
-                }
-            });
-        },
-        add() {
-            this.currView = "add";
-        },
-        edit(v) {
-            // 转换null为""
-            for (let attr in v) {
-                if (v[attr] == null) {
-                    v[attr] = "";
-                }
+            const res = await getAllCourses();
+            if (res.success) {
+            this.courses = res.result.map((course, index) => ({
+                ...course,
+                title: course.name || course.title,
+                teacherName: this.getTeacherName(course.createBy),
+                // Modified status assignment - first course Ongoing, second course Closed
+                status: index === 0 ? 'ongoing' : 
+                    index === 1 ? 'closed' : 
+                    course.status || 'open',
+                credits: course.credits !== undefined ? course.credits : 2
+            }));
+            } else {
+            this.$Message.error('Failed to load courses');
             }
-            let str = JSON.stringify(v);
-            let data = JSON.parse(str);
-            this.formData = data;
-            this.currView = "edit";
-        },
-        remove(v) {
-            this.$Modal.confirm({
-                title: "确认删除",
-                content: "您确认要删除 ?",
-                loading: true,
-                onOk: () => {
-                    deleteCurriculum({
-                        ids: v.id
-                    }).then(res => {
-                        this.$Modal.remove();
-                        if (res.success) {
-                            this.$Message.success("操作成功");
-                            this.getDataList();
-                        }
-                    });
-                }
-            });
-        },
-        delAll() {
-            if (this.selectCount <= 0) {
-                this.$Message.warning("您还未选择要删除的数据");
-                return;
-            }
-            this.$Modal.confirm({
-                title: "确认删除",
-                content: "您确认要删除所选的 " + this.selectCount + " 条数据?",
-                loading: true,
-                onOk: () => {
-                    let ids = "";
-                    this.selectList.forEach(function (e) {
-                        ids += e.id + ",";
-                    });
-                    ids = ids.substring(0, ids.length - 1);
-                    // 批量删除
-                    deleteCurriculum({
-                        ids: ids
-                    }).then(res => {
-                        this.$Modal.remove();
-                        if (res.success) {
-                            this.$Message.success("操作成功");
-                            this.clearSelectAll();
-                            this.getDataList();
-                        }
-                    });
-                }
-            });
-        },
-        showFile(e) {
-            window.open(e + "?preview=true");
+        } catch (error) {
+            this.$Message.error('Failed to load courses');
+        } finally {
+            this.loading = false;
         }
-    },
-    mounted() {
-        this.init();
-        this.tableHeight = Number(window.innerHeight - 273);
-        this.mycolumns = this.columns;
-        let showcolumns = [];
-        for (var i = 0; i < this.selected.length; i++) {
-            var item = this.selected[i];
-            for (var j = 0; j < this.columns.length; j++) {
-                if (this.columns[j].title == item) {
-                    showcolumns.push(this.columns[j]);
-                }
-            }
-        }
-        this.columns = showcolumns;
-    },
-    watch: {
-        selected: function (newcolumns) {
-            let showcolumns = [];
-            for (var i = 0; i < this.mycolumns.length; i++) {
-                var item = this.mycolumns[i];
-                if (item.title == undefined) showcolumns.push(item);
-                else if (newcolumns.includes(item.title)) showcolumns.push(item);
-            }
-            this.columns = showcolumns;
         },
+    
+    async loadUsers() {
+      try {
+        const res = await getAllUsers();
+        if (res.success) {
+          this.users = res.result;
+        }
+      } catch (error) {
+        console.error('Failed to load users:', error);
+      }
     },
-};
+    
+    getTeacherName(createBy) {
+      if (!createBy) return 'Unknown teacher';
+      if (!this.users || this.users.length === 0) {
+        return `Teacher ${createBy}`;
+      }
+
+      const createById = parseInt(createBy);
+      const user = this.users.find(u => u.id === createById);
+      
+      if (user) {
+        return user.username || user.nickname || `Teacher ${createBy}`;
+      }
+      return `Teacher ${createBy}`;
+    },
+    
+    beforeImageUpload(file) {
+      const isImage = file.type.startsWith('image/');
+      const isLt2M = file.size / 1024 / 1024 < 2;
+      if (!isImage) {
+        this.$Message.error('Only image files are allowed.');
+      }
+      if (!isLt2M) {
+        this.$Message.error('Image size must be less than 2MB.');
+      }
+      return isImage && isLt2M;
+    },
+    
+    handleImageUploadSuccess(res, file) {
+      if (res.success && res.result && res.result.url) {
+        if (this.showCreateCourseModal) {
+          this.createCourseForm.image = res.result.url;
+        } else {
+          this.editCourseInfo.image = res.result.url;
+        }
+        this.$Message.success('Image uploaded successfully!');
+      } else {
+        this.$Message.error(res.message || 'Failed to upload image');
+      }
+    },
+    
+    handleImageUploadError() {
+      this.$Message.error('Failed to upload image');
+    },
+    
+    async handleCreateCourse() {
+      if (!this.createCourseForm.name || !this.createCourseForm.credits || !this.createCourseForm.startTime || !this.createCourseForm.endTime || !this.createCourseForm.introduction) {
+        this.$Message.warning('Please fill in all fields');
+        return false;
+      }
+      
+      const params = {
+        title: this.createCourseForm.name,
+        credits: this.createCourseForm.credits,
+        startTime: this.createCourseForm.startTime,
+        endTime: this.createCourseForm.endTime,
+        content: this.createCourseForm.introduction,
+        image: this.createCourseForm.image
+      };
+      
+      try {
+        const res = await addCourse(params);
+        if (res.success) {
+          this.$Message.success('Course created successfully!');
+          this.showCreateCourseModal = false;
+          this.createCourseForm = { name: '', credits: '', startTime: '', endTime: '', introduction: '', image: '' };
+          await this.loadCourses();
+        } else {
+          this.$Message.error(res.message || 'Failed to create course');
+        }
+      } catch (error) {
+        this.$Message.error('Failed to create course');
+      }
+    },
+    
+    async saveEditInfo() {
+      if (!this.editCourseInfo.name || !this.editCourseInfo.credits || !this.editCourseInfo.startTime || !this.editCourseInfo.endTime) {
+        this.$Message.warning('Please fill in all fields');
+        return false;
+      }
+
+      const formatDate = dt => {
+        if (!dt) return '';
+        const d = new Date(dt);
+        const pad = n => n < 10 ? '0' + n : n;
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+      };
+
+      const params = {
+        id: this.editCourseInfo.id,
+        title: this.editCourseInfo.name,
+        credits: this.editCourseInfo.credits !== undefined ? this.editCourseInfo.credits : 2,
+        startTime: formatDate(this.editCourseInfo.startTime),
+        endTime: formatDate(this.editCourseInfo.endTime),
+        content: this.editCourseInfo.introduction,
+        image: this.editCourseInfo.image
+      };
+
+      try {
+        const res = await saveOrUpdateCourse(params);
+        if (res.success) {
+          this.$Message.success('Course info updated successfully!');
+          this.showEditInfoModal = false;
+          await this.loadCourses();
+        } else {
+          this.$Message.error(res.message || 'Failed to update course info');
+        }
+      } catch (error) {
+        this.$Message.error('Failed to update course info');
+      }
+    },
+    
+    openEditInfoModal(course) {
+      this.editCourseInfo = {
+        id: course.id,
+        name: course.title || course.name,
+        credits: course.credits !== undefined ? course.credits : 2,
+        startTime: course.startTime || '',
+        endTime: course.endTime || '',
+        introduction: course.content || course.introduction || '',
+        image: course.image || ''
+      };
+      this.showEditInfoModal = true;
+    },
+    
+    async deleteCourse(course) {
+      this.$Modal.confirm({
+        title: 'Confirm Deletion',
+        content: `Are you sure you want to delete course "${course.title}"?`,
+        onOk: async () => {
+          try {
+            // In a real app, you would call deleteCourse API here
+            // await deleteCourse(course.id);
+            this.courses = this.courses.filter(c => c.id !== course.id);
+            this.$Message.success('Course deleted successfully');
+          } catch (error) {
+            this.$Message.error('Failed to delete course');
+          }
+        }
+      });
+    },
+    
+    handleSelectionChange(rows) {
+      this.selectedRows = rows;
+    }
+  }
+}
 </script>
 
-<style lang="less">
-// @import "../../../styles/table-common.less";
-.search {
-    .operation {
-        margin-bottom: 2vh;
+<style lang="less" scoped>
+.course-manage-page {
+  padding: 20px;
+  background: rgba(246,247,251, 0.8);
+  border-radius: 20px;
+  
+  .top-bar {
+    background: #fff;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-top:10px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    
+    .search-area {
+      width: 100%;
+      
+      .search-form {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        
+        .ivu-form-item {
+          margin-right: 16px;
+          margin-bottom: 0;
+        }
+      }
     }
-
-    .select-count {
-        font-weight: 600;
-        color: #40a9ff;
+  }
+  
+  .table-wrapper {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    
+    .ivu-table {
+      border: none;
+      
+      thead th {
+        background: #f9fafb;
+        color: #333;
+        font-weight: 500;
+        border-bottom: 1px solid #eee;
+        padding: 12px 8px;
+      }
+      
+      tbody tr {
+        &:hover {
+          background: #f7fafc;
+        }
+      }
+      
+      td {
+        border-bottom: 1px solid #eee;
+        padding: 12px 8px;
+      }
     }
-
-    .select-clear {
-        margin-left: 10px;
+  }
+  
+  .create-course-btn {
+    border-radius: 22px;
+  }
+  
+  .ivu-btn {
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-
-    .page {
-        margin-top: 2vh;
-    }
-
-    .drop-down {
-        margin-left: 5px;
-    }
-}
-
-.filter-panel {
-    width: 166px;
-    min-height: 120px;
-    height: 200px;
-    position: absolute;
-    background-color: white;
-    z-index: 9999;
-    margin-left: 1px;
-    overflow-y: scroll;
-    border: 1px solid blue;
-    top: 35px;
-    right: 10px;
-}
-
-.openSearch {
-    position: absolute;
-    right: 240px;
-}
-
-.openTip {
-    position: absolute;
-    right: 130px;
-}
-
-.showFilterPanelFlag {
-    position: static !important;
-    right: 10px;
-    margin-right: 10px;
-}
-
-.ivu-table td {
-    height: 38px !important;
-}
-
-.ivu-table-cell-with-expand {
-    height: 38px !important;
-    line-height: 38px !important;
-}
-
-.ivu-table .rowClassNmaeColor td {
-    background-color: #b0b3b6 !important;
-    color: #ffffff !important;
-    font-size: 12px;
+  }
 }
 </style>

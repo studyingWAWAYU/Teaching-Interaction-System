@@ -1,7 +1,9 @@
 {
   "name": "WisdomLink",
   "version": "1.0.0",
-  "description": "教学资源共享平台",
+
+  "description": "Teaching Interaction System",
+
   "author": "",
   "private": true,
   "scripts": {

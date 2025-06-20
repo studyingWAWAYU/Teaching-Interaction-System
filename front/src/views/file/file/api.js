@@ -22,3 +22,6 @@ export const getOneSetting = (params) => {
 export const setOneSetting = (params) => {
     return getRequest('/setting/setOne', params)
 }
+export const downloadFile = (id) => {
+    return `${window.location.origin}/wl/file/download/${id}`;
+}
