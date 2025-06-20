@@ -280,8 +280,8 @@ CREATE TABLE IF NOT EXISTS `course` (
 
 DELETE FROM `course`;
 INSERT INTO `course` (`id`, `create_by`, `start_time`,end_time, `content`, `image`, `status`, `title`,credit) VALUES
-                                                                                                           (1, 2, '2025-06-09', '2025-06-12', 'Java Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071506217668608.png', 'Normal', 'Java Program Design',3.0),
-                                                                                                           (2, 2, '2025-06-09', '2025-06-12', 'Python Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071540472549376.png', 'Normal', 'Python Program Design',3.0);
+                                                                                                           (1, 2, '2025-06-09', '2025-06-12', 'Java Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071506217668608.png', 'Onging', 'Java Program Design',3.0),
+                                                                                                           (2, 2, '2025-06-09', '2025-06-12', 'Python Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071540472549376.png', 'Closed', 'Python Program Design',3.0);
 
 DROP TABLE IF EXISTS `gradebook`;
 CREATE TABLE IF NOT EXISTS `gradebook` (
