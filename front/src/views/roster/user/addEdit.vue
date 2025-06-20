@@ -1,72 +1,72 @@
 <template>
 <div class="user-edit">
-    <Modal :title="title" v-model="visible" width="90" draggable :mask-closable="type=='0'" ok-text="确认提交" @on-ok="submit">
+    <Modal :title="title" v-model="visible" width="90" draggable :mask-closable="type=='0'" ok-text="Confirm Submission" @on-ok="submit">
 
         <Row :gutter="16" justify="center">
-            <div class="info-title"><span v-show="type!='2'">登录账号{{form.username}}（唯一标识{{form.id}}） </span>
+            <div class="info-title"><span v-show="type!='2'">Login Account {{form.username}} (Unique ID {{form.id}})</span>
                 <Icon v-show="form.status==-1" type="md-lock" size="18" style="margin-left:10px;cursor:pointer" />
             </div>
         </Row>
         <Form ref="form" :model="form" :rules="formValidate" label-position="top">
             <Row :gutter="16" v-if="type=='2'">
                 <Col span="12">
-                <FormItem label="登录账号" prop="username" style="width:100%">
+                <FormItem label="Login Account" prop="username" style="width:100%">
                     <Input v-model="form.username" autocomplete="off" :maxlength="16" />
                 </FormItem>
                 </Col>
                 <Col span="12">
-                <FormItem label="密码" prop="password" style="width:100%">
+                <FormItem label="Password" prop="password" style="width:100%">
                     <SetPassword v-model="form.password" @on-change="changePass" />
                 </FormItem>
                 </Col>
             </Row>
             <Row :gutter="16">
                 <Col span="12">
-                <FormItem label="用户名" prop="nickname" style="width:100%">
+                <FormItem label="Full Name" prop="nickname" style="width:100%">
                     <Input v-model="form.nickname" />
                 </FormItem>
                 </Col>
                 <Col span="12">
-                <FormItem label="邮箱" prop="email" style="width:100%">
+                <FormItem label="Email" prop="email" style="width:100%">
                     <Input v-model="form.email" />
                 </FormItem>
                 </Col>
             </Row>
             <Row :gutter="16">
                 <Col span="12">
-                <FormItem label="手机号" prop="mobile" style="width:100%">
+                <FormItem label="Phone Number" prop="mobile" style="width:100%">
                     <Input v-model="form.mobile" />
                 </FormItem>
                 </Col>
                 <Col span="12">
-                <FormItem label="性别" style="width:100%">
-                    <dict dict="sex" v-model="form.sex" transfer clearable placeholder="选择性别" />
+                <FormItem label="Gender" style="width:100%">
+                    <dict dict="sex" v-model="form.sex" transfer clearable placeholder="Select Gender" />
                 </FormItem>
                 </Col>
             </Row>
             <Row :gutter="16">
                 <Col span="12">
-                <FormItem label="所属部门" style="width:100%">
+                <FormItem label="Department" style="width:100%">
                     <department-tree-choose @on-change="handleSelectDepTree" ref="depTree"></department-tree-choose>
                 </FormItem>
                 </Col>
                 <Col span="12">
-                <FormItem label="用户类型" style="width:100%">
-                    <Select v-model="form.type" placeholder="请选择用户类型">
-                        <Option :value="0">普通用户</Option>
-                        <Option :value="1">管理员</Option>
+                <FormItem label="User Type" style="width:100%">
+                    <Select v-model="form.type" placeholder="Select User Type">
+                        <Option :value="0">General User</Option>
+                        <Option :value="1">Administrator</Option>
                     </Select>
                 </FormItem>
                 </Col>
             </Row>
             <Row :gutter="16">
                 <Col span="12">
-                <FormItem label="头像" style="width:100%">
+                <FormItem label="Avatar" style="width:100%">
                     <upload-pic-input v-model="form.avatar"></upload-pic-input>
                 </FormItem>
                 </Col>
                 <Col span="12">
-                <FormItem label="角色" prop="roleIds" style="width:100%">
+                <FormItem label="Roles" prop="roleIds" style="width:100%">
                     <Select v-model="form.roleIds" multiple>
                         <Option v-for="item in roleList" :value="item.id" :key="item.id" :label="item.name">
                             <span style="margin-right:10px;">{{ item.name }}</span>
@@ -129,7 +129,7 @@ export default {
             formValidate: {
                 username: [{
                         required: true,
-                        message: "请输入登录账号",
+                        message: "Please enter login account",
                         trigger: "blur"
                     },
                     {
@@ -139,12 +139,12 @@ export default {
                 ],
                 nickname: [{
                     required: true,
-                    message: "请输入用户名",
+                    message: "Please enter full name",
                     trigger: "blur"
                 }],
                 mobile: [{
                         required: true,
-                        message: "请输入手机号",
+                        message: "Please enter phone number",
                         trigger: "blur"
                     },
                     {
@@ -154,7 +154,7 @@ export default {
                 ],
                 password: [{
                         required: true,
-                        message: "请输入密码",
+                        message: "Please enter password",
                         trigger: "blur"
                     },
                     {
@@ -164,11 +164,11 @@ export default {
                 ],
                 email: [{
                         required: true,
-                        message: "请输入邮箱地址"
+                        message: "Please enter email address"
                     },
                     {
                         type: "email",
-                        message: "邮箱格式不正确"
+                        message: "Invalid email format"
                     }
                 ]
             },
@@ -203,7 +203,7 @@ export default {
                         editUser(this.form).then(res => {
                             this.submitLoading = false;
                             if (res.success) {
-                                this.$Message.success("操作成功");
+                                this.$Message.success("Operation successful");
                                 this.$emit("on-submit", true);
                                 this.visible = false;
                             }
@@ -213,7 +213,7 @@ export default {
                         addUser(this.form).then(res => {
                             this.submitLoading = false;
                             if (res.success) {
-                                this.$Message.success("操作成功");
+                                this.$Message.success("Operation successful");
                                 this.$emit("on-submit", true);
                                 this.visible = false;
                             }
@@ -227,25 +227,25 @@ export default {
                 return;
             }
             if (this.type == "1") {
-                this.title = "编辑";
+                this.title = "Edit User";
             } else if (this.type == "2") {
-                this.title = "添加";
+                this.title = "Add User";
             } else {
-                this.title = "详情";
+                this.title = "User Details";
             }
             this.$refs.form.resetFields();
             if (this.type == "0" || this.type == "1") {
-                // 回显数据
+                // Populate data
                 let data = this.data;
-                // 地址
+                // Address
                 if (data.address) {
                     data.addressArray = JSON.parse(data.address);
                 } else {
                     data.addressArray = [];
                 }
-                // 部门
+                // Department
                 this.$refs.depTree.setData(data.departmentId, data.departmentTitle);
-                // 角色
+                // Roles
                 let selectRolesId = [];
                 data.roles.forEach(function (e) {
                     selectRolesId.push(e.id);
@@ -253,18 +253,18 @@ export default {
                 data.roleIds = selectRolesId;
                 delete data.roles;
                 delete data.permissions;
-                // 密码强度
-                if (data.passStrength == "弱") {
+                // Password strength
+                if (data.passStrength == "Weak") {
                     this.passColor = "#ed3f14";
-                } else if (data.passStrength == "中") {
+                } else if (data.passStrength == "Medium") {
                     this.passColor = "#faad14";
-                } else if (data.passStrength == "强") {
+                } else if (data.passStrength == "Strong") {
                     this.passColor = "#52c41a";
                 }
-                // 回显
+                // Populate form
                 this.form = data;
             } else {
-                // 添加
+                // Add new user
                 this.$refs.depTree.setData("", "");
                 this.form = {
                     type: 0,
@@ -291,4 +291,4 @@ export default {
 
 <style lang="less">
 
-</style>
+</style>    

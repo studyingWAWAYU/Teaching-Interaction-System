@@ -3,14 +3,14 @@
 <template>
 <div>
     <Card>
-        <p slot="title">编辑</p>
+        <p slot="title">Edit</p>
         <Form ref="form" :model="form" :label-width="90" :rules="formValidate" style="position:relative">
-            <FormItem label="名称" prop="name">
+            <FormItem label="Name" prop="name">
                 <Input v-model="form.name" style="width: 400px" />
             </FormItem>
             <Form-item class="br">
-                <Button @click="handleSubmit" :loading="submitLoading" type="primary">提交并保存</Button>
-                <Button @click="handleReset">重置</Button>
+                <Button @click="handleSubmit" :loading="submitLoading" type="primary">Submit and Save</Button>
+                <Button @click="handleReset">Reset</Button>
             </Form-item>
             <Spin size="large" fix v-if="loading"></Spin>
         </Form>
@@ -23,17 +23,17 @@ export default {
     name: "edit",
     data() {
         return {
-            loading: true, // 表单加载状态
-            submitLoading: false, // 表单提交状态
+            loading: true, // Form loading status
+            submitLoading: false, // Form submission status
             form: {
                 id: "",
                 name: ""
             },
-            // 表单验证规则
+            // Form validation rules
             formValidate: {
                 name: [{
                     required: true,
-                    message: "不能为空",
+                    message: "Cannot be empty",
                     trigger: "blur"
                 }]
             },
@@ -52,10 +52,10 @@ export default {
         },
         getData() {
             this.loading = true;
-            // this.getRequest("请求地址，如/getById/" + this.form.id).then(res => {
+            // this.getRequest("Request URL, such as /getById/" + this.form.id).then(res => {
             //   this.loading = false;
             //   if (res.success) {
-            //     // 转换null为""
+            //     // Convert null to ""
             //     let v = res.result
             //     for (let attr in v) {
             //       if (v[attr] == null) {
@@ -67,7 +67,7 @@ export default {
             //     this.form = data;
             //   }
             // });
-            // 模拟获取数据成功
+            // Simulate successful data retrieval
             this.loading = false;
             if (this.form.id == "1") {
                 this.form.name = "wl";
@@ -78,14 +78,14 @@ export default {
         handleSubmit() {
             this.$refs.form.validate(valid => {
                 if (valid) {
-                    // 模拟成功
+                    // Simulate success
                     this.submitLoading = false;
-                    this.$Message.success("编辑成功");
+                    this.$Message.success("Edit successful");
                     this.closeCurrentPage();
                 }
             });
         },
-        // 关闭当前页面
+        // Close current page
         closeCurrentPage() {
             this.$store.commit("removeTag", "edit");
             localStorage.pageOpenedList = JSON.stringify(
@@ -97,7 +97,7 @@ export default {
         }
     },
     watch: {
-        // 监听路由变化通过id获取数据
+        // Listen for route changes to get data by ID
         $route(to, from) {
             if (to.name == "edit") {
                 this.handleReset();

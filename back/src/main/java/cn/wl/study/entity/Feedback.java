@@ -38,10 +38,6 @@ public class Feedback {
     @ApiModelProperty(value="创建人的ID")
     private Integer createBy;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField(fill = FieldFill.INSERT)
-    @CreatedDate
     @ApiModelProperty(value = "创建时间")
     private Date createTime;
 

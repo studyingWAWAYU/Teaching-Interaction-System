@@ -19,7 +19,7 @@ export default {
         dict: String,
         placeholder: {
             type: String,
-            default: "请选择",
+            default: "Please select",
         },
         placement: {
             type: String,

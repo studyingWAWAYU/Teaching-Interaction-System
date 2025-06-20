@@ -115,13 +115,13 @@ export default {
         handleSuccess(res, file) {
             if (res.success) {
                 file.url = res.result;
-                // 单张图片处理
+                // Single image processing
                 if (!this.multiple && this.uploadList.length > 0) {
-                    // 删除第一张
+                    // Remove the first one
                     this.uploadList.splice(0, 1);
                 }
                 this.uploadList.push(file);
-                // 返回组件值
+                // Return component value
                 this.returnValue();
             } else {
                 this.$Message.error(res.message);
@@ -132,27 +132,27 @@ export default {
         },
         handleFormatError(file) {
             this.$Notice.warning({
-                title: "不支持的文件格式",
-                desc: "所选文件‘ " +
+                title: "Unsupported file format",
+                desc: "The selected file ' " +
                     file.name +
-                    " ’格式不正确, 请选择 " +
+                    " ' has an incorrect format. Please select " +
                     this.accept +
-                    " 图片格式文件"
+                    " image format files"
             });
         },
         handleMaxSize(file) {
             this.$Notice.warning({
-                title: "文件大小过大",
-                desc: "所选文件‘ " +
+                title: "File size exceeds limit",
+                desc: "The selected file ' " +
                     file.name +
-                    " ’大小过大, 不得超过 " +
+                    " ' is too large. It must not exceed " +
                     this.maxSize +
                     "M."
             });
         },
         handleBeforeUpload() {
             if (this.multiple && this.uploadList.length >= this.limit) {
-                this.$Message.warning("最多只能上传" + this.limit + "张图片");
+                this.$Message.warning("Up to " + this.limit + " images can be uploaded");
                 return false;
             }
             return true;
@@ -169,7 +169,7 @@ export default {
                 return;
             }
             if (!this.multiple) {
-                // 单张
+                // Single image
                 let v = this.uploadList[0].url;
                 this.$emit("input", v);
                 this.$emit("on-change", v);
@@ -184,9 +184,9 @@ export default {
         },
         setData(v, init) {
             if (typeof v == "string") {
-                // 单张
+                // Single image
                 if (this.multiple) {
-                    this.$Message.warning("多张上传仅支持数组数据类型");
+                    this.$Message.warning("Multiple upload only supports array data type");
                     return;
                 }
                 if (!v) {
@@ -200,9 +200,9 @@ export default {
                 this.uploadList.push(item);
                 this.$emit("on-change", v);
             } else if (typeof v == "object") {
-                // 多张
+                // Multiple images
                 if (!this.multiple) {
-                    this.$Message.warning("单张上传仅支持字符串数据类型");
+                    this.$Message.warning("Single upload only supports string data type");
                     return;
                 }
                 this.uploadList = [];
@@ -218,7 +218,7 @@ export default {
                     if (init) {
                         this.$emit("input", v.slice(0, this.limit));
                     }
-                    this.$Message.warning("最多只能上传" + this.limit + "张图片");
+                    this.$Message.warning("Up to " + this.limit + " images can be uploaded");
                 } else {
                     v.forEach(e => {
                         let item = {
