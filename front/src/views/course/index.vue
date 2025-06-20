@@ -19,12 +19,12 @@
               </div>
               <div class="meta-item">
                 <Icon type="ios-school" />
-                <span v-if="!editInfoMode">Credits:&nbsp; {{ courseInfo.credits || 2 }}</span>
+                <span v-if="!editInfoMode">Credits:&nbsp; {{  Number(courseInfo.credits).toFixed(2) }}</span>
                 <Input v-else v-model="editCourseInfo.credits" style="width:80px;display:inline-block;" />
               </div>
               <div class="meta-item">
                 <Icon type="ios-time" />
-                <span v-if="!editInfoMode">Course Time:&nbsp; {{ formattedCourseTime }}</span>
+                <span v-if="!editInfoMode">Course Time:&nbsp; {{ formatDate(courseInfo.startTime) }} ~ {{ formatDate(courseInfo.endTime) }}</span>
                 <Input v-else v-model="editCourseInfo.Time" style="width:180px;display:inline-block;" />
               </div>
             </div>
@@ -81,19 +81,19 @@
       </Tabs>
     </Card>
 
-    <Modal v-model="showEditInfoModal" title="Edit Course Info" @on-ok="saveEditInfo">
+    <Modal v-model="showEditInfoModal" title="Edit Course Info" @on-ok="saveEditInfo" ok-text="OK" cancel-text="Cancel">
       <Form :model="editCourseInfo" :label-width="100">
         <FormItem label="Course Name">
-          <Input v-model="editCourseInfo.name" placeholder="Enter course name" />
+          <Input v-model="editCourseInfo.name" />
         </FormItem>
         <FormItem label="Credits">
-          <InputNumber v-model="editCourseInfo.credits" :min="1" :max="10" placeholder="Enter credits" style="width:100%;" />
+          <InputNumber v-model="editCourseInfo.credits" :min="1.00" :max="10.00" :step="0.10" :precision="2" style="width:100%;" />
         </FormItem>
         <FormItem label="Start Time">
-          <DatePicker v-model="editCourseInfo.startTime" type="date" format="yyyy-MM-dd" style="width:100%" :options="{ lang: 'en' }" />
+          <DatePicker v-model="editCourseInfo.startTime" type="date" format="yyyy-MM-dd" style="width:100%"  />
         </FormItem>
         <FormItem label="End Time">
-          <DatePicker v-model="editCourseInfo.endTime" type="date" format="yyyy-MM-dd" style="width:100%" :options="{ lang: 'en' }" />
+          <DatePicker v-model="editCourseInfo.endTime" type="date" format="yyyy-MM-dd" style="width:100%"  />
         </FormItem>
       </Form>
     </Modal>
@@ -127,8 +127,9 @@ export default {
         id: null,
         name: '',
         instructor: '',
-        Time: '',
-        credits: 0,
+        startTime: '',
+        endTime: '',
+        credits: 0.00,
         image: '',
         introduction: '',
       },
@@ -139,7 +140,7 @@ export default {
       showEditInfoModal: false,
       editCourseInfo: {
         name: '',
-        credits: '',
+        credits: 0.00,
         startTime: '',
         endTime: ''
       }
@@ -168,19 +169,6 @@ export default {
         console.error('解析用户信息失败:', error)
         return false
       }
-    },
-    formattedCourseTime() {
-      if (this.courseInfo.startTime && this.courseInfo.endTime) {
-        // 格式化为 yyyy-MM-dd
-        const format = dt => {
-          if (!dt) return '';
-          const d = new Date(dt);
-          const pad = n => n < 10 ? '0' + n : n;
-          return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-        };
-        return `${format(this.courseInfo.startTime)} ~ ${format(this.courseInfo.endTime)}`;
-      }
-      return this.courseInfo.Time || '';
     }
   },
   methods: {
@@ -212,13 +200,13 @@ export default {
           // 转换数据格式，确保字段匹配
           this.courseInfo = {
             id: res.result.id,
-            name: res.result.title || res.result.name,
+            name: res.result.title,
             instructor: this.getTeacherName(res.result.createBy),
-            Time: this.formatTimeRange(res.result.startTime, res.result.endTime),
-            credits: res.result.credits !== undefined ? res.result.credits : 2,
+            startTime: res.result.startTime,
+            endTime: res.result.endTime,
+            credits: res.result.credit,
             image: res.result.image,
             introduction: res.result.content,
-            objectives: res.result.content,
             status: res.result.status || 'Normal'
           };
           this.isEnrolled = res.result.status === 'enrolled';
@@ -238,26 +226,6 @@ export default {
         return user.username || user.nickname ||  `教师${createBy}`;
       }
       return `教师${createBy}`;
-    },
-    
-    formatTimeRange(startTime, endTime) {
-      if (!startTime || !endTime) {
-        return 'Time to be comfirmed';
-      }
-      
-      try {
-        const start = new Date(startTime);
-        const end = new Date(endTime);
-        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-          return '时间格式错误';
-        }
-        // 只显示年月日，格式：YYYY-MM-DD
-        const startStr = start.toISOString().split('T')[0];
-        const endStr = end.toISOString().split('T')[0];
-        return `${startStr} - ${endStr}`;
-      } catch (error) {
-        return '时间格式错误';
-      }
     },
     
     async getCourseReviews() {
@@ -315,7 +283,6 @@ export default {
         if (res.success) {
           this.isEnrolled = !this.isEnrolled;
           this.$Message.success(this.isEnrolled ? '选课成功' : '退课成功');
-          // 更新课程信息
           this.getCourseInfo();
         } else {
           this.$Message.error(this.isEnrolled ? '退课失败' : '选课失败');
@@ -326,7 +293,6 @@ export default {
     },
 
     async saveEditInfo() {
-      // 校验
       if (!this.editCourseInfo.name || !this.editCourseInfo.credits || !this.editCourseInfo.startTime || !this.editCourseInfo.endTime) {
         this.$Message.warning('Please fill in all fields');
         return false;
@@ -335,20 +301,12 @@ export default {
         this.$Message.warning('Credits must be between 1 and 10');
         return false;
       }
-      // 格式化时间
-      const formatDate = dt => {
-        if (!dt) return '';
-        const d = new Date(dt);
-        const pad = n => n < 10 ? '0' + n : n;
-        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-      };
       const params = {
         id: this.courseInfo.id,
         title: this.editCourseInfo.name,
-        credits: this.editCourseInfo.credits !== undefined ? this.editCourseInfo.credits : 2,
-        startTime: formatDate(this.editCourseInfo.startTime),
-        endTime: formatDate(this.editCourseInfo.endTime),
-        content: this.courseInfo.introduction,
+        credits: this.editCourseInfo.credits,
+        startTime: this.editCourseInfo.startTime,
+        endTime: this.editCourseInfo.endTime,
         image: this.courseInfo.image
       };
       try {
@@ -367,17 +325,23 @@ export default {
 
     updateIntroduction(newIntro) {
       this.courseInfo.introduction = newIntro
-      // 可在此处调用API保存
     },
 
     openEditInfoModal() {
       this.editCourseInfo = {
         name: this.courseInfo.name,
-        credits: this.courseInfo.credits !== undefined ? this.courseInfo.credits : 2,
+        credits: this.courseInfo.credits,
         startTime: this.courseInfo.startTime ? new Date(this.courseInfo.startTime) : '',
         endTime: this.courseInfo.endTime ? new Date(this.courseInfo.endTime) : ''
       };
       this.showEditInfoModal = true;
+    },
+
+    formatDate(dt) {
+      if (!dt) return '';
+      const d = new Date(dt);
+      const pad = n => n < 10 ? '0' + n : n;
+      return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
     }
   }
 }

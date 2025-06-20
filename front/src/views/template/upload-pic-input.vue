@@ -2,17 +2,17 @@
 <div>
     <div style="display:flex;">
         <Input v-model="currentValue" @on-change="handleChange" :placeholder="placeholder" :size="size" :disabled="disabled" :readonly="readonly" :maxlength="maxlength" icon="md-eye" style="margin-right:10px;">
-        <Poptip transfer trigger="hover" title="图片预览" placement="right" width="350" style="width: 17px;cursor:pointer" slot="append">
+        <Poptip transfer trigger="hover" title="Image Preview" placement="right" width="350" style="width: 17px;cursor:pointer" slot="append">
             <Button type="primary" icon="md-eye"></Button>
             <div slot="content">
                 <img v-show="currentValue" :src="currentValue" style="width: 100%;margin: 0 auto;display: block;cursor:zoom-in" @click="viewImage" />
-                <span v-show="!currentValue">无效的图片链接</span>
-                <a v-show="currentValue" @click="viewImage" style="margin-top:5px;text-align:right;display:block">查看大图</a>
+                <span v-show="!currentValue">Invalid image link</span>
+                <a v-show="currentValue" @click="viewImage" style="margin-top:5px;text-align:right;display:block">View large image</a>
             </div>
         </Poptip>
         </Input>
         <Upload :action="uploadFileUrl" :headers="accessToken" :on-success="handleSuccess" :on-error="handleError" :format="format" :accept="accept" :max-size="maxSize*1024" :on-format-error="handleFormatError" :on-exceeded-size="handleMaxSize" :before-upload="beforeUpload" :show-upload-list="false">
-            <Button :loading="loading" :size="size" :disabled="disabled" :icon="icon">上传图片</Button>
+            <Button :loading="loading" :size="size" :disabled="disabled" :icon="icon">Upload Image</Button>
         </Upload>
     </div>
 </div>
@@ -31,7 +31,7 @@ export default {
         size: String,
         placeholder: {
             type: String,
-            default: "可输入图片链接"
+            default: "Can enter image link"
         },
         disabled: {
             type: Boolean,
@@ -95,19 +95,19 @@ export default {
         handleFormatError(file) {
             this.loading = false;
             this.$Notice.warning({
-                title: "不支持的文件格式",
-                desc: "所选文件‘ " +
+                title: "Unsupported file format",
+                desc: "The selected file ' " +
                     file.name +
-                    " ’格式不正确, 请选择 " + this.accept + " 格式文件"
+                    " ' has an incorrect format. Please select " + this.accept + " format files"
             });
         },
         handleMaxSize(file) {
             this.loading = false;
             this.$Notice.warning({
-                title: "文件大小过大",
-                desc: "所选文件‘ " +
+                title: "File size exceeds limit",
+                desc: "The selected file ' " +
                     file.name +
-                    " ’大小过大, 不得超过 " +
+                    " ' is too large. It must not exceed " +
                     this.maxSize +
                     "M."
             });

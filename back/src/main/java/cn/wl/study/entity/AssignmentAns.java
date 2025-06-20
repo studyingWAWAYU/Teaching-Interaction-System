@@ -12,12 +12,14 @@ import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.Data;
+import net.bytebuddy.asm.Advice;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -42,12 +44,8 @@ public class AssignmentAns {
     @ApiModelProperty(value = "作业附件")
     private String file;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField(fill = FieldFill.INSERT)
-    @CreatedDate
     @ApiModelProperty(value = "创建时间")
-    private Date uploadTime;
+    private LocalDate uploadTime;
 
     @ApiModelProperty(value = "上传作业的学生ID")
     private Integer studentId;
