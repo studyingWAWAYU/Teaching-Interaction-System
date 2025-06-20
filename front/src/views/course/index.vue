@@ -87,7 +87,7 @@
           <Input v-model="editCourseInfo.name" />
         </FormItem>
         <FormItem label="Credits">
-          <InputNumber v-model="editCourseInfo.credits" :min="1.00" :max="10.00" :step="0.10" :precision="2" style="width:100%;" />
+          <InputNumber v-model="editCourseInfo.credits" :min="1.00" :max="10.00" :step="0.50" :precision="2" style="width:100%;" />
         </FormItem>
         <FormItem label="Start Time">
           <DatePicker v-model="editCourseInfo.startTime" type="date" format="yyyy-MM-dd" style="width:100%"  />

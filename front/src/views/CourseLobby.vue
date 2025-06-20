@@ -31,20 +31,20 @@
             class="status-select" 
             clearable
             transfer>
-            <Option value="open" label="Open" />
-            <Option value="ongoing" label="Ongoing" />
-            <Option value="closed" label="Closed" />
+            <Option value="Upcoming" label="Upcoming" />
+            <Option value="Ongoing" label="Ongoing" />
+            <Option value="Closed" label="Closed" />
           </Select>
           <Button v-if="isTeacher" type="primary" class="create-course-btn" @click="showCreateCourseModal = true">Create New Course</Button>
         </div>
 
         <Modal v-model="showCreateCourseModal" title="Create New Course" ok-text="OK" cancel-text="Cancel" @on-ok="handleCreateCourse">
-          <Form :model="createCourseForm" :label-width="150">
+          <Form :model="createCourseForm" :label-width="180">
             <FormItem label="Course Name：">
               <Input v-model="createCourseForm.name"  />
             </FormItem>
             <FormItem label="Credits：">
-              <InputNumber v-model="createCourseForm.credits" :min="1" :max="10" style="width:100%;" />
+              <InputNumber v-model="createCourseForm.credits" :min="1.00" :max="10.00" :step="0.50" :precision="2" style="width:100%;" />
             </FormItem>
             <FormItem label="Start Time：">
               <DatePicker v-model="createCourseForm.startTime" type="date" format="yyyy-MM-dd" style="width:100%" />
@@ -52,7 +52,7 @@
             <FormItem label="End Time：">
               <DatePicker v-model="createCourseForm.endTime" type="date" format="yyyy-MM-dd" style="width:100%" />
             </FormItem>
-            <FormItem label="Course Image：">
+            <FormItem label="Image (optional)：">
               <Upload
                 :action="uploadFileUrl"
                 :headers="uploadHeaders"
@@ -61,13 +61,14 @@
                 :on-success="handleImageUploadSuccess"
                 :on-error="handleImageUploadError"
                 accept="image/*">
-                <Button type="primary">Upload</Button>
+                <Button type="primary" v-if="!uploadFileName">Upload</Button>
+                <Button type="dashed" v-else style="cursor:default;pointer-events:none;">{{ uploadFileName }}</Button>
               </Upload>
               <div v-if="createCourseForm.image" style="margin-top:10px;">
                 <img :src="createCourseForm.image" alt="Course Image" style="max-width: 180px; max-height: 120px; border-radius: 8px; border:1px solid #eee;" />
               </div>
             </FormItem>
-            <FormItem label="Course Introduction：">
+            <FormItem label="Introduction (optional)：">
               <Input v-model="createCourseForm.introduction" type="textarea" :rows="4" />
             </FormItem>
           </Form>
@@ -125,6 +126,7 @@ export default {
         introduction: '',
         image: ''
       },
+      uploadFileName: '',
       uploadFileUrl: '/wl' + uploadFile,
       uploadHeaders: {
         accessToken: getStore('accessToken')
@@ -133,7 +135,24 @@ export default {
   },
   computed: {
     filteredCourses() {
+      // 计算课程状态
+      const now = new Date();
       return this.courses
+        .map(course => {
+          let status = 'Upcoming';
+          if (course.startTime && course.endTime) {
+            const start = new Date(course.startTime);
+            const end = new Date(course.endTime);
+            if (now < start) {
+              status = 'Upcoming';
+            } else if (now >= start && now <= end) {
+              status = 'Ongoing';
+            } else if (now > end) {
+              status = 'Closed';
+            }
+          }
+          return { ...course, status };
+        })
         .filter(course => {
           const matchesSearch = course.title.toLowerCase().includes(this.searchQuery.toLowerCase())
           const matchesStatus = !this.courseStatus || course.status === this.courseStatus
@@ -179,10 +198,8 @@ export default {
             credits: course.credits !== undefined ? course.credits : 2
           }));
         } else {
-          this.$Message.error('获取课程列表失败');
         }
       } catch (error) {
-        this.$Message.error('获取课程列表失败');
       }
     },
     
@@ -193,83 +210,81 @@ export default {
           this.users = res.result;
         }
       } catch (error) {
-        console.error('加载用户信息失败:', error);
-        // 用户信息加载失败不影响课程显示，只是教师名称会显示为默认值
+        console.error('Failed to load user info :', error);
       }
     },
     
     getTeacherName(createBy) {
       if (!createBy) return 'Unknown teacher';
       if (!this.users || this.users.length === 0) {
-        return `教师${createBy}`;
+        return `Instrutor ${createBy}`;
       }
 
       const createById = parseInt(createBy);
       const user = this.users.find(u => u.id === createById);
       
       if (user) {
-        return user.username || user.nickname || `教师${createBy}`;
+        return user.username || user.nickname || `Instrutor ${createBy}`;
       }
-      return `教师${createBy}`;
+      return `Instrutor ${createBy}`;
     },
     
     navigateToCourse(courseId) {
       this.$router.push({ name: 'course_manage', params: { id: courseId } });
     },
-    handleSearch() {
-      // 可以在这里添加搜索逻辑
-    },
+
     beforeImageUpload(file) {
       const isImage = file.type.startsWith('image/');
-      const isLt2M = file.size / 1024 / 1024 < 2;
+      const isLt5M = file.size / 1024 / 1024 < 5;
       if (!isImage) {
         this.$Message.error('Only image files are allowed.');
       }
-      if (!isLt2M) {
-        this.$Message.error('Image size must be less than 2MB.');
+      if (!isLt5M) {
+        this.$Message.error('Image size must be less than 5MB.');
       }
-      return isImage && isLt2M;
+      if (isImage && isLt5M) {
+        this.uploadFileName = file.name;
+      }
+      return isImage && isLt5M;
     },
     handleImageUploadSuccess(res, file) {
       if (res.success && res.result && res.result.url) {
         this.createCourseForm.image = res.result.url;
         this.$Message.success('Image uploaded successfully!');
-      } else {
-        this.$Message.error(res.message || 'Failed to upload image');
       }
-    },
-    handleImageUploadError() {
-      this.$Message.error('Failed to upload image');
     },
     async handleCreateCourse() {
       if (!this.createCourseForm.name || !this.createCourseForm.credits || !this.createCourseForm.startTime || !this.createCourseForm.endTime || !this.createCourseForm.introduction) {
         this.$Message.warning('Please fill in all fields');
         return false;
       }
-      const params = {
+      // 获取当前登录用户username
+      let username = '';
+      try {
+        const userInfo = JSON.parse(Cookies.get('userInfo'));
+        username = userInfo.username || userInfo.nickname || 'Unknown';
+      } catch (e) {
+        username = 'Unknown';
+      }
+
+      const newCourse = {
+        id: Date.now(),
         title: this.createCourseForm.name,
         credits: this.createCourseForm.credits,
         startTime: this.createCourseForm.startTime,
         endTime: this.createCourseForm.endTime,
         content: this.createCourseForm.introduction,
-        image: this.createCourseForm.image
+        image: this.createCourseForm.image,
+        teacherName: username,
+        status: 'open'
       };
-      try {
-        const res = await addCourse(params);
-        if (res.success) {
-          this.$Message.success('Course created successfully!');
-          this.showCreateCourseModal = false;
-          this.createCourseForm = { name: '', credits: '', startTime: '', endTime: '', introduction: '', image: '' };
-          await this.loadCourses();
-        } else {
-          this.$Message.error(res.message || 'Failed to create course');
-        }
-      } catch (error) {
-        this.$Message.error('Failed to create course');
-      }
+      this.courses.push(newCourse);
+      this.$Message.success('Course created successfully!');
+      this.showCreateCourseModal = false;
+      this.createCourseForm = { name: '', credits: '', startTime: '', endTime: '', introduction: '', image: '' };
+      this.uploadFileName = '';
     },
     async saveEditInfo() {
-      // 校验
       if (!this.editCourseInfo.name || !this.editCourseInfo.credits || !this.editCourseInfo.startTime || !this.editCourseInfo.endTime) {
         this.$Message.warning('Please fill in all fields');
         return false;
@@ -287,7 +302,7 @@ export default {
       const params = {
         id: this.courseInfo.id, // 课程ID必须传
         title: this.editCourseInfo.name,
-        credits: this.editCourseInfo.credits !== undefined ? this.editCourseInfo.credits : 2,
+        credits: this.editCourseInfo.credits ,
         startTime: formatDate(this.editCourseInfo.startTime),
         endTime: formatDate(this.editCourseInfo.endTime),
         content: this.courseInfo.introduction, // 简介可选
@@ -299,19 +314,17 @@ export default {
         if (res.success) {
           this.$Message.success('Course info updated successfully!');
           this.showEditInfoModal = false;
-          await this.getCourseInfo(); // 关键：刷新详情
+          await this.getCourseInfo();
         } else {
-          this.$Message.error(res.message || 'Failed to update course info');
         }
       } catch (error) {
-        this.$Message.error('Failed to update course info');
       }
     },
     openEditInfoModal() {
       this.editCourseInfo = {
         id: this.courseInfo.id,
         name: this.courseInfo.name,
-        credits: this.courseInfo.credits !== undefined ? this.courseInfo.credits : 2,
+        credits: this.courseInfo.credits,
         startTime: this.courseInfo.startTime || '',
         endTime: this.courseInfo.endTime || '',
         introduction: this.courseInfo.introduction || '',
@@ -524,16 +537,16 @@ export default {
   white-space: nowrap;
   flex-shrink: 0;
 
-  &.open {
-    background: rgba(66,185,131);
+  &.Upcoming {
+    background: #42b983;
   }
 
-  &.ongoing {
-    background: rgba(250, 173, 20);
+  &.Ongoing {
+    background: #faad14;
   }
 
-  &.closed {
-    background: rgb(229, 88, 88);
+  &.Closed {
+    background: #e55858;
   }
 }
 
