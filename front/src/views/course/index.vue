@@ -81,7 +81,7 @@
       </Tabs>
     </Card>
 
-    <Modal v-model="showEditInfoModal" title="Edit Course Info" @on-ok="saveEditInfo">
+    <Modal v-model="showEditInfoModal" title="Edit Course Info" @on-ok="saveEditInfo" ok-text="OK" cancel-text="Cancel">
       <Form :model="editCourseInfo" :label-width="100">
         <FormItem label="Course Name">
           <Input v-model="editCourseInfo.name" />
