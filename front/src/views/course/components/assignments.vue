@@ -109,26 +109,30 @@
 </template>
 
 <script>
-// 模拟数据，后续可替换为API调用
+import Cookies from 'js-cookie'
+import { getAllAssignmentReq, saveOrUpdateAssignmentReq, addAssignmentReq, deleteAssignmentReq } from '@/api/assignmentReq';
+import { getAllAssignmentAns, saveOrUpdateAssignmentAns, addAssignmentAns, deleteAssignmentAns } from '@/api/assignmentAns';
+import { getAllUsers } from '@/views/roster/user/api';
+
 const mockAssignments = [
   {
     id: 1,
-    title: '面向对象编程实践',
-    description: '设计并实现一个简单的学生管理系统，要求使用面向对象的思想，包含类的继承、多态等特性。',
-    startTime: '2025-06-05 00:00',
-    dueTime: '2025-06-13 23:59',
+    title: 'Java assignment 1',
+    description: 'There is no need to submit the source code.',
+    startTime: '2025-06-10 12:00',
+    dueTime: '2025-06-12 23:59',
     files: []
   },
   {
     id: 2,
-    title: 'Test Assignment',
-    description: '完成教材第三章的练习题，基本数据类型的使用 ',
-    startTime: '2025-06-12 14:30',
-    dueTime: '2025-06-22 23:59',
+    title: 'Java assignment 2',
+    description: 'Submit the operation screenshots together',
+    startTime: '2025-06-10 08:30',
+    dueTime: '2025-06-21 23:59',
     files: [
       {
         id: 1,
-        title: '作业要求.pdf',
+        title: 'Java assignment 2.docx',
         uploadTime: '2025-06-15 14:30'
       }
     ],
@@ -136,13 +140,35 @@ const mockAssignments = [
       files: [
         {
           id: 2,
-          title: '我的作业.pdf',
-          uploadTime: '2025-06-18 16:45'
+          title: 'Java homework 2.pdf',
+          uploadTime: '2025-06-10 20:05'
         }
       ]
     }
+  },
+  {
+    id: 3,
+    title: 'Java assignment 3',
+    description: 'Submit the operation screenshots together',
+    startTime: '2025-06-18 09:30',
+    dueTime: '2025-06-23 23:59',
+    files: [
+      {
+        id: 2,
+        title: 'Java assignment 3.docx',
+        uploadTime: '2025-06-15 14:30'
+      }
+    ],
+    // submission: {
+    //   files: [
+    //     {
+    //       id: 3,
+    //       title: 'Java homework 3.pdf',
+    //       uploadTime: '2025-06-20 20:05'
+    //     }
+    //   ]
+    // }
   }
-
 ]
 
 export default {
@@ -152,7 +178,7 @@ export default {
       assignments: [],
       loading: false,
       error: null,
-      courseId: null // 课程ID，从路由参数获取
+      courseId: null
     }
   },
   created() {
@@ -160,16 +186,12 @@ export default {
     this.fetchAssignments()
   },
   methods: {
-    // API调用方法
     async fetchAssignments() {
       try {
         this.loading = true
-        // const response = await this.$api.getAssignments(this.courseId)
-        // this.assignments = response.data
-        this.assignments = mockAssignments // 临时使用模拟数据
+        this.assignments = mockAssignments
       } catch (error) {
         this.error = error.message
-        this.$Message.error('Failed to fetch the assignment list.')
       } finally {
         this.loading = false
       }
@@ -178,17 +200,9 @@ export default {
     // 下载文件
     async handleDownload(file) {
       try {
-        // const response = await this.$api.downloadFile(file.id)
-        // 处理文件下载逻辑
-
         this.$Message.success(`Start Downlaod: ${file.title}`)
       } catch (error) {
-        this.$Message.error('Download failed, please try again later.')
       }
-    },
-
-    handleUploadError(error) {
-      this.$Message.error('Upload failed, please try again later.')
     },
 
     // 判断作业是否已提交
@@ -245,7 +259,6 @@ export default {
         // 如果未提交作业
         return 'open'
       }
-
       return 'closed'
     },
 
@@ -276,8 +289,8 @@ export default {
       const extension = fileName.split('.').pop().toLowerCase()
       const iconMap = {
         'pdf': 'ios-document',
-        'docx': 'ios-document-text',
-        'doc': 'ios-document-text',
+        'docx': 'ios-paper',
+        'doc': 'ios-paper',
         'zip': 'ios-archive',
         'rar': 'ios-archive'
       }
@@ -287,9 +300,6 @@ export default {
     // 删除提交的文件
     async handleDelete(file) {
       try {
-        // await this.$api.deleteSubmissionFile(file.id)
-
-        // 删除后更新本地状态
         const assignment = this.assignments.find(a => a.submission && a.submission.files.includes(file))
         if (assignment) {
           assignment.submission.files = assignment.submission.files.filter(f => f.id !== file.id)
@@ -297,10 +307,8 @@ export default {
             delete assignment.submission
           }
         }
-
         this.$Message.success('File deleted successfully.')
       } catch (error) {
-        this.$Message.error('Deletion failed, please try again later.')
       }
     },
 
@@ -317,22 +325,19 @@ export default {
     // 上传成功
     handleUploadSuccess(response, file) {
       try {
-        // 更新本地状态
         const assignment = this.assignments.find(a => this.getStatus(a) === 'open')
         if (assignment) {
           if (!assignment.submission) {
             assignment.submission = { files: [] }
           }
           assignment.submission.files.push({
-            id: Date.now(), // 临时ID，实际应该使用后端返回的ID
+            id: Date.now(),
             title: file.name,
             uploadTime: new Date().toISOString()
           })
         }
-
         this.$Message.success('File uploaded successfully.')
       } catch (error) {
-        this.$Message.error('Upload failed, please try again later.')
       }
     }
   }
