@@ -5,7 +5,7 @@
         <div class="loginLeft">
           <img src="../assets/login/logo.png" alt="" srcset="">
           <span class="line"></span>
-          <span class="title">Teaching interaction system</span>
+          <span class="title">Teaching Interaction System</span>
         </div>
       </div>
       <div class="loginMiddle">

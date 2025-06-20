@@ -3,7 +3,7 @@ export const menuConfig = [
   {
     id: 1,
     name: 'wlHome',
-    title: 'Teaching interaction system',
+    title: 'Teaching Interaction System',
     icon: 'md-home',
     type: -1,
     level: 0,
@@ -114,7 +114,7 @@ export const menuConfig = [
         title: 'Course Management',
         icon: 'ios-apps',
         type: 0,
-        level: 1,
+        level: 2,
         component: 'Main',
         path: '/classMenu',
         children: [
@@ -127,7 +127,36 @@ export const menuConfig = [
             level: 2,
             component: 'study/curriculum/index',
             path: 'curriculum',
-            permTypes: ['add', 'edit', 'delete', 'enable', 'disable']
+          },
+          {
+            id: 7,
+            name: 'Course File',
+            title: 'Course File',
+            icon: 'md-aperture',
+            type: 0,
+            level: 2,
+            component: 'study/curriculum/coursefile',
+            path: 'coursefile',
+          },
+          {
+            id: 8,
+            name: 'Course Detail',
+            title: 'Course Detail',
+            icon: 'md-aperture',
+            type: 0,
+            level: 2,
+            component: 'study/curriculum/coursedetail',
+            path: 'coursedetail',
+          },
+          {
+            id: 9,
+            name: 'Discussion',
+            title: 'Discussion',
+            icon: 'md-aperture',
+            type: 0,
+            level: 2,
+            component: 'study/curriculum/coursetopic',
+            path: 'coursetopic',
           }
         ]
       }
