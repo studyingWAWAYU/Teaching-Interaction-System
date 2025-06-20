@@ -34,14 +34,14 @@
               <Form ref="usernameLoginForm" :model="form" :rules="rules" class="form" style="width:100%">
                 <FormItem prop="username" class="loginInput">
                   <Row>
-                    <Input v-model="form.username" size="large" clearable placeholder="Your mobile phone number" autocomplete="off">
+                    <Input v-model="form.username" size="large" clearable placeholder="Your number" autocomplete="off">
                       <Icon class="iconfont icon-yonghu" slot="prefix" style="line-height:50px" />
                     </Input>
                   </Row>
                 </FormItem>
                 <FormItem prop="nickname" class="loginInput">
                   <Row>
-                    <Input v-model="form.nickname" size="large" clearable placeholder="Your name" autocomplete="off">
+                    <Input v-model="form.nickname" size="large" clearable placeholder="Your nickname" autocomplete="off">
                       <Icon class="iconfont icon-yonghu" slot="prefix" style="line-height:50px" />
                     </Input>
                   </Row>
@@ -54,13 +54,13 @@
               </Form>
               <Row>
                 <Button class="login-btn" type="primary" size="large" :loading="loading" @click="submitRegist" long>
-                  <span v-if="!loading" style=" font-weight:bold">    Register    </span>
+                  <span v-if="!loading" style=" font-weight:bold">Register</span>
                   <span v-else>Registering</span>
                 </Button>
               </Row>
               <Row>
                 <router-link to="/login">
-                  <Button class="login-btn" type="primary" size="large" long><span style="font-weight: bold;">Go back to Login</span></Button>
+                  <Button class="login-btn" type="primary" size="large" long><span style="font-weight: bold;">Back to Login</span></Button>
                 </router-link>
               </Row>
             </Row>
@@ -81,7 +81,7 @@
           </div>
           <div class="footer-item">
             <Icon type="md-pin" class="footer-icon" />
-            <span>Foshan, Guanddong, China</span>
+            <span>Foshan, Guangdong, China</span>
           </div>
           <div class="footer-item">
             <Icon type="md-call" class="footer-icon" />
@@ -124,7 +124,7 @@ export default {
       rules: {
         username: [{
           required: true,
-          message: "Please enter your mobile phone number",
+          message: "Please enter your number",
           trigger: "blur"
         },
           {
@@ -134,12 +134,12 @@ export default {
         ],
         nickname: [{
           required: true,
-          message: "Please enter your name",
+          message: "Please enter your nickname",
           trigger: "blur"
         }],
         password: [{
           required: true,
-          message: "Please enter your login password",
+          message: "Please enter your password",
           trigger: "blur"
         },
           {
@@ -163,14 +163,14 @@ export default {
           }).then(res => {
             this.loading = false;
             if (res && res.success) {  // 明确检查res是否存在
-              alert("注册成功！");
+              alert("Registration successful!");
               this.$router.push("/login"); // 只有成功时才跳转
             } else {
-              alert(res?.message || "注册失败");
+              alert(res?.message || "Registration failed");
             }
           }).catch(err => {
             this.loading = false;
-            alert("请求失败：" + err.message);
+            alert("Request failed: " + err.message);
           });
         }
       });
@@ -220,11 +220,11 @@ export default {
 
 html,body{
   background: #ffffff !important;
-  font-family: Microsoft YaHei;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-weight: 400;;
 }
 a{
-  font-family: Microsoft YaHei;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 
   color: #77C8C6;
 }
@@ -236,7 +236,7 @@ input::-webkit-input-placeholder {
   font-size: 14px;
 }
 a:hover{
-  font-family: Microsoft YaHei;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   color: #77C8C6;
 }
 .login {
@@ -278,7 +278,7 @@ a:hover{
   .title{
     line-height: 58px;
     font-size: 18px;
-    font-family: Microsoft YaHei;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     font-weight: 500;
     color: #1c6695;
     font-weight:bold;
@@ -358,7 +358,7 @@ a:hover{
 
   .loginInput{
     font-size: 18px;
-    font-family: Microsoft YaHei;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     font-weight: bold;
     color: #333333;
   }
@@ -405,7 +405,7 @@ a:hover{
     height: 50px;
     font-size: 18px;
     font-weight: bold;
-    font-family: Microsoft YaHei;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     color: #333333;
     line-height: 50px;
   }
