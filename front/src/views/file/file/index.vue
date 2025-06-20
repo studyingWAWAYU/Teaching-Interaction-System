@@ -9,30 +9,21 @@
           inline
           class="search-form"
         >
-          <Form-item prop="name">
+          <Form-item prop="title">
             <Input
               type="text"
-              v-model="searchForm.name"
+              v-model="searchForm.title"
               clearable
-              placeholder="Original File Name"
+              placeholder="Title"
               style="width: 160px"
             />
           </Form-item>
-          <Form-item prop="createBy">
+          <Form-item prop="courseId">
             <Input
               type="text"
-              v-model="searchForm.createBy"
+              v-model="searchForm.courseId"
               clearable
-              placeholder="Uploader Account"
-              style="width: 160px"
-            />
-          </Form-item>
-          <Form-item prop="fkey">
-            <Input
-              type="text"
-              v-model="searchForm.fkey"
-              clearable
-              placeholder="Stored File Name"
+              placeholder="Course ID"
               style="width: 160px"
             />
           </Form-item>
@@ -43,7 +34,7 @@
               format="yyyy-MM-dd" 
               clearable 
               @on-change="selectDateRange" 
-              placeholder="Select Date Range" 
+              placeholder="Update Time Range" 
               style="width: 160px"
             ></DatePicker>
           </Form-item>
@@ -75,20 +66,19 @@
               size="small"
               shape="round"
               style="margin-left: 8px"
-              :disabled="!$route.meta.permTypes.includes('add')"
             >
               Upload File
             </Button>
             <Button
-              @click="fileSaveSettingModal=true"
-              type="info"
-              icon="md-settings"
+              @click="batchDelete"
+              type="error"
+              icon="md-trash"
               size="small"
               shape="round"
               style="margin-left: 8px"
-              :disabled="!$route.meta.permTypes.includes('enable')"
+              :disabled="selectedRows.length === 0"
             >
-              Settings
+              Batch Delete
             </Button>
           </Form-item>
         </Form>
@@ -101,11 +91,10 @@
         :loading="loading"
         border
         :columns="columns"
-        :data="data"
+        :data="filteredData"
         ref="table"
-        sortable="custom"
-        @on-sort-change="changeSort"
-        @on-selection-change="changeSelect"
+        stripe
+        @on-selection-change="handleSelectionChange"
       ></Table>
     </div>
 
@@ -117,7 +106,7 @@
         :page-size="searchForm.pageSize"
         @on-change="changePage"
         @on-page-size-change="changePageSize"
-        :page-size-opts="[15, 20, 40]"
+        :page-size-opts="[15, 20, 50]"
         size="small"
         show-total
         show-elevator
@@ -127,174 +116,118 @@
 
     <!-- File upload drawer -->
     <Drawer 
-      title="File Upload" 
+      title="Upload Course File" 
       closable 
       v-model="uploadVisible" 
       width="500"
     >
       <Upload 
-        action="/upload/file" 
-        :headers="accessToken" 
-        :on-success="handleSuccess" 
-        :on-error="handleError" 
+        action="#" 
+        :on-success="handleUploadSuccess" 
+        :on-error="handleUploadError" 
         :max-size="5120" 
         :on-exceeded-size="handleMaxSize" 
         :before-upload="beforeUpload" 
         multiple 
         type="drag" 
-        ref="up"
+        ref="uploader"
       >
         <div style="padding: 20px 0">
           <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
-          <p>Click here or drag files here to upload</p>
+          <p>Drag files here or click to upload</p>
+          <p class="text-gray-500 text-sm mt-2">Max file size: 5MB</p>
         </div>
       </Upload>
       <div class="drawer-footer">
-        <Button @click="clearFiles">Clear Upload List</Button>
+        <Button @click="clearUploadFiles">Clear Upload List</Button>
       </div>
     </Drawer>
 
-    <!-- File rename modal -->
+    <!-- Rename file modal -->
     <Modal 
       title="Rename File" 
-      v-model="changeFileNameModal" 
+      v-model="renameModalVisible" 
       :mask-closable="false"
       :width="500"
       ok-text="Save"
-      @on-ok="handleSubmit"
+      @on-ok="handleRenameSubmit"
     >
-      <Form ref="form" :model="form" :label-width="95" :rules="formValidate">
-        <Row :gutter="16">
-          <Col span="24">
-            <FormItem label="Original File Name" prop="name">
-              <Input v-model="form.name" style="width:100%" />
-            </FormItem>
-          </Col>
-        </Row>
-        <Row :gutter="16">
-          <Col span="24">
-            <FormItem label="Stored File Name" prop="fkey">
-              <Input v-model="form.fkey" style="width:100%" />
-            </FormItem>
-          </Col>
-        </Row>
+      <Form ref="renameForm" :model="renameForm" :label-width="95" :rules="renameFormRules">
+        <FormItem label="Title" prop="title">
+          <Input v-model="renameForm.title" style="width:100%" />
+        </FormItem>
+        <FormItem label="Course ID" prop="courseId">
+          <Input v-model="renameForm.courseId" style="width:100%" />
+        </FormItem>
       </Form>
     </Modal>
 
     <!-- File storage settings modal -->
     <Modal 
       title="File Storage Settings" 
-      v-model="fileSaveSettingModal" 
+      v-model="settingsModalVisible" 
       :mask-closable="false"
       :width="700"
       ok-text="Save"
-      @on-ok="setFileSettingFx"
+      @on-ok="saveSettings"
     >
-      <Form ref="settingForm" :model="settingForm" :label-width="95">
-        <Row :gutter="16">
-          <Col span="24">
-            <FormItem label="Storage Path">
-              <Input 
-                type="text" 
-                v-model="filePath" 
-                placeholder="e.g. C:\\oa-file" 
-                style="width: 100%" 
-                :disabled="changeLoading" 
-              />
-            </FormItem>
-          </Col>
-        </Row>
-        <Row :gutter="16">
-          <Col span="24">
-            <FormItem label="Preview URL">
-              <Input 
-                type="text" 
-                v-model="fileView" 
-                placeholder="e.g. 127.0.0.1:8080/wl/file/view" 
-                style="width: 100%"
-              >
-                <Select 
-                  v-model="fileHttp" 
-                  slot="prepend" 
-                  style="width: 80px" 
-                  prop="http" 
-                  :disabled="changeLoading"
-                >
-                  <Option value="http://">http://</Option>
-                  <Option value="https://">https://</Option>
-                </Select>
-              </Input>
-            </FormItem>
-          </Col>
-        </Row>
+      <Form ref="settingsForm" :model="settingsForm" :label-width="120">
+        <FormItem label="Storage Path">
+          <Input 
+            type="text" 
+            v-model="settingsForm.storagePath" 
+            placeholder="e.g. /data/course-files" 
+            style="width: 100%" 
+          />
+        </FormItem>
+        <FormItem label="Preview URL">
+          <Input 
+            type="text" 
+            v-model="settingsForm.previewUrl" 
+            placeholder="e.g. http://yourdomain.com/files/" 
+            style="width: 100%"
+          />
+        </FormItem>
       </Form>
     </Modal>
   </div>
 </template>
 
 <script>
-import {
-  getFileListData,
-  renameFile,
-  deleteFile,
-  getOneSetting,
-  setOneSetting
-} from "./api.js"; // 移除了copyFile引入
-import "viewerjs/dist/viewer.css";
-import Viewer from "viewerjs";
-var dp;
-
 export default {
-  name: "file-manage",
+  name: "CourseFileManage",
   data() {
     return {
-      filePath: "",
-      fileHttp: "",
-      fileView: "",
-      fileSaveSettingModal: false,
-      accessToken: {},
       loading: false,
-      drop: false,
-      dropDownContent: "Expand",
-      dropDownIcon: "ios-arrow-down",
-      fileType: "all",
-      changeFileNameModal: false,
-      uploadVisible: false,
-      picVisible: false,
-      picTitle: "",
       searchForm: {
-        name: "",
-        fkey: "",
-        type: "",
+        title: "",
+        courseId: "",
         pageNumber: 1,
         pageSize: 15,
-        sort: "createTime",
+        sort: "update_time",
         order: "desc",
         startDate: "",
         endDate: ""
       },
       selectDate: null,
-      form: {
-        name: "",
-        fkey: ""
-      },
-      file: {},
-      formValidate: {
-        name: [{
-          required: true,
-          message: "Cannot be empty",
-          trigger: "blur"
-        }],
-        fkey: [{
-          required: true,
-          message: "Cannot be empty",
-          trigger: "blur"
-        }]
-      },
-      submitLoading: false,
-      selectList: [],
-      selectCount: 0,
-      totalSize: "",
+      mockData: [
+        { id: 1, title: "Introduction to Computer Science", course_id: "1", update_time: "2025-06-01", file_url: "/files/cs101-intro.pdf" },
+        { id: 2, title: "Data Structures Lecture Notes", course_id: "1", update_time: "2025-06-02", file_url: "/files/ds-lecture-notes.pdf" },
+        { id: 3, title: "Algorithms Assignment", course_id: "1", update_time: "2025-06-03", file_url: "/files/algorithms-assignment.docx" },
+        { id: 4, title: "Database Systems Slides", course_id: "1", update_time: "2025-06-05", file_url: "/files/db-systems-slides.pptx" },
+        { id: 5, title: "Machine Learning Tutorial", course_id: "2", update_time: "2025-06-07", file_url: "/files/ml-tutorial.pdf" },
+        { id: 6, title: "Web Development Project", course_id: "2", update_time: "2025-06-08", file_url: "/files/web-dev-project.zip" },
+        { id: 7, title: "Operating Systems Notes", course_id: "2", update_time: "2025-06-10", file_url: "/files/os-notes.pdf" },
+        { id: 8, title: "Computer Networks Lab", course_id: "1", update_time: "2025-06-12", file_url: "/files/networks-lab.pdf" },
+        { id: 9, title: "Software Engineering Syllabus", course_id: "1", update_time: "2025-06-14", file_url: "/files/se-syllabus.docx" },
+        { id: 10, title: "Artificial Intelligence Readings", course_id: "3", update_time: "2025-06-15", file_url: "/files/ai-readings.pdf" },
+        { id: 11, title: "Cybersecurity Handbook", course_id: "1", update_time: "2025-06-17", file_url: "/files/cybersecurity-handbook.pdf" },
+        { id: 12, title: "Cloud Computing Overview", course_id: "2", update_time: "2025-06-18", file_url: "/files/cloud-computing-overview.pptx" },
+        { id: 13, title: "Mobile App Development Guide", course_id: "2", update_time: "2025-06-19", file_url: "/files/mobile-dev-guide.pdf" },
+        { id: 14, title: "Data Science Case Studies", course_id: "3", update_time: "2025-06-20", file_url: "/files/ds-case-studies.pdf" },
+        
+      ],
+      total: 20,
       columns: [
         {
           type: "selection",
@@ -302,173 +235,81 @@ export default {
           align: "center"
         },
         {
-          type: "index",
-          width: 60,
+          title: "ID",
+          key: "id",
+          width: 80,
           align: "center"
         },
         {
-          title: "Original File Name",
-          key: "name",
-          minWidth: 130,
-          sortable: true
-        },
-        {
-          title: "Stored File Name",
-          key: "fkey",
-          minWidth: 165,
-          sortable: true
-        },
-        {
-          title: "Preview",
-          key: "url",
+          title: "Title",
+          key: "title",
           minWidth: 150,
-          align: "center",
+          sortable: true,
           render: (h, params) => {
-            if (params.row.type.includes("image") > 0) {
-              return h("img", {
-                attrs: {
-                  src: params.row.url
-                },
-                style: {
-                  cursor: "zoom-in",
-                  width: "80px",
-                  height: "60px",
-                  margin: "10px 0",
-                  "object-fit": "contain"
-                },
-                on: {
-                  click: () => {
-                    this.showPic(params.row);
-                  }
-                }
-              });
-            } else if (params.row.type.includes("pdf") > 0) {
-              return h("img", {
-                attrs: {
-                  src: require("@/assets/pdf.png")
-                },
-                style: {
-                  cursor: "zoom-in",
-                  width: "60px",
-                  margin: "10px 0",
-                  "object-fit": "contain"
-                },
-                on: {
-                  click: () => {
-                    this.showFile(params.row);
-                  }
-                }
-              });
-            } else if (
-              params.row.type.includes("zip") > 0 ||
-              params.row.type.includes("rar") > 0 ||
-              params.row.type.includes("7z") > 0
-            ) {
-              return h("img", {
-                attrs: {
-                  src: require("@/assets/zip.png")
-                },
-                style: {
-                  width: "60px",
-                  margin: "10px 0",
-                  "object-fit": "contain"
-                },
-                on: {
-                  click: () => {
-                    this.showFile(params.row);
-                    this.$Message.warning("Please download and extract to access!");
-                  }
-                }
-              });
-            } else {
-              return h("img", {
-                attrs: {
-                  src: require("@/assets/file.png")
-                },
-                style: {
-                  width: "55px",
-                  height: "60px",
-                  margin: "10px 0",
-                  "object-fit": "contain"
-                },
-                on: {
-                  click: () => {
-                    this.showFile(params.row);
-                  }
-                }
-              });
-            }
+            return h("span", {
+              style: {
+                fontWeight: "500"
+              }
+            }, params.row.title);
           }
         },
         {
-          title: "File Type",
-          key: "type",
-          minWidth: 115,
+          title: "Course ID",
+          key: "course_id",
+          width: 100,
+          align: "center",
           sortable: true
         },
         {
-          title: "File Size",
-          key: "size",
-          minWidth: 115,
-          sortable: true,
+          title: "Update Time",
+          key: "update_time",
+          width: 180,
+          align: "center",
+          sortable: true
+        },
+        {
+          title: "File URL",
+          key: "file_url",
+          minWidth: 200,
+          align: "center",
           render: (h, params) => {
+            const url = params.row.file_url;
+            if (!url) {
+              return h("span", {
+                style: {
+                  color: "#999"
+                }
+              }, "No URL");
+            }
+            
             return h("div", [
-              h(
-                "Tag", {
-                  props: {
-                    color: (params.row.size > 1024 * 1024 * 5) ? "orange" : "green"
-                  }
+              h("a", {
+                attrs: {
+                  href: url,
+                  target: "_blank"
                 },
-                ((params.row.size * 1.0) / (1024 * 1024)).toFixed(2) + " MB"
-              )
+                style: {
+                  color: "#2d8cf0",
+                  textDecoration: "underline",
+                  cursor: "pointer"
+                }
+              }, url.length > 30 ? url.substring(0, 30) + "..." : url),
+              h("Tooltip", {
+                props: {
+                  content: url,
+                  placement: "top"
+                }
+              })
             ]);
           }
-        },
-        {
-          title: "Uploader",
-          key: "createBy",
-          minWidth: 120,
-          sortable: true,
-          align: "center",
-          render: (h, params) => {
-            return h(
-              "Tooltip", {
-                props: {
-                  placement: "top",
-                  content: params.row.createBy
-                }
-              },
-              [
-                h(
-                  "Tag", {
-                    style: {
-                      "margin-right": "8px"
-                    },
-                    props: {
-                      type: "border"
-                    }
-                  },
-                  params.row.nickname
-                )
-              ]
-            );
-          }
-        },
-        {
-          title: "Upload Time",
-          key: "createTime",
-          minWidth: 180,
-          sortable: true,
-          sortType: "desc"
         },
         {
           title: "Actions",
           key: "action",
           align: "center",
           fixed: "right",
-          minWidth: 280, // 调整宽度以适应删除按钮后的布局
+          width: 250,
           render: (h, params) => {
-            var that = this;
             return h("div", [
               h(
                 "Button", {
@@ -483,7 +324,7 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.download(params.row);
+                      this.downloadFile(params.row);
                     }
                   }
                 },
@@ -502,7 +343,7 @@ export default {
                   },
                   on: {
                     click: () => {
-                      this.rename(params.row);
+                      this.openRenameModal(params.row);
                     }
                   }
                 },
@@ -514,15 +355,11 @@ export default {
                     type: "error",
                     size: "small",
                     ghost: true,
-                    shape: "circle",
-                    disabled: !(that.$route.meta.permTypes && that.$route.meta.permTypes.includes("delete"))
-                  },
-                  style: {
-                    marginRight: "5px"
+                    shape: "circle"
                   },
                   on: {
                     click: () => {
-                      this.remove(params.row);
+                      this.deleteFile(params.row);
                     }
                   }
                 },
@@ -532,408 +369,303 @@ export default {
           }
         }
       ],
-      data: [],
-      total: 0,
+      selectedRows: [],
+      uploadVisible: false,
+      renameModalVisible: false,
+      settingsModalVisible: false,
+      renameForm: {
+        id: "",
+        title: "",
+        courseId: ""
+      },
+      renameFormRules: {
+        title: [{
+          required: true,
+          message: "Title cannot be empty",
+          trigger: "blur"
+        }],
+        courseId: [{
+          required: true,
+          message: "Course ID cannot be empty",
+          trigger: "blur"
+        }]
+      },
+      settingsForm: {
+        storagePath: "/data/course-files",
+        previewUrl: "http://example.com/files/"
+      }
     };
+  },
+  computed: {
+    filteredData() {
+      let data = [...this.mockData];
+      
+      // Filter by title
+      if (this.searchForm.title) {
+        data = data.filter(item => 
+          item.title.toLowerCase().includes(this.searchForm.title.toLowerCase())
+        );
+      }
+      
+      // Filter by course ID
+      if (this.searchForm.courseId) {
+        data = data.filter(item => 
+          item.course_id.toLowerCase().includes(this.searchForm.courseId.toLowerCase())
+        );
+      }
+      
+      // Filter by date range
+      if (this.searchForm.startDate && this.searchForm.endDate) {
+        data = data.filter(item => {
+          const itemDate = new Date(item.update_time.split(' ')[0]);
+          const startDate = new Date(this.searchForm.startDate);
+          const endDate = new Date(this.searchForm.endDate);
+          return itemDate >= startDate && itemDate <= endDate;
+        });
+      }
+      
+      // Sorting
+      if (this.searchForm.sort) {
+        data.sort((a, b) => {
+          const valA = a[this.searchForm.sort];
+          const valB = b[this.searchForm.sort];
+          
+          if (this.searchForm.order === 'asc') {
+            return valA > valB ? 1 : -1;
+          } else {
+            return valA < valB ? 1 : -1;
+          }
+        });
+      }
+      
+      // Pagination
+      this.total = data.length;
+      const start = (this.searchForm.pageNumber - 1) * this.searchForm.pageSize;
+      const end = start + this.searchForm.pageSize;
+      return data.slice(start, end);
+    }
   },
   methods: {
     init() {
-      var that = this;
-      this.getDataList();
-      this.getFileSettingFx();
-      this.accessToken = {
-        accessToken: this.getStore("accessToken")
-      };
-    },
-    getFileSettingFx() {
-      var that = this;
-      getOneSetting({
-        id: "FILE_PATH"
-      }).then(res => {
-        if (res.success) {
-          that.filePath = res.result.value
-        }
-      });
-      getOneSetting({
-        id: "FILE_HTTP"
-      }).then(res => {
-        if (res.success) {
-          that.fileHttp = res.result.value
-        }
-      });
-      getOneSetting({
-        id: "FILE_VIEW"
-      }).then(res => {
-        if (res.success) {
-          that.fileView = res.result.value
-        }
-      });
-    },
-    setFileSettingFx() {
-      var that = this;
-      setOneSetting({
-        id: "FILE_PATH",
-        value: that.filePath
-      }).then(res => {
-        if (res.success) {
-          this.$Message.success("Storage path updated successfully");
-        }
-      });
-      setOneSetting({
-        id: "FILE_HTTP",
-        value: that.fileHttp
-      }).then(res => {
-        if (res.success) {
-          this.$Message.success("HTTP updated successfully");
-        }
-      });
-      setOneSetting({
-        id: "FILE_VIEW",
-        value: that.fileView
-      }).then(res => {
-        if (res.success) {
-          this.$Message.success("Preview URL updated successfully");
-        }
-      });
-    },
-    showPic(v) {
-      let image = new Image();
-      image.src = v.url;
-      let viewer = new Viewer(image, {
-        hidden: function () {
-          viewer.destroy();
-        }
-      });
-      viewer.show();
-    },
-    closeVideo() {
-      dp.destroy();
-    },
-    dropDown() {
-      if (this.drop) {
-        this.dropDownContent = "Expand";
-        this.dropDownIcon = "ios-arrow-down";
-      } else {
-        this.dropDownContent = "Collapse";
-        this.dropDownIcon = "ios-arrow-up";
-      }
-      this.drop = !this.drop;
-    },
-    changePage(v) {
-      this.searchForm.pageNumber = v;
-      this.getDataList();
-      this.clearSelectAll();
-    },
-    changePageSize(v) {
-      this.searchForm.pageSize = v;
       this.getDataList();
     },
-    changeSort(e) {
-      this.searchForm.sort = e.key;
-      this.searchForm.order = e.order;
-      if (e.order == "normal") {
-        this.searchForm.order = "";
-      }
-      this.getDataList();
+    handleSelectionChange(rows) {
+      this.selectedRows = rows;
+    },
+    getDataList() {
+      this.loading = true;
+      setTimeout(() => {
+        this.loading = false;
+      }, 300);
+    },
+    handleSearch() {
+      this.searchForm.pageNumber = 1;
+    },
+    handleReset() {
+      this.$refs.searchForm.resetFields();
+      this.searchForm.pageNumber = 1;
+      this.searchForm.startDate = "";
+      this.searchForm.endDate = "";
+      this.selectDate = null;
+    },
+    changePage(page) {
+      this.searchForm.pageNumber = page;
+    },
+    changePageSize(size) {
+      this.searchForm.pageSize = size;
+      this.searchForm.pageNumber = 1;
     },
     selectDateRange(v) {
       if (v) {
         this.searchForm.startDate = v[0];
         this.searchForm.endDate = v[1];
+      } else {
+        this.searchForm.startDate = "";
+        this.searchForm.endDate = "";
       }
-    },
-    getDataList() {
-      this.loading = true;
-      getFileListData(this.searchForm).then(res => {
-        this.loading = false;
-        if (res.success) {
-          this.data = res.result.records;
-          this.total = res.result.total;
-        }
-      });
-    },
-    handleSearch() {
-      this.searchForm.pageNumber = 1;
-      this.searchForm.pageSize = 15;
-      this.getDataList();
-    },
-    changeFileType() {
-      let name = this.fileType;
-      if (name == "all") {
-        this.searchForm.type = "";
-      } else if (name == "pic") {
-        this.searchForm.type = "image";
-      } else if (name == "video") {
-        this.searchForm.type = "video";
-      }
-      this.handleSearch();
-    },
-    handleReset() {
-      this.$refs.searchForm.resetFields();
-      this.searchForm.pageNumber = 1;
-      this.searchForm.pageSize = 15;
-      this.selectDate = null;
-      this.searchForm.startDate = "";
-      this.searchForm.endDate = "";
-      this.getDataList();
     },
     beforeUpload() {
       return true;
     },
     handleMaxSize(file) {
       this.$Notice.warning({
-        title: "File Size Too Large",
-        desc: "Selected file '" + file.name + "' is too large, must not exceed 5MB."
+        title: "File too large",
+        desc: `File "${file.name}" exceeds 5MB limit`
       });
     },
-    handleSuccess(res, file) {
-      if (res.success) {
-        this.$Message.success("Upload file " + file.name + " successfully");
-        this.getDataList();
-      } else {
-        this.$Message.error(res.message);
-      }
+    handleUploadSuccess(res, file) {
+      this.$Message.success(`File "${file.name}" uploaded successfully (mock)`);
+      this.uploadVisible = false;
     },
-    handleError(error, file, fileList) {
-      this.$Message.error(error.toString());
+    handleUploadError(error, file) {
+      this.$Message.error(`Failed to upload ${file.name}: ${error.toString()}`);
     },
-    clearFiles() {
-      this.$refs.up.clearFiles();
+    clearUploadFiles() {
+      this.$refs.uploader.clearFiles();
     },
-    download(v) {
-      window.open(
-        v.url +
-        "?attname=&response-content-type=application/octet-stream&filename=" +
-        v.name
-      );
+    downloadFile(row) {
+      this.$Message.success(`Downloading "${row.title}" (mock)`);
+      // In a real static implementation, you might want to actually download the file
+      // window.open(row.file_url);
     },
-    showFile(v) {
-      window.open(v.url + "?preview=true");
+    openRenameModal(row) {
+      this.renameForm = {
+        id: row.id,
+        title: row.title,
+        courseId: row.course_id
+      };
+      this.renameModalVisible = true;
     },
-    removeAll() {
-      if (this.selectCount <= 0) {
-        this.$Message.warning("You haven't selected any data to delete");
+    handleRenameSubmit() {
+      this.$refs.renameForm.validate(valid => {
+        if (valid) {
+          // Update the mock data
+          const index = this.mockData.findIndex(item => item.id === this.renameForm.id);
+          if (index !== -1) {
+            this.mockData[index].title = this.renameForm.title;
+            this.mockData[index].course_id = this.renameForm.courseId;
+            this.$Message.success("File renamed successfully (mock)");
+            this.renameModalVisible = false;
+          }
+        }
+      });
+    },
+    deleteFile(row) {
+      this.$Modal.confirm({
+        title: "Confirm Deletion",
+        content: `Are you sure you want to delete file "${row.title}"?`,
+        onOk: () => {
+          this.mockData = this.mockData.filter(item => item.id !== row.id);
+          this.total = this.mockData.length;
+          this.$Message.success("File deleted successfully (mock)");
+        }
+      });
+    },
+    batchDelete() {
+      if (this.selectedRows.length === 0) {
+        this.$Message.warning("Please select files to delete");
         return;
       }
+      
       this.$Modal.confirm({
-        title: "Confirm Delete",
-        content: "Are you sure you want to delete the selected " + this.selectCount + " files?",
-        loading: true,
+        title: "Confirm Batch Deletion",
+        content: `Are you sure you want to delete ${this.selectedRows.length} selected files?`,
         onOk: () => {
-          let ids = "";
-          this.selectList.forEach(function (e) {
-            ids += e.id + ",";
-          });
-          ids = ids.substring(0, ids.length - 1);
-          deleteFile({
-            ids: ids
-          }).then(res => {
-            this.$Modal.remove();
-            if (res.success) {
-              this.$Message.success("Batch delete files successfully");
-              this.clearSelectAll();
-              this.getDataList();
-            }
-          });
+          const ids = this.selectedRows.map(row => row.id);
+          this.mockData = this.mockData.filter(item => !ids.includes(item.id));
+          this.total = this.mockData.length;
+          this.selectedRows = [];
+          this.$Message.success("Files deleted successfully (mock)");
         }
       });
     },
-    remove(v) {
-      this.$Modal.confirm({
-        title: "Confirm Delete",
-        content: "Are you sure you want to delete file " + v.name + " ?",
-        loading: true,
-        onOk: () => {
-          deleteFile({
-            ids: v.id
-          }).then(res => {
-            this.$Modal.remove();
-            if (res.success) {
-              this.$Message.success("Delete file " + v.name + " successfully");
-              this.getDataList();
-            }
-          });
-        }
-      });
-    },
-    handleSubmit() {
-      this.$refs.form.validate(valid => {
-        if (valid) {
-          this.submitLoading = true;
-          let params = {
-            id: this.form.id,
-            newKey: this.form.fkey,
-            newName: this.form.name
-          };
-          renameFile(params).then(res => {
-            this.submitLoading = false;
-            if (res.success) {
-              this.$Message.success("Operation successful");
-              this.getDataList();
-              this.changeFileNameModal = false;
-            }
-          });
-        }
-      });
-    },
-    rename(v) {
-      for (let attr in v) {
-        if (v[attr] == null) {
-          v[attr] = "";
-        }
-      }
-      let str = JSON.stringify(v);
-      let data = JSON.parse(str);
-      this.form = data;
-      this.changeFileNameModal = true;
-    },
-    clearSelectAll() {
-      this.$refs.table.selectAll(false);
-      this.totalSize = "";
-    },
-    changeSelect(e) {
-      this.selectList = e;
-      this.selectCount = e.length;
-      let size = 0;
-      e.forEach(item => {
-        size += item.size * 1.0;
-      });
-      this.totalSize = ((size * 1.0) / (1024 * 1024)).toFixed(2) + " MB";
+    saveSettings() {
+      this.$Message.success("Settings saved successfully (mock)");
+      this.settingsModalVisible = false;
     }
   },
   mounted() {
-    this.height = window.innerHeight - this.$refs.table.$el.offsetTop - 160;
     this.init();
   }
 };
 </script>
 
 <style lang="less" scoped>
-/* Global styles */
 .file-manage-page {
   padding: 20px;
   background: #f8f9fa;
-}
-
-/* Top action bar */
-.top-bar {
-  height:100px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #fff;
-  padding: 16px 20px;
-  border-radius: 15px;
-  margin-top:10px;
-  margin-bottom: 25px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-
-  .search-area {
-    flex: 1;
-    margin-left:20px;
-    margin-right: 20px;
-
-    .search-form {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-
-      .ivu-form-item {
-        margin-right: 16px;
-        margin-bottom: 0;
-      }
-    }
-  }
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-    align-items: flex-start;
-
+  
+  .top-bar {
+    background: #fff;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    
     .search-area {
       width: 100%;
-    }
-  }
-}
-
-/* Table styles */
-.table-wrapper {
-  background: #fff;
-  border-radius: 15px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-
-  .ivu-table {
-    border: none;
-
-    /* Table header styles */
-    thead th {
-      background: #f9fafb;
-      color: #333;
-      font-weight: 500;
-      border-bottom: 1px solid #eee;
-      padding: 12px 8px;
-    }
-
-    /* Table row styles */
-    tbody tr {
-      &:hover {
-        background: #f7fafc;
-      }
-    }
-
-    /* Table cell styles */
-    td {
-      border-bottom: 1px solid #eee;
-      padding: 12px 8px;
-    }
-
-    /* Action column buttons */
-    .ivu-btn {
-      border-radius: 4px;
-      padding: 4px 8px;
-      transition: all 0.3s ease;
-
-      &:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      
+      .search-form {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        
+        .ivu-form-item {
+          margin-right: 16px;
+          margin-bottom: 0;
+        }
       }
     }
   }
-}
-
-/* Pagination styles */
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  padding: 16px 20px;
-  background: #fff;
-  border-radius: 8px;
-  margin-top: 16px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-/* Button styles */
-.ivu-btn {
-  margin-left:30px;
-  border-radius: 20px;
-  transition: all 0.3s ease;
-  height:30px;
-
-  &:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  .table-wrapper {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    
+    .ivu-table {
+      border: none;
+      
+      thead th {
+        background: #f9fafb;
+        color: #333;
+        font-weight: 500;
+        border-bottom: 1px solid #eee;
+        padding: 12px 8px;
+      }
+      
+      tbody tr {
+        &:hover {
+          background: #f7fafc;
+        }
+      }
+      
+      td {
+        border-bottom: 1px solid #eee;
+        padding: 12px 8px;
+      }
+      
+      .ivu-btn {
+        border-radius: 4px;
+        padding: 4px 8px;
+        transition: all 0.3s ease;
+        
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
   }
-}
-
-/* Modal styles */
-.ivu-modal-body {
-  max-height: 500px;
-  overflow: auto;
-}
-
-/* Drawer footer buttons */
-.drawer-footer {
-  margin-top: 16px;
-  text-align: right;
+  
+  .pagination {
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px 20px;
+    background: #fff;
+    border-radius: 8px;
+    margin-top: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .ivu-btn {
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+  }
+  
+  .ivu-modal-body {
+    max-height: 500px;
+    overflow: auto;
+  }
+  
+  .drawer-footer {
+    margin-top: 16px;
+    text-align: right;
+  }
 }
 </style>
