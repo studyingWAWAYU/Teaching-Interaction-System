@@ -18,7 +18,9 @@ let util = {
 };
 
 util.title = function (title) {
+
     title = title || 'Teaching Interaction System';
+
     window.document.title = title;
 };
 

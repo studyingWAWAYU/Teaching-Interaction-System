@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import cn.wl.basics.baseVo.Result;
 import org.xm.Similarity;
-
+import com.github.houbb.sensitive.word.core.SensitiveWordHelper;
 import java.util.List;
 
 @Slf4j
@@ -59,6 +59,8 @@ public class ITopicsServiceImpl extends ServiceImpl<TopicsMapper, Topics> implem
     @Override
     public Result<Topics> saveOrUpdateTopics(Topics topics) {
         findSimilarTopics(topics);
+        topics.setTitle(SensitiveWordHelper.replace(topics.getTitle()));
+        topics.setDescription(SensitiveWordHelper.replace(topics.getDescription()));
         if(saveOrUpdate(topics)){
             return new ResultUtil<Topics>().setData(topics);
         }

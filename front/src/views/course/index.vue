@@ -277,7 +277,8 @@ export default {
               content: feedback.content,
               rating: feedback.rating || 0,
               createTime: feedback.createTime,
-              reviewerName: user ? (user.nickname || user.username) : `User${feedback.createBy}`
+              reviewerName: user ? (user.nickname || user.username) : `User${feedback.createBy}`,
+              createBy: feedback.createBy
             };
           });
         } else {

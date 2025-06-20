@@ -2,10 +2,10 @@
 <div>
     <div style="display:flex;">
         <Input v-model="departmentTitle" readonly style="margin-right:10px;" :placeholder="placeholder" :clearable="clearable" @on-clear="clearSelect" />
-        <Poptip transfer trigger="click" placement="right" title="Select Institute" width="250">
-            <Button icon="md-list">Select Institute</Button>
+        <Poptip transfer trigger="click" placement="right" title="选择部门" width="250">
+            <Button icon="md-list">选择部门</Button>
             <div slot="content">
-                <Input v-model="searchKey" suffix="ios-search" @on-change="searchInstitute" placeholder="Search by institute name" clearable />
+                <Input v-model="searchKey" suffix="ios-search" @on-change="searchDep" placeholder="输入部门名搜索" clearable />
                 <div class="dep-tree-bar">
                     <Tree :data="dataDep" :load-data="loadData" @on-select-change="selectTree" :multiple="multiple"></Tree>
                     <Spin size="large" fix v-if="depLoading"></Spin>
@@ -35,7 +35,7 @@ export default {
         },
         placeholder: {
             type: String,
-            default: "Click to select institute"
+            default: "点击选择部门"
         }
     },
     data() {
@@ -58,7 +58,7 @@ export default {
                             e.children = [];
                         }
                         if (e.status == -1) {
-                            e.title = "[Disabled] " + e.title;
+                            e.title = "[已禁用] " + e.title;
                             e.disabled = true;
                         }
                     });
@@ -77,7 +77,7 @@ export default {
                             e.children = [];
                         }
                         if (e.status == -1) {
-                            e.title = "[Disabled] " + e.title;
+                            e.title = "[已禁用] " + e.title;
                             e.disabled = true;
                         }
                     });
@@ -85,8 +85,8 @@ export default {
                 }
             });
         },
-        searchInstitute() {
-            // Search institutes
+        searchDep() {
+            // 搜索部门
             if (this.searchKey) {
                 this.depLoading = true;
                 searchDepartment({
@@ -96,7 +96,7 @@ export default {
                     if (res.success) {
                         res.result.forEach(function (e) {
                             if (e.status == -1) {
-                                e.title = "[Disabled] " + e.title;
+                                e.title = "[已禁用] " + e.title;
                                 e.disabled = true;
                             }
                         });
