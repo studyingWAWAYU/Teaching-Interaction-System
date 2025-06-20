@@ -3,11 +3,11 @@
     <div class="discussion-header">
       <div class="search-box">
         <Input
-          v-model="searchQuery"
-          placeholder="Search keywords..."
-          clearable
-          size="large"
-          @on-change="handleSearch">
+            v-model="searchQuery"
+            placeholder="Search keywords..."
+            clearable
+            size="large"
+            @on-change="handleSearch">
           <Icon type="ios-search" slot="prefix" />
         </Input>
       </div>
@@ -18,12 +18,12 @@
 
     <div class="discussion-main">
       <div class="topic-list">
-        <div 
-          class="topic-item" 
-          v-for="(topic, index) in sortedDiscussions" 
-          :key="topic.id"
-          :class="{ active: selectedTopic === topic }"
-          @click.stop="selectTopic(topic)">
+        <div
+            class="topic-item"
+            v-for="(topic, index) in sortedDiscussions"
+            :key="topic.id"
+            :class="{ active: selectedTopic === topic }"
+            @click.stop="selectTopic(topic)">
           <div class="topic-brief">
             <h3 class="topic-title">{{ topic.title }}</h3>
             <div class="topic-meta">
@@ -61,7 +61,7 @@
           <div class="similar-topic">
             <span class="similar-topic-label">Possible Similar Topic:</span>
             <Icon type="ios-link" size="small" />
-            <a v-if="selectedTopic && selectedTopic.similarTopic" :href="selectedTopic.similarTopic" class="similar-topic-link" target="_blank">{{ selectedTopic.similarTopic }}</a>
+            <a v-if="selectedTopic && selectedTopic.similarTopic" class="similar-topic-link">{{ selectedTopic.similarTopic }}</a>
             <span v-else class="similar-topic-link" style="color: #aaa;">No similar topics</span>
           </div>
           <div class="detail-meta">
@@ -79,7 +79,7 @@
             </span>
           </div>
         </div>
-        
+
         <div class="detail-content">
           <div class="content-wrapper">
             {{ selectedTopic.description }}
@@ -109,7 +109,7 @@
                     <span class="reply-time">{{ formatTime(reply.createTime) }}</span>
                   </div>
                 </div>
-                <div class="reply-content">{{ reply.content }}</div>
+                <div class="reply-content" v-html="formatReplyContent(reply.content)"></div>
               </div>
               <div class="reply-actions">
                 <Button type="text" v-if="reply.createBy === currentUserId || isAdmin" @click="handleDeleteReply(reply)">
@@ -143,21 +143,22 @@
         </FormItem>
         <FormItem label="Content">
           <Input
-            v-model="newTopic.content"
-            type="textarea"
-            :rows="4"
-            placeholder="Enter topic content" />
+              v-model="newTopic.content"
+              type="textarea"
+              :rows="4"
+              placeholder="Enter topic content" />
         </FormItem>
       </Form>
     </Modal>
-    <Modal v-model="replyModalVisible" title="Reply to Topic" @on-ok="handleReply" ok-text="OK" cancel-text="Cancel">
+    <Modal v-model="replyModalVisible" title="Reply to Topic" @on-ok="handleReply" ok-text="OK" cancel-text="Cancel" width="800">
       <Form :model="newReply" :label-width="80">
         <FormItem label="Content">
           <Input
-            v-model="newReply.content"
-            type="textarea"
-            :rows="4"
-            placeholder="Enter your reply" />
+              v-model="newReply.content"
+              type="textarea"
+              :rows="15"
+              placeholder="Enter your reply" />
+          <Button type="dashed" style="margin-top:8px;" @click="handleSummary" :loading="summaryLoading">Summary</Button>
         </FormItem>
       </Form>
     </Modal>
@@ -172,12 +173,6 @@ import { getAllUsers } from '@/views/roster/user/api';
 
 export default {
   name: 'Discussion',
-  props: {
-    discussions: {
-      type: Array,
-      required: true
-    }
-  },
   data() {
     return {
       searchQuery: '',
@@ -204,7 +199,8 @@ export default {
       newReply: {
         content: '',
         topicIndex: -1
-      }
+      },
+      summaryLoading: false
     }
   },
   computed: {
@@ -235,15 +231,54 @@ export default {
   },
   created() {
     this.courseId = this.$route.params.id;
-    this.initData();
-  },
-  watch: {
-    discussions: {
-      immediate: true,
-      handler(newVal) {
-        this.filteredDiscussions = [...newVal];
+    this.filteredDiscussions = [
+      {
+        id: 1,
+        title: 'What is the mechanism of polymorphism?',
+        description: 'Share your opinion!',
+        createBy: 1,
+        updateTime: '2025/6/18 12:08:56',
+        likes: 3,
+        isLiked: false,
+        replyCount: 0,
+        replies: [],
+        similarTopic: 'How does polymorphism work in programming?',
+        courseId: this.courseId
+      },
+      {
+        id: 2,
+        title: 'How does polymorphism work in programming?',
+        description: ' ',
+        createBy: 2,
+        updateTime: '2025/6/19 18:38:23',
+        likes: 2,
+        isLiked: false,
+        replyCount: 2,
+        replies: [
+          {
+            id: 21,
+            content: 'Polymorphism is a key concept in object-oriented programming (OOP) that allows objects of different ' +
+                'types to be treated as objects of a common base type. In programming, it allows different classes to be ' +
+                'treated through the same interface, usually by overriding or implementing methods.',
+            createBy: 3,
+            createTime: '2025/6/19 18:40:03',
+            likes: 1,
+            isLiked: true
+          },
+          {
+            id: 22,
+            content: 'polymorphism is about flexibility, enabling a unified interface for different data types or classes.',
+            createBy: 4,
+            createTime: '2025/6/19 18:42:17',
+            likes: 0,
+            isLiked: false
+          }
+        ],
+        similarTopic: 'What is the mechanism of polymorphism?',
+        courseId: this.courseId
       }
-    }
+    ];
+    this.initData();
   },
   methods: {
     async loadUsers() {
@@ -276,24 +311,24 @@ export default {
         const response = await getAllTopicsSorted(this.courseId);
         if (response.success) {
           const topicsWithReplies = await Promise.all(
-            response.result.map(async (topic) => {
-              try {
-                const postsResponse = await getAllPosts(topic.id);
-                const replyCount = postsResponse.success ? postsResponse.result.length : 0;
-                return {
-                  ...topic,
-                  replyCount,
-                  replies: postsResponse.success ? postsResponse.result : []
-                };
-              } catch (error) {
-                console.error(`Failed to obtain the reply to Topic ${topic.id} :`, error);
-                return {
-                  ...topic,
-                  replyCount: 0,
-                  replies: []
-                };
-              }
-            })
+              response.result.map(async (topic) => {
+                try {
+                  const postsResponse = await getAllPosts(topic.id);
+                  const replyCount = postsResponse.success ? postsResponse.result.length : 0;
+                  return {
+                    ...topic,
+                    replyCount,
+                    replies: postsResponse.success ? postsResponse.result : []
+                  };
+                } catch (error) {
+                  console.error(`Failed to obtain the reply to Topic ${topic.id} :`, error);
+                  return {
+                    ...topic,
+                    replyCount: 0,
+                    replies: []
+                  };
+                }
+              })
           );
           this.filteredDiscussions = topicsWithReplies;
           this.$emit('discussions-loaded', topicsWithReplies);
@@ -349,24 +384,15 @@ export default {
         this.$Message.warning('Please fill in all fields');
         return;
       }
-      try {
-        const params = {
-          id: this.editTopicForm.id,
-          title: this.editTopicForm.title,
-          description: this.editTopicForm.description,
-          createBy: this.selectedTopic.createBy
-        };
-        const response = await saveOrUpdateTopics(this.courseId, params);
-        if (response.success) {
-          this.$Message.success('Edit Successful');
-          this.editTopicModalVisible = false;
-          await this.fetchCourseDiscussions();
-          // 重新选中当前主题
-          const updated = this.filteredDiscussions.find(t => t.id === this.editTopicForm.id);
-          if (updated) this.selectedTopic = updated;
-        } else {
-        }
-      } catch (error) {
+      // 静态前端实现
+      const idx = this.filteredDiscussions.findIndex(t => t.id === this.editTopicForm.id);
+      if (idx !== -1) {
+        this.filteredDiscussions[idx].title = this.editTopicForm.title;
+        this.filteredDiscussions[idx].description = this.editTopicForm.description;
+        this.filteredDiscussions[idx].updateTime = new Date().toISOString();
+        this.$Message.success('Edit Successful');
+        this.editTopicModalVisible = false;
+        this.selectedTopic = this.filteredDiscussions[idx];
       }
     },
     showEditTopicModal() {
@@ -401,7 +427,6 @@ export default {
     },
     selectTopic(topic) {
       this.selectedTopic = topic;
-      this.loadTopicReplies(topic.id);
     },
     handleSearch() {
       if (!this.searchQuery) {
@@ -410,12 +435,12 @@ export default {
       }
       const query = this.searchQuery.toLowerCase();
       this.filteredDiscussions = this.discussions.filter(topic => {
-        return topic.title.toLowerCase().includes(query) || 
-               (topic.description && topic.description.toLowerCase().includes(query));
+        return topic.title.toLowerCase().includes(query) ||
+            (topic.description && topic.description.toLowerCase().includes(query));
       });
     },
     handleContentClick(event) {
-      if (event.target.classList.contains('discussion-content') || 
+      if (event.target.classList.contains('discussion-content') ||
           event.target.classList.contains('discussion-main')) {
         this.selectedTopic = null;
       }
@@ -464,15 +489,15 @@ export default {
         content: 'Are you sure you want to delete this reply?',
         okText: 'del',
         cancelText: 'Cancel',
-        onOk: async () => {
-          try {
-            const response = await deletePosts(reply.topicId, { ids: [reply.id] });
-            if (response.success) {
+        onOk: () => {
+          const topic = this.filteredDiscussions.find(t => t.id === reply.topicId);
+          if (topic && topic.replies) {
+            const idx = topic.replies.findIndex(r => r.id === reply.id);
+            if (idx !== -1) {
+              topic.replies.splice(idx, 1);
+              topic.replyCount = topic.replies.length;
               this.$Message.success('The reply has been deleted.');
-              await this.loadTopicReplies(reply.topicId);
-            } else {
             }
-          } catch (error) {
           }
         }
       });
@@ -516,6 +541,20 @@ export default {
     async initData() {
       await this.loadUsers();
       await this.fetchCourseDiscussions();
+    },
+    handleSummary() {
+      this.summaryLoading = true;
+      setTimeout(() => {
+        const summaryText = `--KeyWords: Polymorphism, Runtime, Compile-time\n--Summary: This allows the reference variable to bind to different class implementations without changing the source code, causing the method calls to change accordingly. Polymorphism can be divided into compile-time polymorphism and runtime polymorphism.\n\n`;
+        if (!this.newReply.content.startsWith('--KeyWords:')) {
+          this.newReply.content = summaryText + this.newReply.content;
+        }
+        this.summaryLoading = false;
+      }, 1500);
+    },
+    formatReplyContent(content) {
+      if (!content) return '';
+      return content.replace(/\n/g, '<br>');
     }
   }
 }
@@ -535,19 +574,19 @@ export default {
 
     .search-box {
       width: 300px;
-      
+
       :deep(.ivu-input-wrapper) {
         .ivu-input {
           border-radius: 25px;
           padding-left: 40px;
           height: 40px;
           font-size: 16px;
-          
+
           &:focus {
             box-shadow: 0 0 0 2px rgba(45, 140, 240, 0.2);
           }
         }
-        
+
         .ivu-input-prefix {
           left: 12px;
           color: #808695;
@@ -745,7 +784,7 @@ export default {
           padding: 8px 12px;
           background: rgba(45, 140, 240, 0.05);
           border-radius: 16px;
-          
+
           .similar-topic-label {
             color: #515a6e;
             font-size: 13px;
@@ -759,17 +798,15 @@ export default {
 
           .similar-topic-link {
             color: #2d8cf0;
-            text-decoration: none;
             font-size: 14px;
             display: inline-block;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             vertical-align: bottom;
-            
+
             &:hover {
               color: #1c6bb8;
-              text-decoration: underline;
             }
           }
         }

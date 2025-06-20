@@ -130,7 +130,10 @@ export default {
       uploadFileUrl: '/wl' + uploadFile,
       uploadHeaders: {
         accessToken: getStore('accessToken')
-      }
+      },
+      filteredDiscussions: [
+        // 你的静态数据
+      ]
     }
   },
   computed: {
@@ -254,8 +257,8 @@ export default {
       }
     },
     async handleCreateCourse() {
-      if (!this.createCourseForm.name || !this.createCourseForm.credits || !this.createCourseForm.startTime || !this.createCourseForm.endTime || !this.createCourseForm.introduction) {
-        this.$Message.warning('Please fill in all fields');
+      if (!this.createCourseForm.name || !this.createCourseForm.credits || !this.createCourseForm.startTime || !this.createCourseForm.endTime) {
+        this.$Message.warning('Please fill in all required fields');
         return false;
       }
       // 获取当前登录用户username
