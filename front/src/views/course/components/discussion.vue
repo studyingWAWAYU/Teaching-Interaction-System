@@ -306,7 +306,6 @@ export default {
       }
     },
     async createDiscussion(topicData) {
-      // 静态前端实现：直接在本地 discussions/filteredDiscussions 添加新话题
       const newId = Date.now();
       const newTopic = {
         id: newId,
@@ -429,7 +428,6 @@ export default {
 
     // =================== Reply 相关 ===================
     async replyToDiscussion(topicId, replyData) {
-      // 静态前端实现：直接在本地 selectedTopic.replies 添加新回复
       const topic = this.filteredDiscussions.find(t => t.id === topicId);
       if (!topic) return;
       const newReply = {
