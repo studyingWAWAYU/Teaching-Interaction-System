@@ -99,7 +99,7 @@
           <div class="reply-list">
             <div class="reply-item" v-for="(reply, rIndex) in sortedReplies" :key="reply.id">
               <div class="reply-avatar">
-                <Avatar icon="ios-person" size="large" />
+                <Avatar :src="getUserAvatar(reply.createBy)" icon="ios-person" size="large" />
               </div>
               <div class="reply-content-wrapper">
                 <div class="reply-header">
@@ -517,6 +517,10 @@ export default {
     hasUserReplied(topic) {
       if (!topic.replies) return false;
       return topic.replies.some(reply => reply.createBy === this.currentUserId);
+    },
+    getUserAvatar(userId) {
+      const user = this.users.find(u => u.id === userId);
+      return user && user.avatar ? user.avatar : '';
     },
     async initData() {
       await this.loadUsers();
