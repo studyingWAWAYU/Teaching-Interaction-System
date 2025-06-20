@@ -69,13 +69,6 @@ public class JwtTokenOncePerRequestFilter extends OncePerRequestFilter {
 
         log.info("Request URI {} is not in the white list, checking JWT authentication", requestURI);
 
-
-        // 如果路径在白名单中，直接放行
-        if (whiteList.stream().anyMatch(pattern -> requestURI.matches(pattern.replace("**", ".*")))) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         // 如果没有 Token 且不在白名单中，直接返回
         if (WlNullUtils.isNull(tokenHeader)) {
             tokenHeader = request.getParameter(WlLoginProperties.HTTP_HEADER);
@@ -89,6 +82,7 @@ public class JwtTokenOncePerRequestFilter extends OncePerRequestFilter {
         try {
             UsernamePasswordAuthenticationToken token = getUsernamePasswordAuthenticationToken(tokenHeader, response);
             if (token != null) {
+                // 将认证信息保存到SecurityContextHolder
                 SecurityContextHolder.getContext().setAuthentication(token);
             }
         } catch (Exception e) {
@@ -103,6 +97,7 @@ public class JwtTokenOncePerRequestFilter extends OncePerRequestFilter {
     private UsernamePasswordAuthenticationToken getUsernamePasswordAuthenticationToken(String header, HttpServletResponse response) {
         String userName = null;
         String tokenInRedis = redisTemplate.get(WlLoginProperties.HTTP_TOKEN_PRE + header);
+
         if(WlNullUtils.isNull(tokenInRedis)){
             ResponseUtil.out(response, ResponseUtil.resultMap(RESPONSE_FAIL_FLAG,RESPONSE_NO_ROLE_CODE,"登录状态失效，需要重登！"));
             return null;
@@ -111,6 +106,7 @@ public class JwtTokenOncePerRequestFilter extends OncePerRequestFilter {
         TokenUser tokenUser = JSONObject.parseObject(tokenInRedis,TokenUser.class);
         userName = tokenUser.getUsername();
         List<GrantedAuthority> permissionList = new ArrayList<>();
+
         if(WlLoginProperties.getSaveRoleFlag()){
             for(String permission : tokenUser.getPermissions()){
                 permissionList.add(new SimpleGrantedAuthority(permission));

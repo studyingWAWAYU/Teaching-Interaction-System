@@ -13,17 +13,17 @@ CREATE TABLE IF NOT EXISTS `user` (
                                       `id` integer primary key auto_increment,
                                       `create_time` date,
                                       `username` varchar(30) NOT NULL,
-                                      `password` varchar(255) NOT NULL,
-                                      `nickname` varchar(20) DEFAULT NULL,
-                                      `email` varchar(50) DEFAULT NULL,
-                                      `mobile` varchar(20) DEFAULT NULL,
-                                      `number` varchar(20) NOT NULL unique,
-                                      `sex` char(10) DEFAULT NULL,
-                                      `avatar` varchar(255) DEFAULT NULL,
-                                      `department` varchar(50) DEFAULT NULL,
-                                      `my_door` varchar(255) DEFAULT NULL,
-                                      `role_id` integer DEFAULT NULL
-);
+    `password` varchar(255) NOT NULL,
+    `nickname` varchar(20) DEFAULT NULL,
+    `email` varchar(50) DEFAULT NULL,
+    `mobile` varchar(20) DEFAULT NULL,
+    `number` varchar(20) NOT NULL unique,
+    `sex` char(10) DEFAULT NULL,
+    `avatar` varchar(255) DEFAULT NULL,
+    `department` varchar(50) DEFAULT NULL,
+    `my_door` varchar(255) DEFAULT NULL,
+    `role_id` integer DEFAULT NULL
+    );
 
 DELETE FROM `user`;
 INSERT INTO `user` (`id`, `create_time`, `username`, `password`, `nickname`,`email`, `mobile`, `number`,`sex`, `avatar`, `department`,`my_door`,role_id) VALUES
@@ -38,10 +38,10 @@ DROP TABLE IF EXISTS `student`;
 CREATE TABLE IF NOT EXISTS `student` (
                                          `id` integer primary key auto_increment,
                                          `grade` char(10) DEFAULT NULL,
-                                         `major` varchar(50) DEFAULT NULL,
-                                         user_id integer,
-                                         foreign key (user_id) references user(id)
-);
+    `major` varchar(50) DEFAULT NULL,
+    user_id integer,
+    foreign key (user_id) references user(id)
+    );
 
 DELETE FROM `student`;
 INSERT INTO `student` (`id`, `grade`, `major`,user_id) VALUES
@@ -53,10 +53,10 @@ DROP TABLE IF EXISTS `teacher`;
 CREATE TABLE IF NOT EXISTS `teacher` (
                                          `id` Integer primary key auto_increment,
                                          `description` varchar(500) DEFAULT NULL,
-                                         `title` varchar(50) DEFAULT NULL,
-                                         user_id integer,
-                                         foreign key (user_id) references user(id)
-);
+    `title` varchar(50) DEFAULT NULL,
+    user_id integer,
+    foreign key (user_id) references user(id)
+    );
 
 DELETE FROM `teacher`;
 INSERT INTO `teacher` (`id`, `description`, `title`,user_id) VALUES
@@ -68,15 +68,15 @@ CREATE TABLE IF NOT EXISTS `role` (
                                       `id` integer primary key,
                                       `create_time` date,
                                       `description` varchar(255) DEFAULT NULL,
-                                      `name` varchar(50) NOT NULL,
-                                      `datatype` int NOT NULL
-);
+    `name` varchar(50) NOT NULL,
+    `datatype` int NOT NULL
+    );
 
 DELETE FROM `role`;
 INSERT INTO `role` (`id`,create_time, `description`, `name`, `datatype`) VALUES
-     (0, '2025-06-17', 'student', 'ROLE_STUDENT',  0),
-     (1, '2025-06-17', 'teacher', 'ROLE_TEACHER', 0),
-     (2, '2025-06-17', 'admin', 'ROLE_ADMIN', 0);
+                                                                             (0, '2025-06-17', 'student', 'ROLE_STUDENT',  0),
+                                                                             (1, '2025-06-17', 'teacher', 'ROLE_TEACHER', 0),
+                                                                             (2, '2025-06-17', 'admin', 'ROLE_ADMIN', 0);
 
 DROP TABLE IF EXISTS `user_role`;
 
@@ -85,86 +85,86 @@ DROP TABLE IF EXISTS `permission`;
 CREATE TABLE IF NOT EXISTS `permission` (
                                             `id` integer primary key auto_increment,
                                             `description` varchar(255) DEFAULT NULL,
-                                            `name` varchar(255) DEFAULT NULL,
-                                            `parent_id` varchar(255) DEFAULT NULL,
-                                            `type` int DEFAULT NULL,
-                                            `sort_order` decimal(10,2) DEFAULT NULL,
-                                            `component` varchar(255) DEFAULT NULL,
-                                            `path` varchar(255) DEFAULT NULL,
-                                            `title` varchar(255) DEFAULT NULL,
-                                            `icon` varchar(255) DEFAULT NULL,
-                                            `level` int unsigned DEFAULT NULL,
-                                            `button_type` varchar(255) DEFAULT NULL,
-                                            `status` int DEFAULT NULL,
-                                            `show_always` bit(1) DEFAULT NULL
-);
+    `name` varchar(255) DEFAULT NULL,
+    `parent_id` varchar(255) DEFAULT NULL,
+    `type` int DEFAULT NULL,
+    `sort_order` decimal(10,2) DEFAULT NULL,
+    `component` varchar(255) DEFAULT NULL,
+    `path` varchar(255) DEFAULT NULL,
+    `title` varchar(255) DEFAULT NULL,
+    `icon` varchar(255) DEFAULT NULL,
+    `level` int unsigned DEFAULT NULL,
+    `button_type` varchar(255) DEFAULT NULL,
+    `status` int DEFAULT NULL,
+    `show_always` bit(1) DEFAULT NULL
+    );
 
 DELETE FROM `permission`;
 INSERT INTO `permission` (`id`, `description`, `name`, `parent_id`, `type`, `sort_order`, `component`, `path`, `title`, `icon`, `level`, `button_type`, `status`, `show_always`) VALUES
-    (1, NULL, 'wlHome', '0', -1, 1.00, '', '', '教学资源共享平台', 'md-home', 0, '', 0, b'1'),
-    (2, NULL, 'userTwoMenu', 1, 0, 1.00, 'Main', '/baseMenu', '系统基础模块', 'md-analytics', 1, '', 0, b'1'),
-    (3, NULL, 'dict', 2, 0, 7.00, 'dict/dict/index', 'dict', '数据字典', 'ios-apps', 2, '', 0, b'1'),
-    (4, NULL, 'vue', 2, 0, 8.00, 'code/vue/index', 'vue', '测试菜单', 'md-bug', 2, '', 0, b'1'),
-    (5, NULL, 'classMenu', 1, 0, 2.00, 'Main', '/classMenu', '课程管理模块', 'ios-apps', 1, '', 0, NULL),
-    (6, NULL, 'course', 5, 0, 1.00, 'study/course/index', 'course', '课程模块', 'md-aperture', 2, '', 0, NULL),
-    (7, NULL, 'resMenu', 1, 0, 3.00, 'Main', '/resMenu', '课程课件模块', 'ios-apps', 1, '', 0, NULL),
-    (8, NULL, 'courseResources', 7, 0, 1.00, 'study/courseResources/index', 'courseResources', '课程课件', 'md-aperture', 2, '', 0, NULL),
-    (9, NULL, 'timetableMenu', 1, 0, 4.00, 'Main', '/timetableMenu', '授课中心模块', 'ios-apps', 1, '', 0, NULL),
-    (10, NULL, 'timetable', 9, 0, 1.00, 'study/timetable/index', 'timetable', '授课管理', 'md-aperture', 2, '', 0, NULL),
-    (11, NULL, 'assignmentMenu', 1, 0, 5.00, 'Main', '/assignmentMenu', '作业发布模块', 'ios-apps', 1, '', 0, NULL),
-    (12, NULL, 'assignment', 11, 0, 1.00, 'study/assignment/index', 'assignment', '课程作业', 'md-aperture', 2, '', 0, NULL),
-    (13, NULL, 'feedback', 1, 0, 6.00, 'Main', '/feedbackMenu', '课程评价模块', 'ios-apps', 1, '', 0, NULL),
-    (14, NULL, 'feedback', 13, 0, 1.00, 'study/feedback/index', 'feedback', '课程评价', 'md-aperture', 2, '', 0, NULL),
-    (15, NULL, 'timetable2', 9, 0, 2.00, 'study/timetable/myIndex', 'timetable2', '我的课表', 'md-aperture', 2, '', 0, NULL),
-    (16, NULL, 'fenXiMenu', 1, 0, 7.00, 'Main', '/fenXiMenu', '课程质量分析模块', 'ios-apps', 1, '', 0, NULL),
-    (17, NULL, 'zyTu', 16, 0, 1.00, 'study/zyTu/index', 'zyTu', '课程质量分析', 'md-aperture', 2, '', 0, NULL),
-    (18, NULL, '', 6, 1, 1.00, '', '无', '添加课程', '', 3, 'add', 0, NULL),
-    (19, NULL, '', 6, 1, 2.00, '', '无', '编辑课程', '', 3, 'edit', 0, NULL),
-    (20, NULL, '', 6, 1, 3.00, '', '无', '删除课程', '', 3, 'delete', 0, NULL),
-    (21, NULL, '', 6, 1, 4.00, '', '无', '提交课程评价', '', 3, 'enable', 0, NULL),
-    (22, NULL, '', 6, 1, 5.00, '', '无', '课程作业生成', '', 3, 'disable', 0, NULL),
-    (23, NULL, '', 8, 1, 1.00, '', '无', '上传课程资源', '', 3, 'add', 0, NULL),
-    (24, NULL, '', 8, 1, 2.00, '', '无', '编辑课程资源', '', 3, 'edit', 0, NULL),
-    (25, NULL, '', 8, 1, 3.00, '', '无', '删除课程资源', '', 3, 'delete', 0, NULL),
-    (26, NULL, '', 10, 1, 1.00, '', '无', '添加授课', '', 3, 'add', 0, NULL),
-    (27, NULL, '', 10, 1, 2.00, '', '无', '编辑授课', '', 3, 'edit', 0, NULL),
-    (28, NULL, '', 10, 1, 3.00, '', '无', '删除授课', '', 3, 'delete', 0, NULL),
-    (29, NULL, '', 12, 1, 1.00, '', '无', '删除课程作业', '', 3, 'delete', 0, NULL),
-    (30, NULL, '', 12, 1, 2.00, '', '无', '提交课程作业', '', 3, 'enable', 0, NULL),
-    (31, NULL, '', 14, 1, 1.00, '', '无', '删除课程评价', '', 3, 'delete', 0, NULL),
-    (32, NULL, 'baseData', 2, 0, 9.00, 'study/baseData/index', 'baseData', '学校基本信息', 'md-aperture', 2, '', 0, NULL),
-    (33, NULL, 'talkMenu', 1, 0, 8.00, 'Main', '/talkMenu', '交流互动模块', 'ios-apps', 1, '', 0, NULL),
-    (34, NULL, 'topics', 33, 0, 1.00, 'study/topics/index', 'topics', '交流互动信息', 'md-aperture', 2, '', 0, NULL),
-    (35, NULL, 'teacherData', 9, 0, 3.00, 'study/teacherData/index', 'teacherData', '教师模块', 'md-aperture', 2, '', 0, NULL),
-    (36, NULL, '', 34, 1, 1.00, '', '无', '新增留言', '', 3, 'add', 0, NULL),
-    (37, NULL, '', 34, 1, 2.00, '', '无', '回复留言', '', 3, 'edit', 0, NULL),
-    (38, NULL, '', 34, 1, 3.00, '', '五', '删除留言', '', 3, 'delete', 0, NULL),
-    (39, NULL, '', 66, 1, 1.00, '', '无', '添加用户', '', 3, 'add', 0, NULL),
-    (40, NULL, '', 66, 1, 2.00, '', '无', '编辑用户', '', 3, 'edit', 0, NULL),
-    (41, NULL, '', 66, 1, 3.00, '', '无', '删除用户', '', 3, 'delete', 0, NULL),
-    (42, NULL, '', 64, 1, 1.00, '', '无', '添加部门', '', 3, 'add', 0, NULL),
-    (43, NULL, '', 64, 1, 2.00, '', '无', '编辑部门', '', 3, 'edit', 0, NULL),
-    (44, NULL, '', 64, 1, 3.00, '', '无', '删除部门', '', 3, 'delete', 0, NULL),
-    (45, NULL, '', 67, 1, 1.00, '', '无', '添加角色', '', 3, 'add', 0, NULL),
-    (46, NULL, '', 67, 1, 2.00, '', '无', '编辑角色', '', 3, 'edit', 0, NULL),
-    (47, NULL, '', 67, 1, 3.00, '', '无', '删除角色', '', 3, 'delete', 0, NULL),
-    (48, NULL, '', 67, 1, 4.00, '', '无', '分配角色权限', '', 3, 'enable', 0, NULL),
-    (49, NULL, '', 68, 1, 1.00, '', '无', '添加菜单', '', 3, 'add', 0, NULL),
-    (50, NULL, '', 68, 1, 2.00, '', '无', '编辑菜单', '', 3, 'edit', 0, NULL),
-    (51, NULL, '', 68, 1, 3.00, '', '无', '删除菜单', '', 3, 'delete', 0, NULL),
-    (52, NULL, '', 69, 1, 1.00, '', '无', '上传文件', '', 3, 'add', 0, NULL),
-    (53, NULL, '', 69, 1, 2.00, '', '无', '删除文件', '', 3, 'delete', 0, NULL),
-    (54, NULL, '', 3, 1, 1.00, '', '无', '添加数据字典', '', 3, 'add', 0, NULL),
-    (55, NULL, '', 3, 1, 2.00, '', '无', '编辑数据字典', '', 3, 'edit', 0, NULL),
-    (56, NULL, '', 3, 1, 3.00, '', '无', '删除数据字典', '', 3, 'delete', 0, NULL),
-    (57, NULL, '', 69, 1, 3.00, '', '无', '文件存储配置', '', 3, 'enable', 0, NULL),
-    (58, NULL, 'department-admin', 2, 0, 2.00, 'roster/department/department', 'dep', '部门管理', 'md-git-branch', 2, '', 0, b'1'),
-    (59, NULL, 'log-manage', 2, 0, 6.00, 'log/log/index', 'log', '日志管理', 'md-list-box', 2, '', 0, b'1'),
-    (60, NULL, 'user-admin', 2, 0, 1.00, 'roster/user/user', 'user', '用户管理', 'md-person', 2, '', 0, b'1'),
-    (61, NULL, 'role-manage', 2, 0, 3.00, 'role/role/index', 'role', '角色管理', 'md-contacts', 2, '', 0, b'1'),
-    (62, NULL, 'menu-manage', 2, 0, 4.00, 'menu/menu/index', 'menu', '菜单管理', 'md-menu', 2, '', 0, b'1'),
-    (63, NULL, 'file-admin', 2, 0, 5.00, 'file/file/index', 'file', '文件管理', 'ios-folder', 2, '', 0, b'1'),
-    (64,NULL,'courseTopics',6,0,1.00,'study/course/topics','course/${courseId}/topics/insert','新建主题','md-library',2,'',1,b'1');
+                                                                                                                                                                                     (1, NULL, 'wlHome', '0', -1, 1.00, '', '', 'Teaching Interaction System', 'md-home', 0, '', 0, b'1'),
+                                                                                                                                                                                     (2, NULL, 'userTwoMenu', 1, 0, 1.00, 'Main', '/baseMenu', 'Basic Module', 'md-analytics', 1, '', 0, b'1'),
+                                                                                                                                                                                     (3, NULL, 'dict', 2, 0, 7.00, 'dict/dict/index', 'dict', 'Data Dictionary', 'ios-apps', 2, '', 0, b'1'),
+                                                                                                                                                                                     (4, NULL, 'vue', 2, 0, 8.00, 'code/vue/index', 'vue', '测试菜单', 'md-bug', 2, '', 0, b'1'),
+                                                                                                                                                                                     (5, NULL, 'classMenu', 1, 0, 2.00, 'Main', '/classMenu', '课程管理模块', 'ios-apps', 1, '', 0, NULL),
+                                                                                                                                                                                     (6, NULL, 'course', 5, 0, 1.00, 'study/course/index', 'course', '课程模块', 'md-aperture', 2, '', 0, NULL),
+                                                                                                                                                                                     (7, NULL, 'resMenu', 1, 0, 3.00, 'Main', '/resMenu', '课程课件模块', 'ios-apps', 1, '', 0, NULL),
+                                                                                                                                                                                     (8, NULL, 'courseResources', 7, 0, 1.00, 'study/courseResources/index', 'courseResources', 'courseResources', 'md-aperture', 2, '', 0, NULL),
+                                                                                                                                                                                     (9, NULL, 'timetableMenu', 1, 0, 4.00, 'Main', '/timetableMenu', '授课中心模块', 'ios-apps', 1, '', 0, NULL),
+                                                                                                                                                                                     (10, NULL, 'timetable', 9, 0, 1.00, 'study/timetable/index', 'timetable', '授课管理', 'md-aperture', 2, '', 0, NULL),
+                                                                                                                                                                                     (11, NULL, 'assignmentMenu', 1, 0, 5.00, 'Main', '/assignmentMenu', 'AssignmentMenu', 'ios-apps', 1, '', 0, NULL),
+                                                                                                                                                                                     (12, NULL, 'assignment', 11, 0, 1.00, 'study/assignment/index', 'assignment', 'Assignment', 'md-aperture', 2, '', 0, NULL),
+                                                                                                                                                                                     (13, NULL, 'feedback', 1, 0, 6.00, 'Main', '/feedbackMenu', 'FeedbackMenu', 'ios-apps', 1, '', 0, NULL),
+                                                                                                                                                                                     (14, NULL, 'feedback', 13, 0, 1.00, 'study/feedback/index', 'feedback', 'Feedback', 'md-aperture', 2, '', 0, NULL),
+                                                                                                                                                                                     (15, NULL, 'timetable2', 9, 0, 2.00, 'study/timetable/myIndex', 'timetable2', 'timetable', 'md-aperture', 2, '', 0, NULL),
+                                                                                                                                                                                     (16, NULL, 'fenXiMenu', 1, 0, 7.00, 'Main', '/fenXiMenu', '课程质量分析模块', 'ios-apps', 1, '', 0, NULL),
+                                                                                                                                                                                     (17, NULL, 'zyTu', 16, 0, 1.00, 'study/zyTu/index', 'zyTu', '课程质量分析', 'md-aperture', 2, '', 0, NULL),
+                                                                                                                                                                                     (18, NULL, '', 6, 1, 1.00, '', '无', '添加课程', '', 3, 'add', 0, NULL),
+                                                                                                                                                                                     (19, NULL, '', 6, 1, 2.00, '', '无', '编辑课程', '', 3, 'edit', 0, NULL),
+                                                                                                                                                                                     (20, NULL, '', 6, 1, 3.00, '', '无', '删除课程', '', 3, 'delete', 0, NULL),
+                                                                                                                                                                                     (21, NULL, '', 6, 1, 4.00, '', '无', '提交课程评价', '', 3, 'enable', 0, NULL),
+                                                                                                                                                                                     (22, NULL, '', 6, 1, 5.00, '', '无', '课程作业生成', '', 3, 'disable', 0, NULL),
+                                                                                                                                                                                     (23, NULL, '', 8, 1, 1.00, '', '无', '上传课程资源', '', 3, 'add', 0, NULL),
+                                                                                                                                                                                     (24, NULL, '', 8, 1, 2.00, '', '无', '编辑课程资源', '', 3, 'edit', 0, NULL),
+                                                                                                                                                                                     (25, NULL, '', 8, 1, 3.00, '', '无', '删除课程资源', '', 3, 'delete', 0, NULL),
+                                                                                                                                                                                     (26, NULL, '', 10, 1, 1.00, '', '无', '添加授课', '', 3, 'add', 0, NULL),
+                                                                                                                                                                                     (27, NULL, '', 10, 1, 2.00, '', '无', '编辑授课', '', 3, 'edit', 0, NULL),
+                                                                                                                                                                                     (28, NULL, '', 10, 1, 3.00, '', '无', '删除授课', '', 3, 'delete', 0, NULL),
+                                                                                                                                                                                     (29, NULL, '', 12, 1, 1.00, '', '无', '删除课程作业', '', 3, 'delete', 0, NULL),
+                                                                                                                                                                                     (30, NULL, '', 12, 1, 2.00, '', '无', '提交课程作业', '', 3, 'enable', 0, NULL),
+                                                                                                                                                                                     (31, NULL, '', 14, 1, 1.00, '', '无', '删除课程评价', '', 3, 'delete', 0, NULL),
+                                                                                                                                                                                     (32, NULL, 'baseData', 2, 0, 9.00, 'study/baseData/index', 'baseData', '学校基本信息', 'md-aperture', 2, '', 0, NULL),
+                                                                                                                                                                                     (33, NULL, 'talkMenu', 1, 0, 8.00, 'Main', '/talkMenu', '交流互动模块', 'ios-apps', 1, '', 0, NULL),
+                                                                                                                                                                                     (34, NULL, 'topics', 33, 0, 1.00, 'study/topics/index', 'topics', '交流互动信息', 'md-aperture', 2, '', 0, NULL),
+                                                                                                                                                                                     (35, NULL, 'teacherData', 9, 0, 3.00, 'study/teacherData/index', 'teacherData', '教师模块', 'md-aperture', 2, '', 0, NULL),
+                                                                                                                                                                                     (36, NULL, '', 34, 1, 1.00, '', '无', '新增留言', '', 3, 'add', 0, NULL),
+                                                                                                                                                                                     (37, NULL, '', 34, 1, 2.00, '', '无', '回复留言', '', 3, 'edit', 0, NULL),
+                                                                                                                                                                                     (38, NULL, '', 34, 1, 3.00, '', '五', '删除留言', '', 3, 'delete', 0, NULL),
+                                                                                                                                                                                     (39, NULL, '', 66, 1, 1.00, '', '无', '添加用户', '', 3, 'add', 0, NULL),
+                                                                                                                                                                                     (40, NULL, '', 66, 1, 2.00, '', '无', '编辑用户', '', 3, 'edit', 0, NULL),
+                                                                                                                                                                                     (41, NULL, '', 66, 1, 3.00, '', '无', '删除用户', '', 3, 'delete', 0, NULL),
+                                                                                                                                                                                     (42, NULL, '', 64, 1, 1.00, '', '无', '添加部门', '', 3, 'add', 0, NULL),
+                                                                                                                                                                                     (43, NULL, '', 64, 1, 2.00, '', '无', '编辑部门', '', 3, 'edit', 0, NULL),
+                                                                                                                                                                                     (44, NULL, '', 64, 1, 3.00, '', '无', '删除部门', '', 3, 'delete', 0, NULL),
+                                                                                                                                                                                     (45, NULL, '', 67, 1, 1.00, '', '无', '添加角色', '', 3, 'add', 0, NULL),
+                                                                                                                                                                                     (46, NULL, '', 67, 1, 2.00, '', '无', '编辑角色', '', 3, 'edit', 0, NULL),
+                                                                                                                                                                                     (47, NULL, '', 67, 1, 3.00, '', '无', '删除角色', '', 3, 'delete', 0, NULL),
+                                                                                                                                                                                     (48, NULL, '', 67, 1, 4.00, '', '无', '分配角色权限', '', 3, 'enable', 0, NULL),
+                                                                                                                                                                                     (49, NULL, '', 68, 1, 1.00, '', '无', '添加菜单', '', 3, 'add', 0, NULL),
+                                                                                                                                                                                     (50, NULL, '', 68, 1, 2.00, '', '无', '编辑菜单', '', 3, 'edit', 0, NULL),
+                                                                                                                                                                                     (51, NULL, '', 68, 1, 3.00, '', '无', '删除菜单', '', 3, 'delete', 0, NULL),
+                                                                                                                                                                                     (52, NULL, '', 69, 1, 1.00, '', '无', '上传文件', '', 3, 'add', 0, NULL),
+                                                                                                                                                                                     (53, NULL, '', 69, 1, 2.00, '', '无', '删除文件', '', 3, 'delete', 0, NULL),
+                                                                                                                                                                                     (54, NULL, '', 3, 1, 1.00, '', '无', '添加数据字典', '', 3, 'add', 0, NULL),
+                                                                                                                                                                                     (55, NULL, '', 3, 1, 2.00, '', '无', '编辑数据字典', '', 3, 'edit', 0, NULL),
+                                                                                                                                                                                     (56, NULL, '', 3, 1, 3.00, '', '无', '删除数据字典', '', 3, 'delete', 0, NULL),
+                                                                                                                                                                                     (57, NULL, '', 69, 1, 3.00, '', '无', '文件存储配置', '', 3, 'enable', 0, NULL),
+                                                                                                                                                                                     (58, NULL, 'department-admin', 2, 0, 2.00, 'roster/department/department', 'dep', 'department management', 'md-git-branch', 2, '', 0, b'1'),
+                                                                                                                                                                                     (59, NULL, 'log-manage', 2, 0, 6.00, 'log/log/index', 'log', 'log management', 'md-list-box', 2, '', 0, b'1'),
+                                                                                                                                                                                     (60, NULL, 'user-admin', 2, 0, 1.00, 'roster/user/user', 'user', 'user management', 'md-person', 2, '', 0, b'1'),
+                                                                                                                                                                                     (61, NULL, 'role-manage', 2, 0, 3.00, 'role/role/index', 'role', 'role management', 'md-contacts', 2, '', 0, b'1'),
+                                                                                                                                                                                     (62, NULL, 'menu-manage', 2, 0, 4.00, 'menu/menu/index', 'menu', 'permission management', 'md-menu', 2, '', 0, b'1'),
+                                                                                                                                                                                     (63, NULL, 'file-admin', 2, 0, 5.00, 'file/file/index', 'file', 'file management', 'ios-folder', 2, '', 0, b'1'),
+                                                                                                                                                                                     (64,NULL,'courseTopics',6,0,1.00,'study/course/topics','course/${courseId}/topics/insert','create new topic','md-library',2,'',1,b'1');
 
 
 DROP TABLE IF EXISTS `role_permission`;
@@ -173,8 +173,8 @@ CREATE TABLE IF NOT EXISTS `role_permission` (
                                                  permission_id integer,
                                                  role_id integer,
                                                  foreign key (permission_id) references permission(id),
-                                                 foreign key (role_id) references role(id)
-);
+    foreign key (role_id) references role(id)
+    );
 
 DELETE FROM `role_permission`;
 INSERT INTO `role_permission` (`id`,`permission_id`, `role_id`) VALUES
@@ -266,9 +266,9 @@ INSERT INTO `role_permission` (`id`,`permission_id`, `role_id`) VALUES
 
 DROP TABLE IF EXISTS `course`;
 CREATE TABLE IF NOT EXISTS `course` (
-    `id` integer primary key auto_increment,
-    create_by integer,
-    foreign key (create_by) references user(id),
+                                        `id` integer primary key auto_increment,
+                                        create_by integer,
+                                        foreign key (create_by) references user(id),
     start_time date DEFAULT NULL,
     end_time date DEFAULT NULL,
     `content` varchar(800) DEFAULT NULL,
@@ -276,22 +276,22 @@ CREATE TABLE IF NOT EXISTS `course` (
     `status` varchar(255) DEFAULT NULL,
     `title` varchar(255) DEFAULT NULL,
     credit decimal(4,1) DEFAULT NULL
-);
+    );
 
 DELETE FROM `course`;
 INSERT INTO `course` (`id`, `create_by`, `start_time`,end_time, `content`, `image`, `status`, `title`,credit) VALUES
-                                                                                                           (1, 2, '2025-06-09', '2025-06-12', 'Java Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071506217668608.png', 'Normal', 'Java Program Design',3.0),
-                                                                                                           (2, 2, '2025-06-09', '2025-06-12', 'Python Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071540472549376.png', 'Normal', 'Python Program Design',3.0);
+                                                                                                                  (1, 2, '2025-06-09', '2025-06-12', 'Java Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071506217668608.png', 'Onging', 'Java Program Design',3.0),
+                                                                                                                  (2, 2, '2025-06-09', '2025-06-12', 'Python Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071540472549376.png', 'Closed', 'Python Program Design',3.0);
 
 DROP TABLE IF EXISTS `gradebook`;
 CREATE TABLE IF NOT EXISTS `gradebook` (
                                            id integer primary key auto_increment,
                                            user_id integer,
                                            foreign key (user_id) references user(id),
-                                           course_id integer,
-                                           foreign key (course_id) references course(id),
-                                           course_garde integer DEFAULT NULL
-);
+    course_id integer,
+    foreign key (course_id) references course(id),
+    course_garde integer DEFAULT NULL
+    );
 
 DELETE FROM `gradebook`;
 INSERT INTO `gradebook` (`id`, `user_id`, `course_id`,course_garde) VALUES
@@ -305,12 +305,12 @@ CREATE TABLE IF NOT EXISTS `feedback` (
                                           id integer primary key auto_increment,
                                           create_by integer,
                                           foreign key (create_by) references user(id),
-                                          create_time date,
-                                          content varchar(255) NOT NULL,
-                                          course_id integer,
-                                          foreign key (course_id) references course(id),
-                                          rating integer DEFAULT NULL
-);
+    create_time date,
+    content varchar(255) NOT NULL,
+    course_id integer,
+    foreign key (course_id) references course(id),
+    rating integer DEFAULT NULL
+    );
 
 DELETE FROM `feedback`;
 INSERT INTO `feedback` (`id`, `create_by`, `create_time`,`content`, `course_id`, rating) VALUES
@@ -326,13 +326,13 @@ CREATE TABLE IF NOT EXISTS `assignment_req` (
                                                 start_time date DEFAULT NULL,
                                                 end_time date DEFAULT NULL,
                                                 status varchar(50) DEFAULT NULL,
-                                                title varchar(255) NOT NULL,
-                                                description varchar(1000) DEFAULT NULL,
-                                                file varchar(255) DEFAULT NULL,
-                                                upload_time date,
-                                                course_id integer,
-                                                foreign key (course_id) references course(id)
-);
+    title varchar(255) NOT NULL,
+    description varchar(1000) DEFAULT NULL,
+    file varchar(255) DEFAULT NULL,
+    upload_time date,
+    course_id integer,
+    foreign key (course_id) references course(id)
+    );
 
 DELETE FROM `assignment_req`;
 INSERT INTO `assignment_req` (`id`, start_time, end_time,`status`, `title`, `description`, `file`,`upload_time`, `course_id`) VALUES
@@ -348,13 +348,13 @@ DROP TABLE IF EXISTS `assignment_ans`;
 CREATE TABLE IF NOT EXISTS `assignment_ans` (
                                                 `id` integer primary key auto_increment,
                                                 title varchar(255) NOT NULL,
-                                                file varchar(255) DEFAULT NULL,
-                                                upload_time date,
-                                                student_id integer,
-                                                foreign key (student_id) references user(id),
-                                                req_id integer,
-                                                foreign key (req_id) references assignment_req(id)
-);
+    file varchar(255) DEFAULT NULL,
+    upload_time date,
+    student_id integer,
+    foreign key (student_id) references user(id),
+    req_id integer,
+    foreign key (req_id) references assignment_req(id)
+    );
 
 DELETE FROM `assignment_ans`;
 INSERT INTO `assignment_ans` (`id`, `title`, file,`upload_time`, student_id, req_id) VALUES
@@ -370,10 +370,10 @@ CREATE TABLE IF NOT EXISTS `course_resources` (
                                                   update_time date,
                                                   course_id integer,
                                                   foreign key (course_id) references course(id),
-                                                  title varchar(255) NOT NULL,
-                                                  description varchar(1000) DEFAULT NULL,
-                                                  file_url varchar(255) DEFAULT NULL
-);
+    title varchar(255) NOT NULL,
+    description varchar(1000) DEFAULT NULL,
+    file_url varchar(255) DEFAULT NULL
+    );
 
 DELETE FROM `course_resources`;
 INSERT INTO `course_resources` (`id`, `update_time`, `course_id`, title, description, `file_url`) VALUES
@@ -388,14 +388,14 @@ CREATE TABLE IF NOT EXISTS `topics` (
                                         id integer primary key auto_increment,
                                         create_by integer,
                                         foreign key (create_by) references user(id),
-                                        update_time date,
-                                        title varchar(150) NOT NULL,
-                                        description varchar(5000) DEFAULT NULL,
-                                        course_id integer,
-                                        foreign key (course_id) references course(id),
-                                        likes integer DEFAULT 0,
-                                        similar_topic varchar(255) DEFAULT NULL
-);
+    update_time date,
+    title varchar(150) NOT NULL,
+    description varchar(5000) DEFAULT NULL,
+    course_id integer,
+    foreign key (course_id) references course(id),
+    likes integer DEFAULT 0,
+    similar_topic varchar(255) DEFAULT NULL
+    );
 
 DELETE FROM `topics`;
 INSERT INTO `topics` (`id`, `create_by`, `update_time`, `title`, description, `course_id`,likes) VALUES
@@ -406,12 +406,12 @@ CREATE TABLE IF NOT EXISTS `posts` (
                                        id integer primary key auto_increment,
                                        create_by integer,
                                        foreign key (create_by) references user(id),
-                                       create_time date,
-                                       content varchar(5000) NOT NULL,
-                                       topic_id integer,
-                                       foreign key (topic_id) references topics(id),
-                                       likes integer DEFAULT 0
-);
+    create_time date,
+    content varchar(5000) NOT NULL,
+    topic_id integer,
+    foreign key (topic_id) references topics(id),
+    likes integer DEFAULT 0
+    );
 
 DELETE FROM `posts`;
 INSERT INTO `posts` (`id`, `create_by`, `create_time`, `content`, `topic_id`,likes) VALUES
@@ -422,8 +422,8 @@ DROP TABLE IF EXISTS `dict`;
 CREATE TABLE IF NOT EXISTS `dict` (
                                       `id` integer primary key auto_increment,
                                       `title` varchar(255) DEFAULT NULL,
-                                      `type` varchar(255) DEFAULT NULL
-);
+    `type` varchar(255) DEFAULT NULL
+    );
 
 DELETE FROM `dict`;
 INSERT INTO `dict` (`id`,`title`, `type`) VALUES
@@ -435,44 +435,44 @@ DROP TABLE IF EXISTS `dict_data`;
 CREATE TABLE IF NOT EXISTS `dict_data` (
                                            `id` integer primary key auto_increment,
                                            `description` varchar(255) DEFAULT NULL,
-                                           dict_id integer,
-                                           foreign key (dict_id) references dict(id),
-                                           `status` int DEFAULT NULL,
-                                           `title` varchar(100) DEFAULT NULL,
-                                           `value` varchar(100) DEFAULT NULL
-);
+    dict_id integer,
+    foreign key (dict_id) references dict(id),
+    `status` int DEFAULT NULL,
+    `title` varchar(100) DEFAULT NULL,
+    `value` varchar(100) DEFAULT NULL
+    );
 
 DELETE FROM `dict_data`;
 INSERT INTO `dict_data` (`id`, `description`, `dict_id`, `status`, `title`, `value`) VALUES
-                                                                                         (6, '', 2, 0, '人工智能学院', 'School of AI'),
-                                                                                         (7, '', 2, 0, '计算机学院', 'School of Computer Science'),
-                                                                                         (8, '', 3, 0, '男', 'male'),
-                                                                                         (9, '', 3, 0, '女', 'female'),
-                                                                                         (10, '', 3, -1, '其他', 'non-binary'),
-                                                                                         (11, '', 4, 0, '添加操作(add)', 'add'),
-                                                                                         (12, '', 4, 0, '编辑操作(edit)', 'edit'),
-                                                                                         (13, '', 4, 0, '删除操作(delete)', 'delete'),
-                                                                                         (14, '', 4, 0, '清空操作(clear)', 'clear'),
-                                                                                         (15, '', 4, 0, '启用操作(enable)', 'enable'),
-                                                                                         (16, '', 4, 0, '禁用操作(disable)', 'disable'),
-                                                                                         (17, '', 4, 0, '搜索操作(search)', 'search'),
-                                                                                         (18, '', 4, 0, '上传文件(upload)', 'upload'),
-                                                                                         (19, '', 4, 0, '导出操作(output)', 'output'),
-                                                                                         (20, '', 4, 0, '导入操作(input)', 'input');
+     (6, '', 2, 0, 'School of Artificial intelligence', 'School of AI'),
+     (7, '', 2, 0, 'School of Computer Science', 'School of Computer Science'),
+     (8, '', 3, 0, 'male', 'male'),
+     (9, '', 3, 0, 'female', 'female'),
+     (10, '', 3, -1, 'non-binary', 'non-binary'),
+     (11, '', 4, 0, 'add', 'add'),
+     (12, '', 4, 0, 'edit', 'edit'),
+     (13, '', 4, 0, 'delete', 'delete'),
+     (14, '', 4, 0, 'clear', 'clear'),
+     (15, '', 4, 0, 'enable', 'enable'),
+     (16, '', 4, 0, 'disable', 'disable'),
+     (17, '', 4, 0, 'search', 'search'),
+     (18, '', 4, 0, 'upload', 'upload'),
+     (19, '', 4, 0, 'output', 'output'),
+     (20, '', 4, 0, 'input', 'input');
 
 DROP TABLE IF EXISTS `file`;
 CREATE TABLE IF NOT EXISTS `file` (
                                       `id` integer primary key auto_increment,
                                       create_by integer,
                                       foreign key (create_by) references user(id),
-                                      `update_time` date,
-                                      `name` varchar(255) NOT NULL,
-                                      `size` bigint unsigned DEFAULT NULL,
-                                      `type` varchar(255) DEFAULT NULL,
-                                      `url` varchar(255) DEFAULT NULL,
-                                      `f_key` varchar(255) DEFAULT NULL,
-                                      `location` int DEFAULT NULL
-);
+    `update_time` date,
+    `name` varchar(255) NOT NULL,
+    `size` bigint unsigned DEFAULT NULL,
+    `type` varchar(255) DEFAULT NULL,
+    `url` varchar(255) DEFAULT NULL,
+    `f_key` varchar(255) DEFAULT NULL,
+    `location` int DEFAULT NULL
+    );
 
 DELETE FROM `file`;
 INSERT INTO `file` (`id`, `create_by`, `update_time`, `name`, `size`, `type`, `url`, `f_key`, `location`) VALUES
@@ -489,8 +489,8 @@ INSERT INTO `file` (`id`, `create_by`, `update_time`, `name`, `size`, `type`, `u
 DROP TABLE IF EXISTS `file_setting`;
 CREATE TABLE IF NOT EXISTS `file_setting` (
                                               `id` varchar(50) primary key,
-                                              `value` varchar(255) NOT NULL
-);
+    `value` varchar(255) NOT NULL
+    );
 
 DELETE FROM `file_setting`;
 INSERT INTO `file_setting` (`id`,`value`) VALUES

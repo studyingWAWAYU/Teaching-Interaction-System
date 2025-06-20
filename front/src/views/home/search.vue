@@ -1,7 +1,7 @@
 <template>
 <div style="position: fixed;">
     <div :class="`search-menu search-menu-theme-${theme}`" v-if="type == 'input'">
-        <Select v-model="key" prefix="ios-search" transfer clearable filterable placeholder="请选择添加的模块" @on-change="changeMenu" ref="select">
+        <Select v-model="key" prefix="ios-search" transfer clearable filterable placeholder="Select module to add" @on-change="changeMenu" ref="select">
             <Option v-for="(item, index) in list" :value="item" :key="index">{{
           item.title
         }}</Option>
@@ -16,7 +16,7 @@
                 </div>
             </div>
             <div slot="list" class="search-select">
-                <Select v-model="key" prefix="ios-search" transfer clearable filterable placeholder="艾是OA菜单查询" @on-change="changeMenu" ref="select">
+                <Select v-model="key" prefix="ios-search" transfer clearable filterable placeholder="Aishi OA Menu Search" @on-change="changeMenu" ref="select">
                     <Option v-for="(item, index) in list" :value="item" :key="index">{{ item.title }}</Option>
                 </Select>
             </div>
@@ -95,6 +95,7 @@ export default {
     height: 60px;
     align-items: center;
     width: 200px;
+    margin-top:20px;
 
     .ivu-icon {
         font-size: 20px;

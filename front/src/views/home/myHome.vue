@@ -2,73 +2,62 @@
 <div class="own-space">
     <Card>
         <Divider dashed>
-            个人门户
-            <Button type="success" v-show="!editFlag" @click="editFlag = true">开始编辑</Button>
-            <Button type="warning" v-show="editFlag" @click="saveEdit">保存提交</Button>
+            Personal Portal
+            <Button type="success" v-show="!editFlag" @click="editFlag = true">Start Editing</Button>
+            <Button type="warning" v-show="editFlag" @click="saveEdit">Save Changes</Button>
         </Divider>
         <Form ref="userForm" :model="userForm" :label-width="90" label-position="left">
             <Row :gutter="16">
                 <Col :span="12">
-                <FormItem label="登录账号" prop="username">
+                <FormItem label="Username" prop="username">
                     <Input v-model="userForm.username" readonly style="width: 100%" />
                 </FormItem>
                 </Col>
                 <Col :span="12">
-                <FormItem label="姓名" prop="nickname">
+                <FormItem label="Nickname" prop="nickname">
                     <Input v-model="userForm.nickname" readonly style="width: 100%" />
                 </FormItem>
                 </Col>
             </Row>
             <Row :gutter="16">
                 <Col :span="12">
-                <FormItem label="账号类型" prop="typeTxt">
-                    <Input v-model="userForm.typeTxt" readonly style="width: 100%" />
+                <FormItem label="Mobile" prop="mobile">
+                    <Input v-model="userForm.mobile" readonly style="width: 100%" />
                 </FormItem>
                 </Col>
                 <Col :span="12">
-                <FormItem label="所属学院" prop="departmentTitle">
+                <FormItem label="Institute" prop="departmentTitle">
                     <Input v-model="userForm.departmentTitle" readonly style="width: 100%" />
                 </FormItem>
                 </Col>
             </Row>
             <Row :gutter="16">
                 <Col :span="12">
-                <FormItem label="性别" prop="username">
-                    <dict dict="sex" v-model="userForm.sex" transfer :readonly="!editFlag" placeholder="请选择性别" style="width: 100%" />
+                <FormItem label="Email" prop="email">
+                    <Input v-model="userForm.email" :readonly="!editFlag" style="width: 100%" />
                 </FormItem>
                 </Col>
                 <Col :span="12">
-                <FormItem label="头像" prop="avatar">
+                <FormItem label="Avatar" prop="avatar">
                     <upload-pic-thumb v-model="userForm.avatar" :multiple="false" style="width: 100%"></upload-pic-thumb>
                 </FormItem>
                 </Col>
             </Row>
-            <Row :gutter="16">
-                <Col :span="12">
-                <FormItem label="家庭地址" prop="nickname">
-                    <Input v-model="userForm.street" :readonly="!editFlag" style="width: 100%" />
-                </FormItem>
-                </Col>
-                <Col :span="12">
-                <FormItem label="生日" prop="username">
-                    <DatePicker v-model="userForm.birth" @on-change="changeBirth" :readonly="!editFlag" style="width: 100%" type="date"></DatePicker>
-                </FormItem>
-                </Col>
-            </Row>
+            
             <Row :gutter="16">
                 <Col :span="24">
-                <FormItem label="个性签名" prop="nickname">
-                    <Input v-model="userForm.description" type="textarea" :readonly="!editFlag" style="width: 100%" :autosize="{minRows: 3,maxRows: 5}" placeholder="个性签名"></Input>
+                <FormItem label="Description" prop="description">
+                    <Input v-model="userForm.description" type="textarea" :readonly="!editFlag" style="width: 100%" :autosize="{minRows: 3,maxRows: 5}" placeholder="Personal signature"></Input>
                 </FormItem>
                 </Col>
             </Row>
         </Form>
     </Card>
-    <Divider>个人门户</Divider>
+    <Divider>Personal Portal</Divider>
     <Card>
         <Row :gutter="16">
             <Col span="12">
-            <Divider>当前常用模块</Divider>
+            <Divider>Current Favorite Modules</Divider>
             <List header="---" footer="---" border>
                 <ListItem v-for="(item, index) in addMenuTempList" :key="index">
                     {{ item.title }}
@@ -77,10 +66,10 @@
             </List>
             </Col>
             <Col span="12">
-            <Divider>个人门户设置
-                <Button @click="addMenuFx" type="primary">保存更改</Button></Divider>
+            <Divider>Personal Portal Settings
+                <Button @click="addMenuFx" type="primary">Save Changes</Button></Divider>
             <Row :gutter="16">
-                <div class="desc">在下面的完成选择菜单即可添加</div>
+                <div class="desc">Select modules from below to add</div>
                 <search theme="light" type="input" @changeOk="addMenuTempFx" />
             </Row>
             </Col>
@@ -141,14 +130,14 @@ export default {
                 this.userForm.addressArray = JSON.parse(userInfo.address);
             }
             if (this.userForm.type == 0) {
-                this.userForm.typeTxt = "普通用户";
+                this.userForm.typeTxt = "General User";
             } else if (this.userForm.type == 1) {
-                this.userForm.typeTxt = "管理员";
+                this.userForm.typeTxt = "Administrator";
             }
         },
         addMenuTempFx(e) {
             if (this.addMenuTempList.length > 5) {
-                this.$Message.warning("最多添加六个常用模块");
+                this.$Message.warning("Maximum 6 favorite modules allowed");
             } else {
                 this.addMenuTempList.push(e);
             }
@@ -167,7 +156,7 @@ export default {
                 str: str
             }).then((res) => {
                 if (res.success) {
-                    this.$Message.warning("操作成功");
+                    this.$Message.warning("Operation successful");
                 }
             });
         },
@@ -181,10 +170,10 @@ export default {
             userInfoEdit(this.userForm).then(res => {
                 this.saveLoading = false;
                 if (res.success) {
-                    this.$Message.success("保存成功");
-                    // 更新用户信息
+                    this.$Message.success("Save successful");
+                    // Update user information
                     Cookies.set("userInfo", JSON.stringify(this.userForm));
-                    // 更新头像
+                    // Update avatar
                     this.$store.commit("setAvatarPath", this.userForm.avatar);
                 }
             });
@@ -219,5 +208,86 @@ export default {
 </script>
 
 <style lang="less" scoped>
-
+.own-space {
+    padding: 20px;
+    background: #f8f9fa;
+    
+    .ivu-card {
+        border-radius: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        margin-bottom: 16px;
+        
+        .ivu-divider {
+            font-size: 18px;
+            font-weight: 500;
+            color: #333;
+            
+            .ivu-btn {
+                border-radius: 20px;
+                margin-left: 16px;
+                height: 32px;
+                transition: all 0.3s ease;
+                
+                &:hover {
+                    transform: translateY(-1px);
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                }
+            }
+        }
+        
+        .ivu-form {
+            padding: 16px;
+            
+            .ivu-form-item {
+                margin-bottom: 16px;
+                
+                &-label {
+                    font-weight: 500;
+                    color: #555;
+                }
+            }
+        }
+    }
+    
+    .ivu-list {
+        border-radius: 12px;
+        overflow: hidden;
+        margin-top:20px;
+        
+        
+        &-item {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s;
+            
+            &:hover {
+                background-color: #f7fafc;
+            }
+            
+            .ivu-btn {
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+            }
+        }
+    }
+    
+    .desc {
+        color: #666;
+        margin-bottom: 12px;
+        font-size: 14px;
+        left:60;
+    }
+    
+    .ivu-row {
+        margin-top:20px;
+        margin-bottom: 0;
+    }
+    
+}
+.search-menu{
+    margin-top:20px;
+}
 </style>

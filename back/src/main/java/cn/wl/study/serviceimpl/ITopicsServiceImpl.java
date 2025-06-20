@@ -75,14 +75,13 @@ public class ITopicsServiceImpl extends ServiceImpl<TopicsMapper, Topics> implem
         List<Topics> allTopics = this.list(queryWrapper);
 
         double MaxSimilarty = 0.70;
-        Integer MaxSimilarityTopicId = null;
+        String MaxSimilarityTopicTitle = null;
         for(Topics topic:allTopics){
             double morphoSimilarityResult = Similarity.morphoSimilarity(CurTitle, topic.getTitle());
             if(morphoSimilarityResult > MaxSimilarty){
-                MaxSimilarityTopicId = topic.getId();
+                MaxSimilarityTopicTitle = topic.getTitle();
             }
         }
-        String similarUrl = "http://127.0.0.1:8080/#/wl/course/" + topics.getCourseId() + "/topics" + MaxSimilarityTopicId;
-        topics.setSimilarTopic(similarUrl);
+        topics.setSimilarTopic(MaxSimilarityTopicTitle);
     }
 }

@@ -5,7 +5,7 @@
         <div class="loginLeft">
           <img src="../assets/login/logo.png" alt="" srcset="">
           <span class="line"></span>
-          <span class="title">Teaching interaction system</span>
+          <span class="title">Teaching Interaction System</span>
         </div>
       </div>
       <div class="loginMiddle">
@@ -29,21 +29,21 @@
                 <Form ref="usernameLoginForm" :model="form" :rules="usernameLoginFormRules" class="form">
                   <FormItem prop="username" class="loginInput">
                     <Row>
-                      <Input v-model="form.username" size="large" clearable placeholder="Log in to your account" autocomplete="off">
+                      <Input v-model="form.username" size="large" clearable placeholder="Enter your account" autocomplete="off">
                         <Icon class="iconfont icon-yonghu" slot="prefix" style="line-height:50px" />
                       </Input>
                     </Row>
                   </FormItem>
                   <FormItem prop="password">
-                    <Input style="height:50px;line-height:50px" type="password"  v-model="form.password" size="large" placeholder="Please enter your login password" password autocomplete="off">
+                    <Input style="height:50px;line-height:50px" type="password"  v-model="form.password" size="large" placeholder="Enter your password" password autocomplete="off">
                       <Icon class="iconfont icon-mima1" slot="prefix" style="line-height:50px" />
                     </Input>
                   </FormItem>
                 </Form>
                 <Row type="flex" justify="space-between" align="middle">
-                  <Checkbox v-model="saveLogin" size="large">Automatic Login</Checkbox>
+                  <Checkbox v-model="saveLogin" size="large">Remember Me</Checkbox>
                   <router-link to="/regist">
-                    <a class="forget-pass">Click here to register</a>
+                    <a class="forget-pass">Register Now</a>
                   </router-link>
                 </Row>
                 <Row>
@@ -68,7 +68,7 @@
           </div>
           <div class="footer-item">
             <Icon type="md-pin" class="footer-icon" />
-            <span>Foshan, Guanddong, China</span>
+            <span>Foshan, Guangdong, China</span>
           </div>
           <div class="footer-item">
             <Icon type="md-call" class="footer-icon" />
@@ -107,12 +107,12 @@ export default {
       usernameLoginFormRules: {
         username: [{
           required: true,
-          message: "The account cannot be empty",
+          message: "Account cannot be empty",
           trigger: "blur"
         }],
         password: [{
           required: true,
-          message: "The password cannot be empty",
+          message: "Password cannot be empty",
           trigger: "blur"
         }],
       }
@@ -123,7 +123,7 @@ export default {
       try {
         // 1. 检查登录响应
         if (!res || !res.success) {
-          throw new Error(res?.message || "登录失败，请检查用户名和密码");
+          throw new Error(res?.message || "Login failed. Please check your username and password.");
         }
 
         // 2. 提取并存储token (兼容多种返回格式)
@@ -134,7 +134,7 @@ export default {
                          res.result;
         
         if (!accessToken) {
-          throw new Error("未能获取有效的访问令牌");
+          throw new Error("Failed to obtain a valid access token");
         }
 
         // 存储token到localStorage
@@ -143,7 +143,7 @@ export default {
         // 3. 获取用户信息
         const userRes = await userInfo();
         if (!userRes?.success) {
-          throw new Error(userRes?.message || "获取用户信息失败");
+          throw new Error(userRes?.message || "Failed to get user information");
         }
 
         const user = userRes.result || {};
@@ -170,7 +170,7 @@ export default {
         
         // 如果没有获取到角色，使用默认角色
         if (roles.length === 0) {
-          console.warn("未获取到角色信息，使用默认角色");
+          console.warn("No role information obtained, using default role");
           roles = ["ROLE_USER"]; // 默认角色
         }
 
@@ -200,9 +200,9 @@ export default {
         this.$router.push(redirect);
 
       } catch (error) {
-        console.error("登录过程出错:", error);
+        console.error("Login process error:", error);
         this.loading = false;
-        this.$Message.error(error.message || "登录失败，请重试");
+        this.$Message.error(error.message || "Login failed, please try again");
         
         // 清除可能存储的不完整数据
         removeStore("accessToken");
@@ -230,7 +230,7 @@ export default {
           .then(res => this.afterLogin(res))
           .catch(err => {
             this.loading = false;
-            this.$Message.error(err.message || "网络错误，请稍后重试");
+            this.$Message.error(err.message || "Network error, please try again later");
           });
         }
       });
@@ -249,11 +249,11 @@ export default {
 <style lang="less" scoped>
 html,body{
   background: #ffffff !important;
-  font-family: Microsoft YaHei;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   font-weight: 400;;
 }
 a{
-  font-family: Microsoft YaHei;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 
   color:#77c8c6;
 }
@@ -265,7 +265,7 @@ input::-webkit-input-placeholder {
 }
 
 a:hover{
-  font-family: Microsoft YaHei;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   color: #77C8C6;
 }
 .login {
@@ -296,7 +296,7 @@ a:hover{
   .title{
     line-height: 58px;
     font-size: 18px;
-    font-family: Microsoft YaHei;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     font-weight: 500;
     color:#3c7fb4;
     font-weight:bold;
@@ -388,7 +388,7 @@ a:hover{
     margin-left:20px;
     color: #333333;
     font-size: 18px;
-    font-family: Microsoft YaHei;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     font-weight: bold;
   }
   
@@ -407,7 +407,7 @@ a:hover{
   }
   .loginInput{
     font-size: 18px;
-    font-family: Microsoft YaHei;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     font-weight: bold;
     color: #333333;
   }
@@ -441,7 +441,7 @@ a:hover{
   .loginDown p{
     text-align: center;
     font-size: 17px;
-    font-family: Microsoft YaHei;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     color: #777777;
     line-height: 20px;
   }
@@ -460,7 +460,7 @@ a:hover{
     height: 50px;
     font-size: 18px;
     font-weight: bold!important;
-    font-family: Microsoft YaHei;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     color: #333333;
     line-height: 50px;
   }
