@@ -427,10 +427,9 @@ CREATE TABLE IF NOT EXISTS `dict` (
 
 DELETE FROM `dict`;
 INSERT INTO `dict` (`id`,`title`, `type`) VALUES
-                                              (1, '学历', 'education'),
-                                              (2, '所属学院','department'),
-                                              (3, '性别', 'sex'),
-                                              (4, '权限', 'permission_type');
+                                              (2, 'department','department'),
+                                              (3, 'sex', 'sex'),
+                                              (4, 'permission_type', 'permission_type');
 
 DROP TABLE IF EXISTS `dict_data`;
 CREATE TABLE IF NOT EXISTS `dict_data` (
@@ -445,11 +444,6 @@ CREATE TABLE IF NOT EXISTS `dict_data` (
 
 DELETE FROM `dict_data`;
 INSERT INTO `dict_data` (`id`, `description`, `dict_id`, `status`, `title`, `value`) VALUES
-                                                                                         (1, '', 1, 0, '博士', '博士'),
-                                                                                         (2, '', 1, 0, '硕士', '硕士'),
-                                                                                         (3, '', 1, 0, '本科', '本科'),
-                                                                                         (4, '', 1, 0, '专科', '专科'),
-                                                                                         (5, '', 1, 0, '高中及以下', '高中及以下'),
                                                                                          (6, '', 2, 0, '人工智能学院', 'School of AI'),
                                                                                          (7, '', 2, 0, '计算机学院', 'School of Computer Science'),
                                                                                          (8, '', 3, 0, '男', 'male'),
