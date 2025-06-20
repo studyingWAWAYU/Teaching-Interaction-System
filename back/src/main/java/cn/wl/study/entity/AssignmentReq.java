@@ -18,6 +18,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.data.annotation.CreatedDate;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -37,10 +38,10 @@ public class AssignmentReq {
     private Integer id;
 
     @ApiModelProperty(value = "作业开放提交时间")
-    private Date startTime;
+    private LocalDate startTime;
 
     @ApiModelProperty(value = "作业截止提交时间")
-    private Date end_time;
+    private LocalDate end_time;
 
     @ApiModelProperty(value = "作业状态")
     private String status;
@@ -59,7 +60,7 @@ public class AssignmentReq {
     @TableField(fill = FieldFill.INSERT)
     @CreatedDate
     @ApiModelProperty(value = "创建时间")
-    private Date uploadTime;
+    private LocalDate uploadTime;
 
     @ApiModelProperty(value = "课程ID")
     private Integer courseId;

@@ -23,6 +23,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -44,12 +45,8 @@ public class User {
     @TableId
     private Integer id;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @TableField(fill = FieldFill.INSERT)
-    @CreatedDate
     @ApiModelProperty(value = "创建时间")
-    private Date create_time;
+    private LocalDate create_time;
 
     @ApiModelProperty(value = "真实姓名")
     @NotNull(message = "Real name cannot be emtpy")
