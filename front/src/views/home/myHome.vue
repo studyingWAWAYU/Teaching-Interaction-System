@@ -33,8 +33,8 @@
             </Row>
             <Row :gutter="16">
                 <Col :span="12">
-                <FormItem label="Gender" prop="sex">
-                    <dict dict="sex" v-model="userForm.sex" transfer :readonly="!editFlag" placeholder="Select gender" style="width: 100%" />
+                <FormItem label="Email" prop="email">
+                    <Input v-model="userForm.email" :readonly="!editFlag" style="width: 100%" />
                 </FormItem>
                 </Col>
                 <Col :span="12">
@@ -43,18 +43,7 @@
                 </FormItem>
                 </Col>
             </Row>
-            <Row :gutter="16">
-                <Col :span="12">
-                <FormItem label="Email" prop="email">
-                    <Input v-model="userForm.email" :readonly="!editFlag" style="width: 100%" />
-                </FormItem>
-                </Col>
-                <Col :span="12">
-                <FormItem label="Birthdate" prop="birth">
-                    <DatePicker v-model="userForm.birth" @on-change="changeBirth" :readonly="!editFlag" style="width: 100%" type="date"></DatePicker>
-                </FormItem>
-                </Col>
-            </Row>
+            
             <Row :gutter="16">
                 <Col :span="24">
                 <FormItem label="Description" prop="description">
@@ -263,6 +252,8 @@ export default {
     .ivu-list {
         border-radius: 12px;
         overflow: hidden;
+        margin-top:20px;
+        
         
         &-item {
             padding: 12px 16px;
@@ -291,8 +282,12 @@ export default {
     }
     
     .ivu-row {
-        margin-top:10px;
+        margin-top:20px;
         margin-bottom: 0;
     }
+    
+}
+.search-menu{
+    margin-top:20px;
 }
 </style>

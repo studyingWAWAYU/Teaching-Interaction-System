@@ -52,17 +52,6 @@ export const menuConfig = [
             permTypes: ['add', 'edit', 'delete', 'enable']
           },
           {
-            id: 62,
-            name: 'menu-manage',
-            title: '菜单管理',
-            icon: 'md-menu',
-            type: 0,
-            level: 2,
-            component: 'menu/menu/index',
-            path: 'menu',
-            permTypes: ['add', 'edit', 'delete']
-          },
-          {
             id: 63,
             name: 'file-admin',
             title: 'File Management',
