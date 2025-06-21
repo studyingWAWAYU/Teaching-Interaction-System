@@ -19,10 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
+ 
 @Slf4j
 @RestController
 @Api(tags = "基本信息管理接口")

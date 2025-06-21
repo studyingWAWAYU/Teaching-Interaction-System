@@ -7,10 +7,6 @@ import org.springframework.data.repository.NoRepositoryBean;
 
 import java.io.Serializable;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
 @ApiOperation(value = "模板数据链路层")
 @NoRepositoryBean
 public interface WlBaseDao<E, ID extends Serializable> extends JpaRepository<E, ID>, JpaSpecificationExecutor<E> {

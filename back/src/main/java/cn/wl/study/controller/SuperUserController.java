@@ -17,10 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
+ 
 @Slf4j
 @RestController
 @Api(tags = "超级用户")

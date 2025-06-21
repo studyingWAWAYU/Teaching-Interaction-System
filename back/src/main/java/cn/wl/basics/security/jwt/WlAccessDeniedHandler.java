@@ -9,10 +9,6 @@ import org.springframework.stereotype.Component;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-/**
- * @author 郑为中
- * CSDN: Designer 小郑
- */
 @ApiOperation(value = "自定义权限文案")
 @Component
 public class WlAccessDeniedHandler implements AccessDeniedHandler {

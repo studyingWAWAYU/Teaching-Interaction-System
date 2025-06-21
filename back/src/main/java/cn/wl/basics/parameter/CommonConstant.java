@@ -3,7 +3,6 @@ package cn.wl.basics.parameter;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
 
-
 @ApiOperation(value = "系统基础常量")
 public interface CommonConstant {
 
