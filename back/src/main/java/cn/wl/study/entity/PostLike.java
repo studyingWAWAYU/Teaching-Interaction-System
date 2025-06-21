@@ -13,6 +13,8 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDate;
+
 @Data
 @Entity
 @DynamicInsert
@@ -34,4 +36,7 @@ public class PostLike {
 
     @ApiModelProperty(value = "回复ID")
     private Integer postId;
+
+    @ApiModelProperty(value = "创建时间")
+    private LocalDate createTime;
 }

@@ -12,6 +12,7 @@ import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import java.time.LocalDate;
 
 @Data
 @Entity
@@ -34,4 +35,8 @@ public class TopicLike {
 
     @ApiModelProperty(value = "主题ID")
     private Integer topicId;
+
+    @ApiModelProperty(value = "创建时间")
+    private LocalDate createTime;
+
 }
