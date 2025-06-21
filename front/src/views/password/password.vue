@@ -1,31 +1,29 @@
-
 <template>
-<div>
-    <Card class="change-pass">
-        <p slot="title">
-            <Icon type="key"></Icon>修改密码
-        </p>
-        <div>
-            <Form ref="editPasswordForm" :model="editPasswordForm" :label-width="100" label-position="right" :rules="passwordValidate" style="width:450px">
-                <FormItem label="原密码" prop="oldPass">
-                    <Input type="password" v-model="editPasswordForm.oldPass" placeholder="请输入现在使用的密码"></Input>
-                </FormItem>
-                <FormItem label="新密码" prop="newPass">
-                    <SetPassword v-model="editPasswordForm.newPass" @on-change="changeInputPass" />
-                </FormItem>
-                <FormItem label="确认新密码" prop="rePass">
-                    <Input type="password" v-model="editPasswordForm.rePass" placeholder="请再次输入新密码"></Input>
-                </FormItem>
-                <FormItem>
-                    <Button type="primary" style="width: 100px;margin-right:5px" :loading="savePassLoading" @click="saveEditPass">保存</Button>
-                    <Button @click="cancelEditPass">取消</Button>
-                </FormItem>
-            </Form>
-        </div>
+  <div>
+    <Card class="change-password">
+      <p slot="title">
+        <Icon type="key"></Icon>Change Password
+      </p>
+      <div>
+        <Form ref="editPasswordForm" :model="editPasswordForm" :label-width="100" label-position="right" :rules="passwordValidate" style="width:450px">
+          <FormItem label="Original Password" prop="oldPass">
+            <Input type="password" v-model="editPasswordForm.oldPass" placeholder="Please enter your current password"></Input>
+          </FormItem>
+          <FormItem label="New Password" prop="newPass">
+            <SetPassword v-model="editPasswordForm.newPass" @on-change="changeInputPass" />
+          </FormItem>
+          <FormItem label="Confirm New Password" prop="rePass">
+            <Input type="password" v-model="editPasswordForm.rePass" placeholder="Please re-enter the new password"></Input>
+          </FormItem>
+          <FormItem>
+            <Button type="primary" style="width: 100px;margin-right:5px" :loading="savePassLoading" @click="saveEditPass">Save</Button>
+            <Button @click="cancelEditPass">Cancel</Button>
+          </FormItem>
+        </Form>
+      </div>
     </Card>
-</div>
+  </div>
 </template>
-
 <script>
 import {
     changePass

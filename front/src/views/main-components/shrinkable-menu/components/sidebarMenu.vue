@@ -3,13 +3,13 @@
 </style>
 <template>
   <Menu
-    ref="sideMenu"
-    accordion
-    :active-name="$route.name"
-    :open-names="singleOpenName"
-    :theme="menuTheme"
-    width="auto"
-    @on-select="changeMenu"
+      ref="sideMenu"
+      accordion
+      :active-name="$route.name"
+      :open-names="singleOpenName"
+      :theme="menuTheme"
+      width="auto"
+      @on-select="changeMenu"
   >
     <template v-for="item in menuList">
       <template>
@@ -61,8 +61,8 @@ export default {
     },
     getOpenedNamesByActiveName(name) {
       return this.$route.matched
-        .map(item => item.name)
-        .filter(item => item !== name);
+          .map(item => item.name)
+          .filter(item => item !== name);
     }
   },
   updated() {

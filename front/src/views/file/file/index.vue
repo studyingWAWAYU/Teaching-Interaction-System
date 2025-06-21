@@ -1,840 +1,719 @@
 <template>
-<div class="search">
-    <Card>
-        <div class="operation">
-            <Row>
-                <Form ref="searchForm" :model="searchForm" inline :label-width="85">
-                    <Form-item label="原文件名" prop="name">
-                        <Input type="text" v-model="searchForm.name" placeholder="请输入文件名" clearable style="width: 160px" />
-                    </Form-item>
-                    <Form-item label="上传者账号" prop="createBy">
-                        <Input type="text" v-model="searchForm.createBy" placeholder="请输入上传者登录账号" clearable style="width: 160px" />
-                    </Form-item>
-                    <Form-item label="存储文件名" prop="name">
-                        <Input type="text" v-model="searchForm.fkey" placeholder="请输入存储文件名" clearable style="width: 160px" />
-                    </Form-item>
-                    <Form-item label="上传时间">
-                        <DatePicker v-model="selectDate" type="daterange" format="yyyy-MM-dd" clearable @on-change="selectDateRange" placeholder="选择起始时间" style="width: 160px"></DatePicker>
-                    </Form-item>
-                    <Form-item style="margin-left:-35px;" class="br">
-                        <Button @click="handleSearch" ghost shape="circle" type="primary" icon="ios-search" size="small">搜索</Button>
-                        <Button @click="handleReset" ghost shape="circle" type="warning" icon="md-refresh" size="small">重置</Button>
-                        <Button @click="uploadVisible=true" ghost shape="circle" type="success" icon="md-cloud-upload" size="small" :disabled="!$route.meta.permTypes.includes('add')">上传文件</Button>
-                        <Button @click="fileSaveSettingModal=true" ghost shape="circle" type="info" icon="md-settings" size="small" :disabled="!$route.meta.permTypes.includes('enable')">配置</Button>
-                    </Form-item>
-                </Form>
-            </Row>
-        </div>
-        <Row>
-            <Table :loading="loading" border :columns="columns" :data="data" ref="table" sortable="custom" @on-sort-change="changeSort" @on-selection-change="changeSelect"></Table>
-        </Row>
-        <Row type="flex" justify="end" class="page">
-            <Page :current="searchForm.pageNumber" :total="total" :page-size="searchForm.pageSize" @on-change="changePage" @on-page-size-change="changePageSize" :page-size-opts="[15, 20, 40]" size="small" show-total show-elevator show-sizer></Page>
-        </Row>
-    </Card>
+  <div class="file-manage-page">
+    <div class="top-bar">
+      <div class="search-area">
+        <Form ref="searchForm" :model="searchForm" inline class="search-form">
+          <Form-item prop="title">
+            <Input
+                type="text"
+                v-model="searchForm.title"
+                clearable
+                placeholder="Title"
+                style="width: 160px"/>
+          </Form-item>
+          <Form-item prop="courseId">
+            <Input
+                type="text"
+                v-model="searchForm.courseId"
+                clearable
+                placeholder="Course ID"
+                style="width: 160px" />
+          </Form-item>
+          <Form-item>
+            <DatePicker
+                v-model="selectDate"
+                type="daterange"
+                format="yyyy-MM-dd"
+                clearable
+                @on-change="selectDateRange"
+                placeholder="Update Time Range"
+                style="width: 160px"></DatePicker>
+          </Form-item>
+          <Form-item>
+            <Button
+                @click="handleSearch"
+                type="primary"
+                icon="ios-search"
+                size="small"
+                shape="round"
+                style="margin-left: 8px" >
+              Search
+            </Button>
+            <Button
+                @click="handleReset"
+                type="warning"
+                icon="md-refresh"
+                size="small"
+                shape="round"
+                style="margin-left: 8px" >
+              Reset
+            </Button>
+            <Button
+                @click="uploadVisible=true"
+                type="success"
+                icon="md-cloud-upload"
+                size="small"
+                shape="round"
+                style="margin-left: 8px">
+              Upload File
+            </Button>
+            <Button
+                @click="batchDelete"
+                type="error"
+                icon="md-trash"
+                size="small"
+                shape="round"
+                style="margin-left: 8px"
+                :disabled="selectedRows.length === 0">
+              Batch Delete
+            </Button>
+          </Form-item>
+        </Form>
+      </div>
+    </div>
 
-    <Drawer title="文件上传" closable v-model="uploadVisible" width="500">
-        <Upload action="/upload/file" :headers="accessToken" :on-success="handleSuccess" :on-error="handleError" :max-size="5120" :on-exceeded-size="handleMaxSize" :before-upload="beforeUpload" multiple type="drag" ref="up">
-            <div style="padding: 20px 0">
-                <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
-                <p>点击这里或将文件拖拽到这里上传</p>
-            </div>
-        </Upload>
-        <div class="drawer-footer">
-            <Button @click="clearFiles">清空上传列表</Button>
+    <!-- Data table -->
+    <div class="table-wrapper">
+      <Table
+          :loading="loading"
+          border
+          :columns="columns"
+          :data="filteredData"
+          ref="table"
+          stripe
+          @on-selection-change="handleSelectionChange"
+      ></Table>
+    </div>
+
+    <div class="pagination">
+      <Page
+          :current="searchForm.pageNumber"
+          :total="total"
+          :page-size="searchForm.pageSize"
+          @on-change="changePage"
+          @on-page-size-change="changePageSize"
+          :page-size-opts="[15, 20, 50]"
+          size="small"
+          show-total
+          show-elevator
+          show-sizer ></Page>
+    </div>
+
+    <!-- File upload drawer -->
+    <Drawer title="Upload Course File" closable v-model="uploadVisible" width="500" >
+      <Upload
+          action="#"
+          :on-success="handleUploadSuccess"
+          :on-error="handleUploadError"
+          :max-size="5120"
+          :on-exceeded-size="handleMaxSize"
+          :before-upload="beforeUpload"
+          multiple
+          type="drag"
+          ref="uploader" >
+        <div style="padding: 20px 0">
+          <Icon type="ios-cloud-upload" size="52" style="color: #3399ff"></Icon>
+          <p>Drag files here or click to upload</p>
+          <p class="text-gray-500 text-sm mt-2">Max file size: 5MB</p>
         </div>
+      </Upload>
+      <div class="drawer-footer">
+        <Button @click="clearUploadFiles">Clear Upload List</Button>
+      </div>
     </Drawer>
 
-    <Modal title="文件重命名" v-model="changeFileNameModal" :mask-closable="false" :width="500" ok-text="保存" @on-ok="handleSubmit">
-        <Form ref="form" :model="form" :label-width="95" :rules="formValidate">
-            <Row :gutter="16">
-                <Col span="24">
-                <FormItem label="原文件名" prop="name">
-                    <Input v-model="form.name" style="width:100%" />
-                </FormItem>
-                </Col>
-            </Row>
-            <Row :gutter="16">
-                <Col span="24">
-                <FormItem label="存储文件名" prop="fkey">
-                    <Input v-model="form.fkey" style="width:100%" />
-                </FormItem>
-                </Col>
-            </Row>
-        </Form>
+    <!-- Rename file modal -->
+    <Modal
+        title="Rename File"
+        v-model="renameModalVisible"
+        :mask-closable="false"
+        :width="500"
+        ok-text="Save"
+        @on-ok="handleRenameSubmit" >
+      <Form ref="renameForm" :model="renameForm" :label-width="95" :rules="renameFormRules">
+        <FormItem label="Title" prop="title">
+          <Input v-model="renameForm.title" style="width:100%" />
+        </FormItem>
+        <FormItem label="Course ID" prop="courseId">
+          <Input v-model="renameForm.courseId" style="width:100%" />
+        </FormItem>
+      </Form>
     </Modal>
 
-    <Modal title="文件存储配置" v-model="fileSaveSettingModal" :mask-closable="false" :width="700" ok-text="保存" @on-ok="setFileSettingFx">
-        <Form ref="settingForm" :model="settingForm" :label-width="95">
-            <Row :gutter="16">
-                <Col span="24">
-                <FormItem label="存储路径">
-                    <Input type="text" v-model="filePath" placeholder="如 C:\\oa-file" style="width: 100%" :disabled="changeLoading" />
-                </FormItem>
-                </Col>
-            </Row>
-            <Row :gutter="16">
-                <Col span="24">
-                <FormItem label="预览接口">
-                    <Input type="text" v-model="fileView" placeholder="如127.0.0.1:8080/wl/file/view" style="width: 100%">
-                    <Select v-model="fileHttp" slot="prepend" style="width: 80px" prop="http" :disabled="changeLoading">
-                        <Option value="http://">http://</Option>
-                        <Option value="https://">https://</Option>
-                    </Select>
-                    </Input>
-                </FormItem>
-                </Col>
-            </Row>
-        </Form>
+    <!-- File storage settings modal -->
+    <Modal
+        title="File Storage Settings"
+        v-model="settingsModalVisible"
+        :mask-closable="false"
+        :width="700"
+        ok-text="Save"
+        @on-ok="saveSettings">
+      <Form ref="settingsForm" :model="settingsForm" :label-width="120">
+        <FormItem label="Storage Path">
+          <Input
+              type="text"
+              v-model="settingsForm.storagePath"
+              placeholder="e.g. /data/course-files"
+              style="width: 100%" />
+        </FormItem>
+        <FormItem label="Preview URL">
+          <Input
+              type="text"
+              v-model="settingsForm.previewUrl"
+              placeholder="e.g. http://yourdomain.com/files/"
+              style="width: 100%" />
+        </FormItem>
+      </Form>
     </Modal>
-
-</div>
+  </div>
 </template>
 
 <script>
-import {
-    getFileListData,
-    copyFile,
-    renameFile,
-    deleteFile,
-    getOneSetting,
-    setOneSetting
-} from "./api.js";
-import "viewerjs/dist/viewer.css";
-import Viewer from "viewerjs";
-var dp;
+import { getFileListData, renameFile, deleteFile, getOneSetting, setOneSetting } from '@/api/file';
+import { downloadFile as downloadFileApi } from '@/api/courseResources';
+
 export default {
-    name: "oss-manage",
-    data() {
-        return {
-            filePath: "",
-            fileHttp: "",
-            fileView: "",
-            fileSaveSettingModal: false,
-            accessToken: {}, // 上传token鉴权
-            loading: false, // 表单加载状态
-            drop: false,
-            dropDownContent: "展开",
-            dropDownIcon: "ios-arrow-down",
-            fileType: "all",
-            changeFileNameModal: false, // 添加或编辑显示
-            uploadVisible: false,
-            picVisible: false,
-            picTitle: "",
-            searchForm: {
-                // 搜索框对应data对象
-                name: "",
-                fkey: "",
-                type: "",
-                pageNumber: 1, // 当前页数
-                pageSize: 15, // 页面大小
-                sort: "createTime", // 默认排序字段
-                order: "desc", // 默认排序方式
-                startDate: "", // 起始时间
-                endDate: "" // 终止时间
-            },
-            selectDate: null, // 选择日期绑定modal
-            form: {
-                name: "",
-                fkey: ""
-            },
-            file: {},
-            // 表单验证规则
-            formValidate: {
-                name: [{
-                    required: true,
-                    message: "不能为空",
-                    trigger: "blur"
-                }],
-                fkey: [{
-                    required: true,
-                    message: "不能为空",
-                    trigger: "blur"
-                }]
-            },
-            submitLoading: false,
-            selectList: [],
-            selectCount: 0,
-            totalSize: "",
-            columns: [{
-                    type: "selection",
-                    width: 60,
-                    align: "center"
+  name: "CourseFileManage",
+  data() {
+    return {
+      loading: false,
+      searchForm: {
+        title: "",
+        courseId: "",
+        pageNumber: 1,
+        pageSize: 15,
+        sort: "update_time",
+        order: "desc",
+        startDate: "",
+        endDate: ""
+      },
+      selectDate: null,
+      fileList: [],
+      total: 0,
+      columns: [
+        {
+          type: "selection",
+          width: 60,
+          align: "center"
+        },
+        {
+          title: "ID",
+          key: "id",
+          width: 80,
+          align: "center"
+        },
+        {
+          title: "Title",
+          key: "title",
+          minWidth: 150,
+          sortable: true,
+          render: (h, params) => {
+            return h("span", {
+              style: {
+                fontWeight: "500"
+              }
+            }, params.row.title);
+          }
+        },
+        {
+          title: "Course ID",
+          key: "course_id",
+          width: 150,
+          align: "center",
+          sortable: true
+        },
+        {
+          title: "Update Time",
+          key: "update_time",
+          width: 180,
+          align: "center",
+          sortable: true
+        },
+        {
+          title: "File URL",
+          key: "file_url",
+          minWidth: 200,
+          align: "center",
+          render: (h, params) => {
+            const url = params.row.file_url;
+            if (!url) {
+              return h("span", {
+                style: {
+                  color: "#999"
+                }
+              }, "No URL");
+            }
+
+            return h("div", [
+              h("a", {
+                attrs: {
+                  href: url,
+                  target: "_blank"
                 },
-                {
-                    type: "index",
-                    width: 60,
-                    align: "center"
-                },
-                {
-                    title: "原文件名",
-                    key: "name",
-                    minWidth: 130,
-                    sortable: true
-                },
-                {
-                    title: "存储文件名",
-                    key: "fkey",
-                    minWidth: 165,
-                    sortable: true
-                },
-                {
-                    title: "预览",
-                    key: "url",
-                    minWidth: 150,
-                    align: "center",
-                    render: (h, params) => {
-                        if (params.row.type.includes("image") > 0) {
-                            return h("img", {
-                                attrs: {
-                                    src: params.row.url
-                                },
-                                style: {
-                                    cursor: "zoom-in",
-                                    width: "80px",
-                                    height: "60px",
-                                    margin: "10px 0",
-                                    "object-fit": "contain"
-                                },
-                                on: {
-                                    click: () => {
-                                        this.showPic(params.row);
-                                    }
-                                }
-                            });
-                        } else if (params.row.type.includes("pdf") > 0) {
-                            return h("img", {
-                                attrs: {
-                                    src: require("@/assets/pdf.png")
-                                },
-                                style: {
-                                    cursor: "zoom-in",
-                                    width: "60px",
-                                    margin: "10px 0",
-                                    "object-fit": "contain"
-                                },
-                                on: {
-                                    click: () => {
-                                        this.showFile(params.row);
-                                    }
-                                }
-                            });
-                        } else if (
-                            params.row.type.includes("zip") > 0 ||
-                            params.row.type.includes("rar") > 0 ||
-                            params.row.type.includes("7z") > 0
-                        ) {
-                            return h("img", {
-                                attrs: {
-                                    src: require("@/assets/zip.png")
-                                },
-                                style: {
-                                    width: "60px",
-                                    margin: "10px 0",
-                                    "object-fit": "contain"
-                                },
-                                on: {
-                                    click: () => {
-                                        this.showFile(params.row);
-                                        this.$Message.warning("请下载后解压访问!");
-                                    }
-                                }
-                            });
-                        } else {
-                            return h("img", {
-                                attrs: {
-                                    src: require("@/assets/file.png")
-                                },
-                                style: {
-                                    width: "55px",
-                                    height: "60px",
-                                    margin: "10px 0",
-                                    "object-fit": "contain"
-                                },
-                                on: {
-                                    click: () => {
-                                        this.showFile(params.row);
-                                    }
-                                }
-                            });
-                        }
+                style: {
+                  color: "#2d8cf0",
+                  textDecoration: "underline",
+                  cursor: "pointer"
+                }
+              }, url.length > 30 ? url.substring(0, 30) + "..." : url),
+              h("Tooltip", {
+                props: {
+                  content: url,
+                  placement: "top"
+                }
+              })
+            ]);
+          }
+        },
+        {
+          title: "Actions",
+          key: "action",
+          align: "center",
+          fixed: "right",
+          width: 250,
+          render: (h, params) => {
+            return h("div", [
+              h(
+                  "Button", {
+                    props: {
+                      type: "success",
+                      size: "small",
+                      ghost: true,
+                      shape: "circle"
+                    },
+                    style: {
+                      marginRight: "5px"
+                    },
+                    on: {
+                      click: () => {
+                        this.downloadFile(params.row);
+                      }
                     }
-                },
-                {
-                    title: "文件类型",
-                    key: "type",
-                    minWidth: 115,
-                    sortable: true
-                },
-                {
-                    title: "文件大小",
-                    key: "size",
-                    minWidth: 115,
-                    sortable: true,
-                    render: (h, params) => {
-                        return h("div", [
-                            h(
-                                "Tag", {
-                                    props: {
-                                        color: (params.row.size > 1024 * 1024 * 5) ? "orange" : "green"
-                                    }
-                                },
-                                ((params.row.size * 1.0) / (1024 * 1024)).toFixed(2) + " MB"
-                            )
-                        ]);
+                  },
+                  "Download"
+              ),
+              h(
+                  "Button", {
+                    props: {
+                      type: "warning",
+                      size: "small",
+                      ghost: true,
+                      shape: "circle"
+                    },
+                    style: {
+                      marginRight: "5px"
+                    },
+                    on: {
+                      click: () => {
+                        this.openRenameModal(params.row);
+                      }
                     }
-                },
-                {
-                    title: "上传者",
-                    key: "createBy",
-                    minWidth: 120,
-                    sortable: true,
-                    align: "center",
-                    render: (h, params) => {
-                        return h(
-                            "Tooltip", {
-                                props: {
-                                    placement: "top",
-                                    content: params.row.createBy
-                                }
-                            },
-                            [
-                                h(
-                                    "Tag", {
-                                        style: {
-                                            "margin-right": "8px"
-                                        },
-                                        props: {
-                                            type: "border"
-                                        }
-                                    },
-                                    params.row.nickname
-                                )
-                            ]
-                        );
+                  },
+                  "Rename"
+              ),
+              h(
+                  "Button", {
+                    props: {
+                      type: "error",
+                      size: "small",
+                      ghost: true,
+                      shape: "circle"
+                    },
+                    on: {
+                      click: () => {
+                        this.deleteFile(params.row);
+                      }
                     }
-                },
-                {
-                    title: "上传时间",
-                    key: "createTime",
-                    minWidth: 180,
-                    sortable: true,
-                    sortType: "desc"
-                },
-                {
-                    title: "操作",
-                    key: "action",
-                    align: "center",
-                    fixed: "right",
-                    minWidth: 260,
-                    render: (h, params) => {
-                        var that = this;
-                        return h("div", [
-                            h(
-                                "Button", {
-                                    props: {
-                                        type: "success",
-                                        size: "small",
-                                        ghost: true,
-                                        shape: "circle"
-                                    },
-                                    style: {
-                                        marginRight: "5px"
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.download(params.row);
-                                        }
-                                    }
-                                },
-                                "下载"
-                            ),
-                            h(
-                                "Button", {
-                                    props: {
-                                        type: "warning",
-                                        size: "small",
-                                        ghost: true,
-                                        shape: "circle"
-                                    },
-                                    style: {
-                                        marginRight: "5px"
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.rename(params.row);
-                                        }
-                                    }
-                                },
-                                "重命名"
-                            ),
-                            h(
-                                "Button", {
-                                    props: {
-                                        type: "info",
-                                        size: "small",
-                                        ghost: true,
-                                        shape: "circle"
-                                    },
-                                    style: {
-                                        marginRight: "5px"
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.copy(params.row);
-                                        }
-                                    }
-                                },
-                                "拷贝"
-                            ),
-                            h(
-                                "Button", {
-                                    props: {
-                                        type: "error",
-                                        size: "small",
-                                        ghost: true,
-                                        shape: "circle",
-                                        disabled: !(that.$route.meta.permTypes && that.$route.meta.permTypes.includes("delete"))
-                                    },
-                                    style: {
-                                        marginRight: "5px"
-                                    },
-                                    on: {
-                                        click: () => {
-                                            this.remove(params.row);
-                                        }
-                                    }
-                                },
-                                "删除"
-                            )
-                        ]);
-                    }
-                }
-            ],
-            data: [],
-            total: 0,
-        };
-    },
-    methods: {
-        init() {
-            var that = this;
-            this.getDataList();
-            this.getFileSettingFx();
-            this.accessToken = {
-                accessToken: this.getStore("accessToken")
-            };
-        },
-        getFileSettingFx() {
-            var that = this;
-            getOneSetting({
-                id: "FILE_PATH"
-            }).then(res => {
-                if (res.success) {
-                    that.filePath = res.result.value
-                }
-            });
-            getOneSetting({
-                id: "FILE_HTTP"
-            }).then(res => {
-                if (res.success) {
-                    that.fileHttp = res.result.value
-                }
-            });
-            getOneSetting({
-                id: "FILE_VIEW"
-            }).then(res => {
-                if (res.success) {
-                    that.fileView = res.result.value
-                }
-            });
-        },
-        setFileSettingFx() {
-            var that = this;
-            setOneSetting({
-                id: "FILE_PATH",
-                value: that.filePath
-            }).then(res => {
-                if (res.success) {
-                    this.$Message.success("存储路径更新成功");
-                }
-            });
-            setOneSetting({
-                id: "FILE_HTTP",
-                value: that.fileHttp
-            }).then(res => {
-                if (res.success) {
-                    this.$Message.success("HTTP更新成功");
-                }
-            });
-            setOneSetting({
-                id: "FILE_VIEW",
-                value: that.fileView
-            }).then(res => {
-                if (res.success) {
-                    this.$Message.success("预览接口更新成功");
-                }
-            });
-        },
-        showPic(v) {
-            let image = new Image();
-            image.src = v.url;
-            let viewer = new Viewer(image, {
-                hidden: function () {
-                    viewer.destroy();
-                }
-            });
-            viewer.show();
-        },
-        closeVideo() {
-            dp.destroy();
-        },
-        dropDown() {
-            if (this.drop) {
-                this.dropDownContent = "展开";
-                this.dropDownIcon = "ios-arrow-down";
-            } else {
-                this.dropDownContent = "收起";
-                this.dropDownIcon = "ios-arrow-up";
-            }
-            this.drop = !this.drop;
-        },
-        changePage(v) {
-            this.searchForm.pageNumber = v;
-            this.getDataList();
-            this.clearSelectAll();
-        },
-        changePageSize(v) {
-            this.searchForm.pageSize = v;
-            this.getDataList();
-        },
-        changeSort(e) {
-            this.searchForm.sort = e.key;
-            this.searchForm.order = e.order;
-            if (e.order == "normal") {
-                this.searchForm.order = "";
-            }
-            this.getDataList();
-        },
-        selectDateRange(v) {
-            if (v) {
-                this.searchForm.startDate = v[0];
-                this.searchForm.endDate = v[1];
-            }
-        },
-        getDataList() {
-            this.loading = true;
-            getFileListData(this.searchForm).then(res => {
-                this.loading = false;
-                if (res.success) {
-                    this.data = res.result.records;
-                    this.total = res.result.total;
-                }
-            });
-        },
-        handleSearch() {
-            this.searchForm.pageNumber = 1;
-            this.searchForm.pageSize = 15;
-            this.getDataList();
-        },
-        changeFileType() {
-            let name = this.fileType;
-            if (name == "all") {
-                this.searchForm.type = "";
-            } else if (name == "pic") {
-                this.searchForm.type = "image";
-            } else if (name == "video") {
-                this.searchForm.type = "video";
-            }
-            this.handleSearch();
-        },
-        handleReset() {
-            this.$refs.searchForm.resetFields();
-            this.searchForm.pageNumber = 1;
-            this.searchForm.pageSize = 15;
-            this.selectDate = null;
-            this.searchForm.startDate = "";
-            this.searchForm.endDate = "";
-            this.getDataList();
-        },
-        beforeUpload() {
-            return true;
-        },
-        handleMaxSize(file) {
-            this.$Notice.warning({
-                title: "文件大小过大",
-                desc: "所选文件' " + file.name + " '大小过大, 不得超过 5M."
-            });
-        },
-        handleSuccess(res, file) {
-            if (res.success) {
-                this.$Message.success("上传文件 " + file.name + " 成功");
-                this.getDataList();
-            } else {
-                this.$Message.error(res.message);
-            }
-        },
-        handleError(error, file, fileList) {
-            this.$Message.error(error.toString());
-        },
-        clearFiles() {
-            this.$refs.up.clearFiles();
-        },
-        download(v) {
-            window.open(
-                v.url +
-                "?attname=&response-content-type=application/octet-stream&filename=" +
-                v.name
-            );
-        },
-        showFile(v) {
-            window.open(v.url + "?preview=true");
-        },
-        copy(v) {
-            this.$Modal.confirm({
-                title: "确认复制",
-                content: "您确认要复制文件 " + v.name + " ?",
-                loading: true,
-                onOk: () => {
-                    copyFile({
-                        id: v.id,
-                        key: v.fkey
-                    }).then(res => {
-                        this.$Modal.remove();
-                        if (res.success) {
-                            this.$Message.success(
-                                "复制文件成功，新文件名为 " + v.name + "_副本"
-                            );
-                            this.getDataList();
-                        }
-                    });
-                }
-            });
-        },
-        removeAll() {
-            if (this.selectCount <= 0) {
-                this.$Message.warning("您还未选择要删除的数据");
-                return;
-            }
-            this.$Modal.confirm({
-                title: "确认删除",
-                content: "您确认要删除所选的 " + this.selectCount + " 个文件?",
-                loading: true,
-                onOk: () => {
-                    let ids = "";
-                    this.selectList.forEach(function (e) {
-                        ids += e.id + ",";
-                    });
-                    ids = ids.substring(0, ids.length - 1);
-                    deleteFile({
-                        ids: ids
-                    }).then(res => {
-                        this.$Modal.remove();
-                        if (res.success) {
-                            this.$Message.success("批量删除文件成功");
-                            this.clearSelectAll();
-                            this.getDataList();
-                        }
-                    });
-                }
-            });
-        },
-        remove(v) {
-            this.$Modal.confirm({
-                title: "确认删除",
-                content: "您确认要删除文件 " + v.name + " ?",
-                loading: true,
-                onOk: () => {
-                    deleteFile({
-                        ids: v.id
-                    }).then(res => {
-                        this.$Modal.remove();
-                        if (res.success) {
-                            this.$Message.success("删除文件 " + v.name + " 成功");
-                            this.getDataList();
-                        }
-                    });
-                }
-            });
-        },
-        handleSubmit() {
-            this.$refs.form.validate(valid => {
-                if (valid) {
-                    this.submitLoading = true;
-                    let params = {
-                        id: this.form.id,
-                        newKey: this.form.fkey,
-                        newName: this.form.name
-                    };
-                    renameFile(params).then(res => {
-                        this.submitLoading = false;
-                        if (res.success) {
-                            this.$Message.success("操作成功");
-                            this.getDataList();
-                            this.changeFileNameModal = false;
-                        }
-                    });
-                }
-            });
-        },
-        rename(v) {
-            for (let attr in v) {
-                if (v[attr] == null) {
-                    v[attr] = "";
-                }
-            }
-            let str = JSON.stringify(v);
-            let data = JSON.parse(str);
-            this.form = data;
-            this.changeFileNameModal = true;
-        },
-        clearSelectAll() {
-            this.$refs.table.selectAll(false);
-            this.totalSize = "";
-        },
-        changeSelect(e) {
-            this.selectList = e;
-            this.selectCount = e.length;
-            let size = 0;
-            e.forEach(item => {
-                size += item.size * 1.0;
-            });
-            this.totalSize = ((size * 1.0) / (1024 * 1024)).toFixed(2) + " MB";
+                  },
+                  "Delete"
+              )
+            ]);
+          }
         }
-    },
-    mounted() {
-        this.init();
+      ],
+      selectedRows: [],
+      uploadVisible: false,
+      renameModalVisible: false,
+      settingsModalVisible: false,
+      renameForm: {
+        id: "",
+        title: "",
+        courseId: ""
+      },
+      renameFormRules: {
+        title: [{
+          required: true,
+          message: "Title cannot be empty",
+          trigger: "blur"
+        }],
+        courseId: [{
+          required: true,
+          message: "Course ID cannot be empty",
+          trigger: "blur"
+        }]
+      },
+      settingsForm: {
+        storagePath: "",
+        previewUrl: ""
+      }
+    };
+  },
+  computed: {
+    filteredData() {
+      let data = [...this.fileList];
+
+      // Filter by title
+      if (this.searchForm.title) {
+        data = data.filter(item =>
+            item.title.toLowerCase().includes(this.searchForm.title.toLowerCase())
+        );
+      }
+
+      // Filter by course ID
+      if (this.searchForm.courseId) {
+        data = data.filter(item =>
+            item.course_id.toLowerCase().includes(this.searchForm.courseId.toLowerCase())
+        );
+      }
+
+      // Filter by date range
+      if (this.searchForm.startDate && this.searchForm.endDate) {
+        data = data.filter(item => {
+          const itemDate = new Date(item.update_time.split(' ')[0]);
+          const startDate = new Date(this.searchForm.startDate);
+          const endDate = new Date(this.searchForm.endDate);
+          return itemDate >= startDate && itemDate <= endDate;
+        });
+      }
+
+      // Sorting
+      if (this.searchForm.sort) {
+        data.sort((a, b) => {
+          const valA = a[this.searchForm.sort];
+          const valB = b[this.searchForm.sort];
+
+          if (this.searchForm.order === 'asc') {
+            return valA > valB ? 1 : -1;
+          } else {
+            return valA < valB ? 1 : -1;
+          }
+        });
+      }
+
+      const start = (this.searchForm.pageNumber - 1) * this.searchForm.pageSize;
+      const end = start + this.searchForm.pageSize;
+      return data.slice(start, end);
     }
+  },
+  methods: {
+    init() {
+      this.getDataList();
+      this.getSettings();
+    },
+    handleSelectionChange(rows) {
+      this.selectedRows = rows;
+    },
+
+    async getDataList() {
+      this.loading = true;
+      try {
+        const params = {
+          pageNumber: this.searchForm.pageNumber,
+          pageSize: this.searchForm.pageSize,
+          title: this.searchForm.title,
+          courseId: this.searchForm.courseId,
+          startDate: this.searchForm.startDate,
+          endDate: this.searchForm.endDate,
+          sort: this.searchForm.sort,
+          order: this.searchForm.order
+        };
+
+        const response = await getFileListData(params);
+        if (response.code === 200) {
+          this.fileList = response.data.records || [];
+          this.total = response.data.total || 0;
+        } else {
+          alert(`Failed to fetch file list: ${response.message || 'Unknown error'}`);
+        }
+      } catch (error) {
+      } finally {
+        this.loading = false;
+      }
+    },
+    handleSearch() {
+      this.searchForm.pageNumber = 1;
+      this.getDataList();
+    },
+    handleReset() {
+      this.$refs.searchForm.resetFields();
+      this.searchForm.pageNumber = 1;
+      this.searchForm.startDate = "";
+      this.searchForm.endDate = "";
+      this.selectDate = null;
+      this.getDataList();
+    },
+    changePage(page) {
+      this.searchForm.pageNumber = page;
+      this.getDataList();
+    },
+    changePageSize(size) {
+      this.searchForm.pageSize = size;
+      this.searchForm.pageNumber = 1;
+      this.getDataList();
+    },
+    selectDateRange(v) {
+      if (v) {
+        this.searchForm.startDate = v[0];
+        this.searchForm.endDate = v[1];
+      } else {
+        this.searchForm.startDate = "";
+        this.searchForm.endDate = "";
+      }
+      this.getDataList();
+    },
+    beforeUpload() {
+      return true;
+    },
+    handleMaxSize(file) {
+      alert(`File "${file.name}" exceeds 5MB limit`);
+    },
+
+    handleUploadSuccess(res, file) {
+      alert(`File "${file.name}" uploaded successfully`);
+      this.uploadVisible = false;
+      this.getDataList();
+    },
+    handleUploadError(error, file) {
+      alert(`Failed to upload ${file.name}: ${error.toString()}`);
+    },
+    clearUploadFiles() {
+      this.$refs.uploader.clearFiles();
+    },
+
+    downloadFile(row) {
+      alert(`Downloading "${row.title}"`);
+      const url = downloadFileApi(row.id);
+      window.open(url);
+    },
+    openRenameModal(row) {
+      this.renameForm = {
+        id: row.id,
+        title: row.title,
+        courseId: row.course_id
+      };
+      this.renameModalVisible = true;
+    },
+
+    async handleRenameSubmit() {
+      this.$refs.renameForm.validate(valid => {
+        if (valid) {
+          this.renameFileApi();
+        }
+      });
+    },
+    async renameFileApi() {
+      try {
+        const params = {
+          id: this.renameForm.id,
+          title: this.renameForm.title,
+          courseId: this.renameForm.courseId
+        };
+
+        const response = await renameFile(params);
+        if (response.code === 200) {
+          alert("File renamed successfully");
+          this.renameModalVisible = false;
+          this.getDataList();
+        } else {
+          alert(`Failed to rename file: ${response.message || 'Unknown error'}`);
+        }
+      } catch (error) {
+        console.error('Error renaming file:', error);
+        alert('An error occurred while renaming file');
+      }
+    },
+
+    deleteFile(row) {
+      if (confirm(`Are you sure you want to delete file "${row.title}"?`)) {
+        this.deleteFileApi(row.id);
+      }
+    },
+    async deleteFileApi(id) {
+      try {
+        const params = { id };
+        const response = await deleteFile(params);
+
+        if (response.code === 200) {
+          alert("File deleted successfully");
+          this.getDataList();
+        } else {
+          alert(`Failed to delete file: ${response.message || 'Unknown error'}`);
+        }
+      } catch (error) {
+        console.error('Error deleting file:', error);
+        alert('An error occurred while deleting file');
+      }
+    },
+
+    async batchDelete() {
+      if (this.selectedRows.length === 0) {
+        alert("Please select files to delete");
+        return;
+      }
+
+      if (confirm(`Are you sure you want to delete ${this.selectedRows.length} selected files?`)) {
+        try {
+          const ids = this.selectedRows.map(row => row.id);
+          const params = { ids };
+          const response = await deleteFile(params);
+
+          if (response.code === 200) {
+            alert("Files deleted successfully");
+            this.selectedRows = [];
+            this.getDataList(); // 批量删除成功后刷新列表
+          } else {
+            alert(`Failed to delete files: ${response.message || 'Unknown error'}`);
+          }
+        } catch (error) {
+          console.error('Error deleting files:', error);
+          alert('An error occurred while deleting files');
+        }
+      }
+    },
+
+    async getSettings() {
+      try {
+        const response = await getOneSetting({});
+        if (response.code === 200 && response.data) {
+          this.settingsForm.storagePath = response.data.storagePath || "/data/course-files";
+          this.settingsForm.previewUrl = response.data.previewUrl || "http://example.com/files/";
+        }
+      } catch (error) {
+      }
+    },
+
+    async saveSettings() {
+      try {
+        const params = {
+          storagePath: this.settingsForm.storagePath,
+          previewUrl: this.settingsForm.previewUrl
+        };
+
+        const response = await setOneSetting(params);
+        if (response.code === 200) {
+          alert("Settings saved successfully");
+          this.settingsModalVisible = false;
+        } else {
+          alert(`Failed to save settings: ${response.message || 'Unknown error'}`);
+        }
+      } catch (error) {
+        console.error('Error saving settings:', error);
+        alert('An error occurred while saving settings');
+      }
+    }
+  },
+  mounted() {
+    this.init();
+  }
 };
 </script>
 
-<style lang="less">
-@import "../../../styles/table-common.less";
+<style lang="less" scoped>
+.file-manage-page {
+  padding: 20px;
+  background: #f8f9fa;
 
-.search {
-    .oss-operation {
-        margin-bottom: 2vh;
+  .top-bar {
+    background: #fff;
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    .search-area {
+      width: 100%;
+
+      .search-form {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        justify-content: space-between;
-        width: 100%;
-    }
-}
 
-.oss-wrapper {
+        .ivu-form-item {
+          margin-right: 16px;
+          margin-bottom: 0;
+        }
+      }
+    }
+  }
+
+  .table-wrapper {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+
+    .ivu-table {
+      border: none;
+
+      thead th {
+        background: #f9fafb;
+        color: #333;
+        font-weight: 500;
+        border-bottom: 1px solid #eee;
+        padding: 12px 8px;
+      }
+
+      tbody tr {
+        &:hover {
+          background: #f7fafc;
+        }
+      }
+
+      td {
+        border-bottom: 1px solid #eee;
+        padding: 12px 8px;
+      }
+
+      .ivu-btn {
+        border-radius: 4px;
+        padding: 4px 8px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+  }
+
+  .pagination {
     display: flex;
-    flex-wrap: wrap;
-    position: relative;
-}
+    justify-content: flex-end;
+    padding: 16px 20px;
+    background: #fff;
+    border-radius: 8px;
+    margin-top: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
 
-.oss-card {
-    margin: 10px 2.5% 10px 0;
-    width: 22.5%;
+  .ivu-btn {
+    transition: all 0.3s ease;
 
-    :hover {
-        .content .other .name {
-            color: #1890ff;
-            transition: color .3s;
-        }
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
+  }
 
-    cursor: pointer;
+  .ivu-modal-body {
+    max-height: 500px;
+    overflow: auto;
+  }
 
-    .ivu-card-body {
-        padding: 0;
-    }
-
-    .content {
-        display: flex;
-        flex-direction: column;
-
-        :hover {
-            .play {
-                transition: opacity .3s;
-                opacity: 1 !important;
-            }
-        }
-
-        .img {
-            height: 135px;
-            object-fit: cover;
-        }
-
-        .video {
-            height: 135px;
-            position: relative;
-
-            .cover {
-                height: 100%;
-                width: 100%;
-                object-fit: fill;
-            }
-
-            .play {
-                position: absolute;
-                top: 43px;
-                left: 117px;
-                height: 50px;
-                width: 50px;
-                opacity: 0.8;
-            }
-        }
-
-        .other {
-            padding: 16px;
-            height: 135px;
-
-            .name {
-                font-size: 16px;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                white-space: nowrap;
-                color: rgba(0, 0, 0, .85);
-                font-weight: 500;
-                margin-bottom: 4px;
-            }
-
-            .key {
-                overflow: hidden;
-                text-overflow: ellipsis;
-                height: 45px;
-                word-break: break-all;
-                color: rgba(0, 0, 0, .45);
-            }
-
-            .info {
-                font-size: 12px;
-                color: rgba(0, 0, 0, .45);
-                overflow: hidden;
-                text-overflow: ellipsis;
-                height: 36px;
-                word-break: break-all;
-            }
-        }
-
-        .actions {
-            display: flex;
-            align-items: center;
-            height: 50px;
-            background: #f7f9fa;
-            border-top: 1px solid #e8e8e8;
-
-            i:hover {
-                color: #1890ff;
-            }
-
-            .btn {
-                display: flex;
-                justify-content: center;
-                width: 25%;
-                border-right: 1px solid #e8e8e8;
-            }
-
-            .btn-no {
-                display: flex;
-                justify-content: center;
-                width: 25%;
-            }
-        }
-    }
+  .drawer-footer {
+    margin-top: 16px;
+    text-align: right;
+  }
 }
 </style>
