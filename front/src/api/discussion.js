@@ -80,3 +80,7 @@ export const updatePosts = (topicId, params) => {
 export const deletePosts = (topicId, params) => {
     return postRequest(`/course/${topicId}/posts/delByIds`, params);
 };
+
+export const getSummary = (topicId, params) => {
+    return postRequest(`/course/${topicId}/posts//getSummary`,params);
+}

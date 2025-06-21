@@ -79,4 +79,10 @@ public class PostsController {
         }
         return ResultUtil.success();
     }
+
+    @RequestMapping(value="/getSummary",method=RequestMethod.POST)
+    @ApiOperation(value = "生成概要和关键词")
+    public String getSummary(String postsContent){
+        return iPostsService.getSummary(postsContent);
+    }
 }
