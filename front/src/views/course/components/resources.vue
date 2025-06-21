@@ -1,56 +1,51 @@
 <template>
   <div class="resource-content">
-    <!-- 教师权限：显示上传按钮 -->
+    <!-- 教师权限：上传按钮 -->
     <div v-if="isTeacher" class="upload-section" style="background:none;box-shadow:none;padding:0;margin-bottom:24px;display:flex;justify-content:flex-end;">
-      <Button 
-        type="primary" 
-        icon="ios-cloud-upload-outline"
-        @click="showUploadModal = true"
-        class="upload-btn"
-        style="border-radius:22px;height:40px;padding:0 20px;font-size:15px;">
+      <Button
+          type="primary"
+          icon="ios-cloud-upload-outline"
+          @click="showUploadModal = true"
+          class="upload-btn"
+          style="border-radius:22px;height:40px;padding:0 20px;font-size:15px;">
         Upload File
       </Button>
     </div>
 
     <div class="resource-list">
       <div class="file-item" v-for="file in files" :key="file.id">
-        <div class="file-info">
-          <Icon :type="getFileIcon(file.title)" class="file-icon" />
-          <span class="file-name">{{ file.title }}</span>
+        <div class="file-main-info">
+          <div class="file-info">
+            <Icon :type="getFileIcon(file.title)" class="file-icon" />
+            <span class="file-name">{{ file.title }}</span>
+          </div>
+          <div v-if="file.description" class="file-description">
+            <span class="desc-label">Tips：</span>{{ file.description }}
+          </div>
         </div>
         <div class="file-meta">
           <span class="upload-time">
             <Icon type="ios-time-outline" />
             {{ file.uploadTime }}
           </span>
-          
-          <!-- 学生权限：只显示下载按钮 -->
-          <Button 
-            v-if="!isTeacher"
-            type="primary"
-            size="middle"
-            icon="ios-download-outline"
-            @click="handleDownload(file)"
-            class="download-btn">
-            Download
-          </Button>
-          
-          <!-- 教师权限：显示编辑和删除按钮 -->
-          <div v-if="isTeacher" class="teacher-actions">
-            <Button 
+
+          <Button
               type="primary"
-              size="small"
+              size="middle"
               icon="ios-download-outline"
               @click="handleDownload(file)"
-              class="action-btn">
-              Download
-            </Button>
-            <Button 
-              type="error"
-              size="small"
-              icon="ios-trash-outline"
-              @click="handleDelete(file)"
-              class="action-btn">
+              class="download-btn">
+            Download
+          </Button>
+
+          <!-- 教师权限：删除按钮 -->
+          <div v-if="isTeacher" class="teacher-actions">
+            <Button
+                type="error"
+                size="middle"
+                icon="ios-trash-outline"
+                @click="handleDelete(file)"
+                class="del-btn">
               Delete
             </Button>
           </div>
@@ -58,32 +53,27 @@
       </div>
     </div>
 
-    <!-- 上传课件模态框 -->
-    <Modal v-model="showUploadModal" title="上传课件" @on-ok="handleUpload">
-      <Form :model="uploadForm" :label-width="80">
-        <FormItem label="课件名称">
-          <Input v-model="uploadForm.title" placeholder="请输入课件名称" />
+    <!-- 上传课件 -->
+    <Modal v-model="showUploadModal" title="Upload Resources" @on-ok="handleUpload">
+      <Form :model="uploadForm" :label-width="120">
+        <FormItem label="title">
+          <Input v-model="uploadForm.title" />
         </FormItem>
-        <FormItem label="选择文件">
+        <FormItem label="Tips (Optional)">
+          <Input v-model="uploadForm.tip" />
+        </FormItem>
+        <FormItem label="Choose file">
           <Upload
-            ref="upload"
-            :show-upload-list="false"
-            :on-success="handleUploadSuccess"
-            :on-error="handleUploadError"
-            :format="['pdf', 'docx', 'doc', 'ppt', 'pptx', 'zip', 'rar']"
-            :max-size="20480"
-            action="/api/upload">
-            <Button icon="ios-cloud-upload-outline">选择文件</Button>
+              ref="upload"
+              :show-upload-list="false"
+              :on-success="handleUploadSuccess"
+              :on-error="handleUploadError"
+              :format="['pdf', 'docx', 'doc', 'ppt', 'pptx', 'zip', 'rar']"
+              :max-size="20480"
+              action="/api/upload"
+              :before-upload="handleBeforeUpload" >
+            <Button icon="ios-cloud-upload-outline">{{ uploadForm.file ? uploadForm.file.name : 'Choose file' }}</Button>
           </Upload>
-        </FormItem>
-      </Form>
-    </Modal>
-
-    <!-- 编辑课件模态框 -->
-    <Modal v-model="showEditModal" title="编辑课件" @on-ok="handleEditSubmit">
-      <Form :model="editForm" :label-width="80">
-        <FormItem label="课件名称">
-          <Input v-model="editForm.title" placeholder="请输入课件名称" />
         </FormItem>
       </Form>
     </Modal>
@@ -92,30 +82,8 @@
 
 <script>
 import Cookies from 'js-cookie'
-
-// 模拟数据，后续可替换为API调用
-const mockFiles = [
-  {
-    id: 1,
-    title: 'Java Basic Grammar.pdf',
-    uploadTime: '2024-03-15 14:30'
-  },
-  {
-    id: 2,
-    title: 'Handout1.docx',
-    uploadTime: '2024-03-15 14:30'
-  },
-  {
-    id: 3,
-    title: 'Java Object.pptx',
-    uploadTime: '2024-03-20 10:15'
-  },
-  {
-    id: 4,
-    title: 'Java Code.zip',
-    uploadTime: '2024-03-25 16:45'
-  }
-]
+import { getAllCourseResources, addCourseResources, deleteCoursesResources, saveOrUpdateCourseResources } from '@/api/courseResources';
+import { downloadFile } from '@/api/file';
 
 export default {
   name: 'CourseSlides',
@@ -128,7 +96,8 @@ export default {
       showEditModal: false,
       uploadForm: {
         title: '',
-        file: null
+        file: null,
+        tip: ''
       },
       editForm: {
         id: null,
@@ -143,18 +112,17 @@ export default {
         const userInfo = Cookies.get('userInfo')
         if (userInfo) {
           const user = JSON.parse(userInfo)
-          // 检查role对象中的name字段
+          // 检查role
           if (user.role && user.role.name) {
             return user.role.name === 'ROLE_TEACHER' || user.role.name === 'ROLE_ADMIN'
           }
-          // 兼容旧版本，检查roleName字段
           if (user.roleName) {
             return user.roleName === 'ROLE_TEACHER' || user.roleName === 'ROLE_ADMIN'
           }
         }
         return false
       } catch (error) {
-        console.error('解析用户信息失败:', error)
+        console.error('User Info error:', error)
         return false
       }
     }
@@ -163,19 +131,16 @@ export default {
     this.fetchFiles()
   },
   methods: {
-    // 获取课件列表
     async fetchFiles() {
       try {
         this.loading = true
-        // TODO: 替换为实际的API调用
-        // const response = await this.$api.getCourseFiles(this.$route.params.id)
-        // this.files = response.data
-        
-        // 临时使用模拟数据
-        this.files = mockFiles
+        const response = await getAllCourseResources()
+        if (response && response.data) {
+          this.files = response.data
+        }
       } catch (error) {
         this.error = error.message
-        this.$Message.error('Failed to fetch the resources list.')
+        this.$Message.error('Failed to fetch resources')
       } finally {
         this.loading = false
       }
@@ -184,17 +149,29 @@ export default {
     // 下载课件
     async handleDownload(file) {
       try {
-        // TODO: 替换为实际的下载API调用
-        // const response = await this.$api.downloadFile(file.id)
-        // 处理文件下载逻辑
-        
-        this.$Message.success(`开始下载: ${file.title}`)
+        this.$Message.success(`Start to download: ${file.title}`)
+        const response = await downloadFile(file.id)
+
+        // 创建下载链接
+        if (response && response.data) {
+          const blob = new Blob([response.data])
+          const url = window.URL.createObjectURL(blob)
+          const link = document.createElement('a')
+          link.href = url
+          link.download = file.title
+          document.body.appendChild(link)
+          link.click()
+          document.body.removeChild(link)
+          window.URL.revokeObjectURL(url)
+        }
+
+        this.$Message.success('Download completed')
       } catch (error) {
-        this.$Message.error('下载失败，请稍后重试.')
+        console.error('Download error:', error)
+        this.$Message.error('Download failed')
       }
     },
 
-    // 编辑课件
     handleEdit(file) {
       this.editForm = {
         id: file.id,
@@ -206,37 +183,35 @@ export default {
     // 提交编辑
     async handleEditSubmit() {
       try {
-        // TODO: 替换为实际的编辑API调用
-        // await this.$api.updateFile(this.editForm)
-        
-        // 更新本地数据
-        const index = this.files.findIndex(f => f.id === this.editForm.id)
-        if (index !== -1) {
-          this.files[index].title = this.editForm.title
+        const params = {
+          id: this.editForm.id,
+          title: this.editForm.title
         }
-        
-        this.$Message.success('编辑成功')
+        await saveOrUpdateCourseResources(params)
+        this.$Message.success('Edit Successfully')
         this.showEditModal = false
+        this.fetchFiles()
       } catch (error) {
-        this.$Message.error('编辑失败，请稍后重试')
+        this.$Message.error('Edit failed')
       }
     },
 
-    // 删除课件
     handleDelete(file) {
       this.$Modal.confirm({
-        title: '确认删除',
-        content: `确定要删除课件 "${file.title}" 吗？`,
+        title: 'Confirm deletion',
+        content: `Are you sure you want to delete "${file.title}"? `,
+        okText: 'del',
+        cancelText: 'Cancel',
         onOk: async () => {
           try {
-            // TODO: 替换为实际的删除API调用
-            // await this.$api.deleteFile(file.id)
-            
-            // 从本地数据中移除
-            this.files = this.files.filter(f => f.id !== file.id)
-            this.$Message.success('删除成功')
+            const params = {
+              ids: [file.id]
+            }
+            await deleteCoursesResources(params)
+            this.$Message.success('Delete Successfully')
+            this.fetchFiles()
           } catch (error) {
-            this.$Message.error('删除失败，请稍后重试')
+            this.$Message.error('Delete failed')
           }
         }
       })
@@ -245,42 +220,51 @@ export default {
     // 上传课件
     async handleUpload() {
       if (!this.uploadForm.title.trim()) {
-        this.$Message.error('请输入课件名称')
+        this.$Message.error('Please input the file name')
         return
       }
-      
+
       try {
-        // TODO: 替换为实际的上传API调用
-        // await this.$api.uploadFile(this.uploadForm)
-        
-        // 添加到本地数据
-        const newFile = {
-          id: Date.now(),
+        const params = {
           title: this.uploadForm.title,
+          description: this.uploadForm.tip,
           uploadTime: new Date().toLocaleString()
         }
-        this.files.unshift(newFile)
-        
-        this.$Message.success('上传成功')
+        await addCourseResources(params)
+
+        this.$Message.success('Upload Successfully')
         this.showUploadModal = false
-        this.uploadForm = { title: '', file: null }
+        this.uploadForm = { title: '', file: null, tip: '' }
+        this.fetchFiles()
       } catch (error) {
-        this.$Message.error('上传失败，请稍后重试')
+        this.$Message.error('Upload failed')
       }
     },
 
     // 文件上传成功回调
     handleUploadSuccess(response, file) {
       this.uploadForm.file = file
-      this.$Message.success('文件上传成功')
+      // 自动填充title
+      if (file && file.name) {
+        this.uploadForm.title = file.name
+      }
+      this.$Message.success('File selected successfully')
     },
 
-    // 文件上传失败回调
-    handleUploadError(error, file) {
-      this.$Message.error('文件上传失败')
+    // 文件上传错误回调
+    handleUploadError(error) {
+      this.$Message.error('File upload failed')
     },
 
-    // 根据文件类型获取图标
+    handleBeforeUpload(file) {
+      this.uploadForm.file = file
+      if (file && file.name) {
+        this.uploadForm.title = file.name
+      }
+      return true
+    },
+
+    // 文件类型对应图标
     getFileIcon(fileName) {
       const extension = fileName.split('.').pop().toLowerCase()
       const iconMap = {
@@ -314,8 +298,7 @@ export default {
       border: none;
       padding: 8px 24px;
       font-size: 16px;
-      font-weight: 540;
-      border-radius: 16px;
+      border-radius: 22px;
       box-shadow: 0 2px 6px rgba(45, 140, 240, 0.2);
 
       &:hover {
@@ -328,7 +311,7 @@ export default {
 
   .resource-list {
     padding: 30px;
-    
+
     .file-item {
       display: flex;
       justify-content: space-between;
@@ -348,6 +331,13 @@ export default {
 
       &:last-child {
         margin-bottom: 0;
+      }
+
+      .file-main-info {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        flex: 1;
       }
 
       .file-info {
@@ -385,13 +375,11 @@ export default {
 
         .download-btn {
           transform: translateX(5px);
-          transition: all 0.3s ease;
           background: rgba(0,122,255,0.6);
           border: none;
           padding: 5px 20px;
           font-size: 15px;
-          font-weight: 540;
-          border-radius: 16px;
+          border-radius: 22px;
           box-shadow: 0 2px 6px rgba(45, 140, 240, 0.2);
 
           &:hover {
@@ -410,50 +398,40 @@ export default {
           display: flex;
           gap: 8px;
 
-          .action-btn {
-            transition: all 0.3s ease;
-            border-radius: 12px;
+          .del-btn {
+            opacity: 0.7;
+            transform: translateX(5px);
+            border-radius: 22px;
             padding: 4px 12px;
             font-size: 14px;
             border: none;
 
             &:hover {
+              opacity: 1.2;
               transform: translateY(-1px);
             }
-
-            &.ivu-btn-primary {
-              background: rgba(0,122,255,0.6);
-              box-shadow: 0 2px 6px rgba(45, 140, 240, 0.2);
-
-              &:hover {
-                background: rgba(0,122,255,0.8);
-                box-shadow: 0 4px 12px rgba(45, 140, 240, 0.3);
-              }
-            }
-
-            &.ivu-btn-warning {
-              background: rgba(255,153,0,0.6);
-              box-shadow: 0 2px 6px rgba(255, 153, 0, 0.2);
-
-              &:hover {
-                background: rgba(255,153,0,0.8);
-                box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
-              }
-            }
-
-            &.ivu-btn-error {
-              background: rgba(237,64,20,0.6);
-              box-shadow: 0 2px 6px rgba(237, 64, 20, 0.2);
-
-              &:hover {
-                background: rgba(237,64,20,0.8);
-                box-shadow: 0 4px 12px rgba(237, 64, 20, 0.3);
-              }
-            }
           }
+        }
+      }
+
+      .file-description {
+        margin-top: 6px;
+        background: #f6f7fa;
+        color: #515a6e;
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-size: 15px;
+        display: flex;
+        align-items: center;
+
+        .desc-label {
+          font-weight: bold;
+          color: #2d8cf0;
+          margin-right: 6px;
         }
       }
     }
   }
 }
-</style> 
+</style>
+

@@ -1,41 +1,41 @@
 import { getRequest, postRequest, getNoAuthRequest } from '@/libs/axios';
 
-// 获取单个课程
-export const getAssignmentReq = (params) => {
+// 获取单个作业要求
+export const getAssignmentReqOne = (params) => {
     return getNoAuthRequest('/assignment_req/getOne', params);
 };
 
-// 获取课程总数
-export const getAssignmentReq = () => {
+// 获取作业要求总数
+export const getAssignmentReqCount = () => {
     return getNoAuthRequest('/assignment_req/count');
 };
 
-// 获取所有课程
+// 获取所有作业要求
 export const getAllAssignmentReq = () => {
     return getNoAuthRequest('/assignment_req/getAll');
 };
 
-// 分页获取课程
+// 分页获取作业要求
 export const getAssignmentReqByPage = (params) => {
     return getNoAuthRequest('/assignment_req/getByPage', params);
 };
 
-// 增改课程
+// 增改作业要求
 export const saveOrUpdateAssignmentReq = (params) => {
     return postRequest('/assignment_req/insertOrUpdate', params);
 };
 
-// 新增课程
+// 新增作业要求
 export const addAssignmentReq = (params) => {
     return postRequest('/assignment_req/insert', params);
 };
 
-// 更新课程
+// 更新作业要求
 export const updateAssignmentReq = (params) => {
     return postRequest('/assignment_req/update', params);
 };
 
-// 删除课程
+// 删除作业要求
 export const deleteAssignmentReq = (params) => {
     return postRequest('/assignment_req/delByIds', params);
 };
