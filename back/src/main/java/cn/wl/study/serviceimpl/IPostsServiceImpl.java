@@ -68,6 +68,14 @@ public class IPostsServiceImpl extends ServiceImpl<PostsMapper, Posts> implement
         return ResultUtil.error();
     }
 
+    /*
+    @Override
+    public Result<Posts> likesPosts(Posts posts){
+        posts.setLikes(posts.getLikes() + 1);
+        return new ResultUtil<Posts>().setData(posts);
+    }
+
+     */
 
     @Override
     public String getSummary(String postsContent){

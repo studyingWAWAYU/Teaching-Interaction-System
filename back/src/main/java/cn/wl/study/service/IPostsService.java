@@ -14,4 +14,5 @@ public interface IPostsService extends IService<Posts> {
     List<Posts> getAllByTopicIdOrderByLikesDesc(Integer topicId);
     Result<Posts> saveOrUpdatePosts(Posts posts);
     String getSummary(String postsContent);
+    //Result<Posts> likesPosts(Posts posts, );
 }
