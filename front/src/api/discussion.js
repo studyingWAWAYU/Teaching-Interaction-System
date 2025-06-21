@@ -85,3 +85,21 @@ export const deletePosts = (topicId, params) => {
 export const getSummary = (topicId, params) => {
     return postRequest(`/course/${topicId}/posts/getSummary`,params);
 }
+
+// 点赞主题
+export const likeTopic = (topicId, params) => {
+    return postRequest(`/course/${topicId}/likes`,params);
+}
+
+export const unlikeTopic = (topicId,params) => {
+    return postRequest(`/course/${topicId}/unlikes`, params)
+}
+
+// 点赞帖子
+export const likePost = (postId, params) => {
+    return postRequest(`/course/${postId}/likes`,params);
+}
+
+export const unlikePost = (postId,params) => {
+    return postRequest(`/course/${postId}/unlikes`, params)
+}

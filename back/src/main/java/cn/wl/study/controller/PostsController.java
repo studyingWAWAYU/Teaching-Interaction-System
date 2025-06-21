@@ -80,6 +80,16 @@ public class PostsController {
         return ResultUtil.success();
     }
 
+    /*
+    @RequestMapping(value = "/likesPosts",method= RequestMethod.POST)
+    @ApiOperation(value = "点赞")
+    public Result<Posts> likesPosts(Posts posts){
+        User currUser = securityUtil.getCurrUser();
+        return iPostsService.likesPosts(posts, currUser);
+    }
+
+     */
+
     @RequestMapping(value="/getSummary",method=RequestMethod.POST)
     @ApiOperation(value = "生成概要和关键词")
     public String getSummary(String postsContent){

@@ -389,7 +389,7 @@ CREATE TABLE IF NOT EXISTS `topics` (
                                         id integer primary key auto_increment,
                                         create_by integer,
                                         foreign key (create_by) references user(id),
-                                        update_time date,
+                                        update_time Datetime,
                                         title varchar(150) NOT NULL,
                                         description varchar(5000) DEFAULT NULL,
                                         course_id integer,
@@ -400,24 +400,45 @@ CREATE TABLE IF NOT EXISTS `topics` (
 
 DELETE FROM `topics`;
 INSERT INTO `topics` (`id`, `create_by`, `update_time`, `title`, description, `course_id`,likes) VALUES
-    (1, 1, '2025-06-12', 'Is Java Platform Independent if then how?', NULL, 1,0);
+    (1, 1, '2025-06-18 12:08:56', 'What is the mechanism of polymorphism?', 'Share your opinion!', 1,3),
+    (2,2,'2025-06-19 18:38:23','How does polymorphism work in programming?',NULL,1,2);
 
 DROP TABLE IF EXISTS `posts`;
 CREATE TABLE IF NOT EXISTS `posts` (
-                                       id integer primary key auto_increment,
-                                       create_by integer,
-                                       foreign key (create_by) references user(id),
-                                       create_time date,
-                                       content varchar(5000) NOT NULL,
-                                       topic_id integer,
-                                       foreign key (topic_id) references topics(id),
-                                       likes integer DEFAULT 0
+       id integer primary key auto_increment,
+       create_by integer,
+       foreign key (create_by) references user(id),
+       create_time date,
+       content varchar(5000) NOT NULL,
+       topic_id integer,
+       foreign key (topic_id) references topics(id),
+       likes integer DEFAULT 0
 );
 
 DELETE FROM `posts`;
 INSERT INTO `posts` (`id`, `create_by`, `create_time`, `content`, `topic_id`,likes) VALUES
-    (1, 3, '2025-06-12', 'Yes, Java is a Platform Independent language. Unlike many programming languages javac compiles the program to form a bytecode or .class file. This file is independent of the software or hardware running but needs a JVM(Java Virtual Machine) file preinstalled in the operating system for further execution of the bytecode.', 1,0);
+    (1, 3, '2025-06-19 18:40:03', 'Polymorphism is a key concept in object-oriented programming (OOP) that allows objects of different types to be treated as objects of a common base type. In programming, it allows different classes to be treated through the same interface, usually by overriding or implementing methods.', 1,1),
+    (2,4,'2025-06-19 18:42:17','polymorphism is about flexibility, enabling a unified interface for different data types or classes.',1,0);
 
+DROP TABLE IF EXISTS post_like;
+CREATE TABLE IF NOT EXISTS post_like(
+    id integer primary key auto_increment,
+    user_id integer,
+    foreign key (user_id) references user(id),
+    create_time date,
+    post_id integer,
+    foreign key (post_id) references posts(id)
+);
+
+DROP TABLE IF EXISTS topic_like;
+CREATE TABLE IF NOT EXISTS topic_like(
+    id integer primary key auto_increment,
+    user_id integer,
+    foreign key (user_id) references user(id),
+    create_time date,
+    topic_id integer,
+    foreign key (topic_id) references topics(id)
+);
 
 DROP TABLE IF EXISTS `dict`;
 CREATE TABLE IF NOT EXISTS `dict` (
