@@ -3,11 +3,11 @@
     <div class="discussion-header">
       <div class="search-box">
         <Input
-          v-model="searchQuery"
-          placeholder="Search keywords..."
-          clearable
-          size="large"
-          @on-change="handleSearch">
+            v-model="searchQuery"
+            placeholder="Search keywords..."
+            clearable
+            size="large"
+            @on-change="handleSearch">
           <Icon type="ios-search" slot="prefix" />
         </Input>
       </div>
@@ -18,12 +18,12 @@
 
     <div class="discussion-main">
       <div class="topic-list">
-        <div 
-          class="topic-item" 
-          v-for="(topic, index) in sortedDiscussions" 
-          :key="topic.id"
-          :class="{ active: selectedTopic === topic }"
-          @click.stop="selectTopic(topic)">
+        <div
+            class="topic-item"
+            v-for="(topic, index) in sortedDiscussions"
+            :key="topic.id"
+            :class="{ active: selectedTopic === topic }"
+            @click.stop="selectTopic(topic)">
           <div class="topic-brief">
             <h3 class="topic-title">{{ topic.title }}</h3>
             <div class="topic-meta">
@@ -61,7 +61,8 @@
           <div class="similar-topic">
             <span class="similar-topic-label">Possible Similar Topic:</span>
             <Icon type="ios-link" size="small" />
-            <a href="#" class="similar-topic-link">Is Python Platform Independent if then how?</a>
+            <a v-if="selectedTopic && selectedTopic.similarTopic" class="similar-topic-link">{{ selectedTopic.similarTopic }}</a>
+            <span v-else class="similar-topic-link" style="color: #aaa;">No similar topics</span>
           </div>
           <div class="detail-meta">
             <span class="author">
@@ -78,7 +79,7 @@
             </span>
           </div>
         </div>
-        
+
         <div class="detail-content">
           <div class="content-wrapper">
             {{ selectedTopic.description }}
@@ -99,7 +100,7 @@
           <div class="reply-list">
             <div class="reply-item" v-for="(reply, rIndex) in sortedReplies" :key="reply.id">
               <div class="reply-avatar">
-                <Avatar icon="ios-person" size="large" />
+                <Avatar :src="getUserAvatar(reply.createBy)" icon="ios-person" size="large" />
               </div>
               <div class="reply-content-wrapper">
                 <div class="reply-header">
@@ -108,7 +109,7 @@
                     <span class="reply-time">{{ formatTime(reply.createTime) }}</span>
                   </div>
                 </div>
-                <div class="reply-content">{{ reply.content }}</div>
+                <div class="reply-content" v-html="formatReplyContent(reply.content)"></div>
               </div>
               <div class="reply-actions">
                 <Button type="text" v-if="reply.createBy === currentUserId || isAdmin" @click="handleDeleteReply(reply)">
@@ -142,21 +143,22 @@
         </FormItem>
         <FormItem label="Content">
           <Input
-            v-model="newTopic.content"
-            type="textarea"
-            :rows="4"
-            placeholder="Enter topic content" />
+              v-model="newTopic.content"
+              type="textarea"
+              :rows="4"
+              placeholder="Enter topic content" />
         </FormItem>
       </Form>
     </Modal>
-    <Modal v-model="replyModalVisible" title="Reply to Topic" @on-ok="handleReply" ok-text="OK" cancel-text="Cancel">
+    <Modal v-model="replyModalVisible" title="Reply to Topic" @on-ok="handleReply" ok-text="OK" cancel-text="Cancel" width="800">
       <Form :model="newReply" :label-width="80">
         <FormItem label="Content">
           <Input
-            v-model="newReply.content"
-            type="textarea"
-            :rows="4"
-            placeholder="Enter your reply" />
+              v-model="newReply.content"
+              type="textarea"
+              :rows="15"
+              placeholder="Enter your reply" />
+          <Button type="dashed" style="margin-top:8px;" @click="handleSummary" :loading="summaryLoading">Summary</Button>
         </FormItem>
       </Form>
     </Modal>
@@ -165,18 +167,12 @@
 
 <script>
 import Cookies from 'js-cookie';
-import { getAllTopics, getAllTopicsSorted, addTopics, updateTopics, deleteTopics, saveOrUpdateTopics } from '@/api/discussion';
+import { getAllTopics, getAllTopicsSorted, addTopics, updateTopics, deleteTopics, saveOrUpdateTopics, getSummary } from '@/api/discussion';
 import { getAllPosts, getAllPostsSorted, addPosts, deletePosts } from '@/api/discussion';
 import { getAllUsers } from '@/views/roster/user/api';
 
 export default {
   name: 'Discussion',
-  props: {
-    discussions: {
-      type: Array,
-      required: true
-    }
-  },
   data() {
     return {
       searchQuery: '',
@@ -203,7 +199,8 @@ export default {
       newReply: {
         content: '',
         topicIndex: -1
-      }
+      },
+      summaryLoading: false
     }
   },
   computed: {
@@ -212,7 +209,7 @@ export default {
     },
     sortedReplies() {
       if (!this.selectedTopic || !this.selectedTopic.replies) return [];
-      return [...this.selectedTopic.replies].sort((a, b) => (b.likes || 0) - (a.likes || 0));
+      return this.selectedTopic.replies;
     },
     isAdmin() {
       try {
@@ -236,16 +233,7 @@ export default {
     this.courseId = this.$route.params.id;
     this.initData();
   },
-  watch: {
-    discussions: {
-      immediate: true,
-      handler(newVal) {
-        this.filteredDiscussions = [...newVal];
-      }
-    }
-  },
   methods: {
-    // 通用方法
     async loadUsers() {
       try {
         const res = await getAllUsers();
@@ -266,7 +254,14 @@ export default {
     formatTime(timeStr) {
       if (!timeStr) return '';
       const date = new Date(timeStr);
-      return date.toLocaleString('zh-CN');
+      return date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
     },
 
     // =================== Topic 相关 ===================
@@ -276,33 +271,33 @@ export default {
         const response = await getAllTopicsSorted(this.courseId);
         if (response.success) {
           const topicsWithReplies = await Promise.all(
-            response.result.map(async (topic) => {
-              try {
-                const postsResponse = await getAllPosts(topic.id);
-                const replyCount = postsResponse.success ? postsResponse.result.length : 0;
-                return {
-                  ...topic,
-                  replyCount,
-                  replies: postsResponse.success ? postsResponse.result : []
-                };
-              } catch (error) {
-                console.error(`Failed to obtain the reply to Topic ${topic.id} :`, error);
-                return {
-                  ...topic,
-                  replyCount: 0,
-                  replies: []
-                };
-              }
-            })
+              response.result.map(async (topic) => {
+                try {
+                  const postsResponse = await getAllPostsSorted(topic.id);
+                  const replyCount = postsResponse.success ? postsResponse.result.length : 0;
+                  return {
+                    ...topic,
+                    replyCount,
+                    replies: postsResponse.success ? postsResponse.result : []
+                  };
+                } catch (error) {
+                  console.error(`Failed to obtain the reply to Topic ${topic.id} :`, error);
+                  return {
+                    ...topic,
+                    replyCount: 0,
+                    replies: []
+                  };
+                }
+              })
           );
           this.filteredDiscussions = topicsWithReplies;
           this.$emit('discussions-loaded', topicsWithReplies);
         } else {
-          this.$Message.error('Failed to fetch discussion list.');
+          this.$Message.error('Failed to load discussions');
         }
       } catch (error) {
         this.error = error.message;
-        this.$Message.error('Failed to fetch discussion list.');
+        this.$Message.error('Failed to load discussions');
       } finally {
         this.loading = false;
       }
@@ -310,39 +305,42 @@ export default {
     async createDiscussion(topicData) {
       try {
         const params = {
-          course_id: this.courseId,
           title: topicData.title,
-          description: topicData.content
+          description: topicData.content,
+          createBy: this.currentUserId,
+          courseId: this.courseId
         };
         const response = await addTopics(this.courseId, params);
         if (response.success) {
-          this.$Message.success('Succeed to create discussion.');
+          this.$Message.success('Topic created successfully');
           await this.fetchCourseDiscussions();
         } else {
-          this.$Message.error('Failed to create discussion.');
+          this.$Message.error('Failed to create topic');
         }
       } catch (error) {
-        this.$Message.error('Failed to create discussion.');
+        console.error('Create topic error:', error);
+        this.$Message.error('Failed to create topic');
       }
     },
     async handleDeleteTopic(topic) {
       this.$Modal.confirm({
         title: 'Confirm deletion',
         content: 'Are you sure you want to delete this topic?',
-        okText: 'del',
+        okText: 'Delete',
         cancelText: 'Cancel',
         onOk: async () => {
           try {
-            const response = await deleteTopics(topic.id, { ids: [topic.id] });
+            const response = await deleteTopics(this.courseId, { ids: [topic.id] });
             if (response.success) {
               this.$Message.success('The topic has been deleted.');
               this.selectedTopic = null;
               await this.fetchCourseDiscussions();
             } else {
-              this.$Message.error('Failed to delete the topic');
+              this.$Message.error('Failed to delete topic');
             }
           } catch (error) {
-            this.$Message.error('Failed to delete the topic');
+            console.error('Delete topic error:', error);
+            this.$Message.error('Failed to delete topic');
           }
         }
       });
@@ -357,21 +355,24 @@ export default {
           id: this.editTopicForm.id,
           title: this.editTopicForm.title,
           description: this.editTopicForm.description,
-          createBy: this.selectedTopic.createBy
+          courseId: this.courseId
         };
-        const response = await saveOrUpdateTopics(this.courseId, params);
+        const response = await updateTopics(this.courseId, params);
         if (response.success) {
-          this.$Message.success('Edit Successful');
+          this.$Message.success('Topic updated successfully');
           this.editTopicModalVisible = false;
           await this.fetchCourseDiscussions();
-          // 重新选中当前主题
-          const updated = this.filteredDiscussions.find(t => t.id === this.editTopicForm.id);
-          if (updated) this.selectedTopic = updated;
+          // 更新选中的主题
+          const updatedTopic = this.filteredDiscussions.find(t => t.id === this.editTopicForm.id);
+          if (updatedTopic) {
+            this.selectedTopic = updatedTopic;
+          }
         } else {
-          this.$Message.error('Edit Failed');
+          this.$Message.error('Failed to update topic');
         }
       } catch (error) {
-        this.$Message.error('Edit Failed');
+        console.error('Update topic error:', error);
+        this.$Message.error('Failed to update topic');
       }
     },
     showEditTopicModal() {
@@ -402,12 +403,11 @@ export default {
           content: ''
         };
       } catch (error) {
-        this.$Message.error('Failed to create topic');
+        console.error('Create topic error:', error);
       }
     },
     selectTopic(topic) {
       this.selectedTopic = topic;
-      this.loadTopicReplies(topic.id);
     },
     handleSearch() {
       if (!this.searchQuery) {
@@ -416,18 +416,18 @@ export default {
       }
       const query = this.searchQuery.toLowerCase();
       this.filteredDiscussions = this.discussions.filter(topic => {
-        return topic.title.toLowerCase().includes(query) || 
-               (topic.description && topic.description.toLowerCase().includes(query));
+        return topic.title.toLowerCase().includes(query) ||
+            (topic.description && topic.description.toLowerCase().includes(query));
       });
     },
     handleContentClick(event) {
-      if (event.target.classList.contains('discussion-content') || 
+      if (event.target.classList.contains('discussion-content') ||
           event.target.classList.contains('discussion-main')) {
         this.selectedTopic = null;
       }
     },
+    // 实现点赞功能
     handleTopicLike(topic) {
-      // TODO: 实现点赞功能
       topic.isLiked = !topic.isLiked;
       topic.likes = (topic.likes || 0) + (topic.isLiked ? 1 : -1);
     },
@@ -436,23 +436,25 @@ export default {
     async replyToDiscussion(topicId, replyData) {
       try {
         const params = {
-          topicId: topicId,
-          content: replyData.content
+          content: replyData.content,
+          createBy: this.currentUserId,
+          topicId: topicId
         };
         const response = await addPosts(topicId, params);
         if (response.success) {
-          this.$Message.success('The reply was published successfully.');
+          this.$Message.success('Reply published successfully');
           await this.loadTopicReplies(topicId);
         } else {
-          this.$Message.error('The reply failed to publish.');
+          this.$Message.error('Failed to publish reply');
         }
       } catch (error) {
-        this.$Message.error('The reply failed to publish.');
+        console.error('Reply error:', error);
+        this.$Message.error('Failed to publish reply');
       }
     },
     async loadTopicReplies(topicId) {
       try {
-        const response = await getAllPosts(topicId);
+        const response = await getAllPostsSorted(topicId);
         if (response.success) {
           const topic = this.filteredDiscussions.find(t => t.id === topicId);
           if (topic) {
@@ -468,7 +470,7 @@ export default {
       this.$Modal.confirm({
         title: 'Confirm deletion',
         content: 'Are you sure you want to delete this reply?',
-        okText: 'del',
+        okText: 'Delete',
         cancelText: 'Cancel',
         onOk: async () => {
           try {
@@ -477,10 +479,11 @@ export default {
               this.$Message.success('The reply has been deleted.');
               await this.loadTopicReplies(reply.topicId);
             } else {
-              this.$Message.error('Failed to delete the reply');
+              this.$Message.error('Failed to delete reply');
             }
           } catch (error) {
-            this.$Message.error('Failed to delete the reply');
+            console.error('Delete reply error:', error);
+            this.$Message.error('Failed to delete reply');
           }
         }
       });
@@ -506,11 +509,32 @@ export default {
           topicIndex: -1
         };
       } catch (error) {
-        this.$Message.error('Failed to publish reply');
+        console.error('Reply error:', error);
+      }
+    },
+    async handleSummary() {
+      if (!this.newReply.content) {
+        this.$Message.warning('Please enter the content that needs to be summarized');
+        return;
+      }
+      this.summaryLoading = true;
+      try {
+        const topic = this.filteredDiscussions[this.newReply.topicIndex];
+        const res = await getSummary(topic.id, { content: this.newReply.content });
+        if (res.success) {
+          this.newReply.content = res.result;
+          this.$Message.success('The summary was generated successfully.');
+        } else {
+          this.$Message.error('Failed to generate the summary.');
+        }
+      } catch (e) {
+        console.error(e);
+        this.$Message.error('Failed to generate the summary.');
+      } finally {
+        this.summaryLoading = false;
       }
     },
     handleReplyLike(reply) {
-      // TODO: 实现回复点赞功能
       reply.isLiked = !reply.isLiked;
       reply.likes = (reply.likes || 0) + (reply.isLiked ? 1 : -1);
     },
@@ -518,9 +542,19 @@ export default {
       if (!topic.replies) return false;
       return topic.replies.some(reply => reply.createBy === this.currentUserId);
     },
+    //头像
+    getUserAvatar(userId) {
+      const user = this.users.find(u => u.id === userId);
+      return user && user.avatar ? user.avatar : '';
+    },
     async initData() {
       await this.loadUsers();
       await this.fetchCourseDiscussions();
+    },
+    //展示回复可换行
+    formatReplyContent(content) {
+      if (!content) return '';
+      return content.replace(/\n/g, '<br>');
     }
   }
 }
@@ -540,19 +574,19 @@ export default {
 
     .search-box {
       width: 300px;
-      
+
       :deep(.ivu-input-wrapper) {
         .ivu-input {
           border-radius: 25px;
           padding-left: 40px;
           height: 40px;
           font-size: 16px;
-          
+
           &:focus {
             box-shadow: 0 0 0 2px rgba(45, 140, 240, 0.2);
           }
         }
-        
+
         .ivu-input-prefix {
           left: 12px;
           color: #808695;
@@ -750,7 +784,7 @@ export default {
           padding: 8px 12px;
           background: rgba(45, 140, 240, 0.05);
           border-radius: 16px;
-          
+
           .similar-topic-label {
             color: #515a6e;
             font-size: 13px;
@@ -764,17 +798,15 @@ export default {
 
           .similar-topic-link {
             color: #2d8cf0;
-            text-decoration: none;
             font-size: 14px;
             display: inline-block;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             vertical-align: bottom;
-            
+
             &:hover {
               color: #1c6bb8;
-              text-decoration: underline;
             }
           }
         }
@@ -963,3 +995,4 @@ export default {
   }
 }
 </style> 
+
