@@ -13,24 +13,24 @@
     <div class="content-section">
       <div class="content-container">
         <h2 class="section-title">Recommended Courses</h2>
-        
+
         <div class="operation-area">
           <div class="search-box">
             <Input
-              v-model="searchQuery"
-              placeholder="Search Course Name..."
-              clearable
-              size="large"
-              @on-change="handleSearch">
+                v-model="searchQuery"
+                placeholder="Search Course Name..."
+                clearable
+                size="large"
+                @on-change="handleSearch">
               <Icon type="ios-search" slot="prefix" />
             </Input>
           </div>
-          <Select 
-            v-model="courseStatus" 
-            placeholder="Select Course Status" 
-            class="status-select" 
-            clearable
-            transfer>
+          <Select
+              v-model="courseStatus"
+              placeholder="Select Course Status"
+              class="status-select"
+              clearable
+              transfer>
             <Option value="Upcoming" label="Upcoming" />
             <Option value="Ongoing" label="Ongoing" />
             <Option value="Closed" label="Closed" />
@@ -38,6 +38,7 @@
           <Button v-if="isTeacher" type="primary" class="create-course-btn" @click="showCreateCourseModal = true">Create New Course</Button>
         </div>
 
+<!--  教师： 创建课程-->
         <Modal v-model="showCreateCourseModal" title="Create New Course" ok-text="OK" cancel-text="Cancel" @on-ok="handleCreateCourse">
           <Form :model="createCourseForm" :label-width="180">
             <FormItem label="Course Name：">
@@ -54,13 +55,13 @@
             </FormItem>
             <FormItem label="Image (optional)：">
               <Upload
-                :action="uploadFileUrl"
-                :headers="uploadHeaders"
-                :show-upload-list="false"
-                :before-upload="beforeImageUpload"
-                :on-success="handleImageUploadSuccess"
-                :on-error="handleImageUploadError"
-                accept="image/*">
+                  :action="uploadFileUrl"
+                  :headers="uploadHeaders"
+                  :show-upload-list="false"
+                  :before-upload="beforeImageUpload"
+                  :on-success="handleImageUploadSuccess"
+                  :on-error="handleImageUploadError"
+                  accept="image/*">
                 <Button type="primary" v-if="!uploadFileName">Upload</Button>
                 <Button type="dashed" v-else style="cursor:default;pointer-events:none;">{{ uploadFileName }}</Button>
               </Upload>
@@ -134,31 +135,31 @@ export default {
     }
   },
   computed: {
+    // 计算课程状态
     filteredCourses() {
-      // 计算课程状态
       const now = new Date();
       return this.courses
-        .map(course => {
-          let status = 'Upcoming';
-          if (course.startTime && course.endTime) {
-            const start = new Date(course.startTime);
-            const end = new Date(course.endTime);
-            if (now < start) {
-              status = 'Upcoming';
-            } else if (now >= start && now <= end) {
-              status = 'Ongoing';
-            } else if (now > end) {
-              status = 'Closed';
+          .map(course => {
+            let status = 'Upcoming';
+            if (course.startTime && course.endTime) {
+              const start = new Date(course.startTime);
+              const end = new Date(course.endTime);
+              if (now < start) {
+                status = 'Upcoming';
+              } else if (now >= start && now <= end) {
+                status = 'Ongoing';
+              } else if (now > end) {
+                status = 'Closed';
+              }
             }
-          }
-          return { ...course, status };
-        })
-        .filter(course => {
-          const matchesSearch = course.title.toLowerCase().includes(this.searchQuery.toLowerCase())
-          const matchesStatus = !this.courseStatus || course.status === this.courseStatus
-          return matchesSearch && matchesStatus
-        })
-        .sort((a, b) => a.id - b.id)
+            return { ...course, status };
+          })
+          .filter(course => {
+            const matchesSearch = course.title.toLowerCase().includes(this.searchQuery.toLowerCase())
+            const matchesStatus = !this.courseStatus || course.status === this.courseStatus
+            return matchesSearch && matchesStatus
+          })
+          .sort((a, b) => a.id - b.id)
     },
     isTeacher() {
       try {
@@ -186,7 +187,7 @@ export default {
       await this.loadUsers();
       await this.loadCourses();
     },
-    
+
     async loadCourses() {
       try {
         const res = await getAllCourses();
@@ -198,11 +199,14 @@ export default {
             credits: course.credits !== undefined ? course.credits : 2
           }));
         } else {
+          this.$Message.error('Failed to load courses');
         }
       } catch (error) {
+        console.error('Failed to load courses:', error);
+        this.$Message.error('Failed to load courses');
       }
     },
-    
+
     async loadUsers() {
       try {
         const res = await getAllUsers();
@@ -213,7 +217,7 @@ export default {
         console.error('Failed to load user info :', error);
       }
     },
-    
+
     getTeacherName(createBy) {
       if (!createBy) return 'Unknown teacher';
       if (!this.users || this.users.length === 0) {
@@ -222,13 +226,13 @@ export default {
 
       const createById = parseInt(createBy);
       const user = this.users.find(u => u.id === createById);
-      
+
       if (user) {
         return user.username || user.nickname || `Instrutor ${createBy}`;
       }
       return `Instrutor ${createBy}`;
     },
-    
+
     navigateToCourse(courseId) {
       this.$router.push({ name: 'course_manage', params: { id: courseId } });
     },
@@ -253,84 +257,47 @@ export default {
         this.$Message.success('Image uploaded successfully!');
       }
     },
-    async handleCreateCourse() {
-      if (!this.createCourseForm.name || !this.createCourseForm.credits || !this.createCourseForm.startTime || !this.createCourseForm.endTime || !this.createCourseForm.introduction) {
-        this.$Message.warning('Please fill in all fields');
-        return false;
-      }
-      // 获取当前登录用户username
-      let username = '';
-      try {
-        const userInfo = JSON.parse(Cookies.get('userInfo'));
-        username = userInfo.username || userInfo.nickname || 'Unknown';
-      } catch (e) {
-        username = 'Unknown';
-      }
-
-      const newCourse = {
-        id: Date.now(),
-        title: this.createCourseForm.name,
-        credits: this.createCourseForm.credits,
-        startTime: this.createCourseForm.startTime,
-        endTime: this.createCourseForm.endTime,
-        content: this.createCourseForm.introduction,
-        image: this.createCourseForm.image,
-        teacherName: username,
-        status: 'open'
-      };
-      this.courses.push(newCourse);
-      this.$Message.success('Course created successfully!');
-      this.showCreateCourseModal = false;
-      this.createCourseForm = { name: '', credits: '', startTime: '', endTime: '', introduction: '', image: '' };
-      this.uploadFileName = '';
+    handleImageUploadError(error) {
+      this.$Message.error('Image upload failed');
     },
-    async saveEditInfo() {
-      if (!this.editCourseInfo.name || !this.editCourseInfo.credits || !this.editCourseInfo.startTime || !this.editCourseInfo.endTime) {
-        this.$Message.warning('Please fill in all fields');
+    async handleCreateCourse() {
+      if (!this.createCourseForm.name || !this.createCourseForm.credits || !this.createCourseForm.startTime || !this.createCourseForm.endTime) {
+        this.$Message.warning('Please fill in all required fields');
         return false;
       }
 
-      // 格式化时间（确保为字符串）
-      const formatDate = dt => {
-        if (!dt) return '';
-        const d = new Date(dt);
-        const pad = n => n < 10 ? '0' + n : n;
-        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-      };
-
-      // 组装参数
-      const params = {
-        id: this.courseInfo.id, // 课程ID必须传
-        title: this.editCourseInfo.name,
-        credits: this.editCourseInfo.credits ,
-        startTime: formatDate(this.editCourseInfo.startTime),
-        endTime: formatDate(this.editCourseInfo.endTime),
-        content: this.courseInfo.introduction, // 简介可选
-        image: this.courseInfo.image           // 图片可选
-      };
-
+      // 格式化时间
       try {
-        const res = await saveOrUpdateCourse(params);
-        if (res.success) {
-          this.$Message.success('Course info updated successfully!');
-          this.showEditInfoModal = false;
-          await this.getCourseInfo();
+        const formatDate = dt => {
+          if (!dt) return '';
+          const d = new Date(dt);
+          const pad = n => n < 10 ? '0' + n : n;
+          return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+        };
+
+        const params = {
+          title: this.createCourseForm.name,
+          credits: this.createCourseForm.credits,
+          startTime: formatDate(this.createCourseForm.startTime),
+          endTime: formatDate(this.createCourseForm.endTime),
+          content: this.createCourseForm.introduction,
+          image: this.createCourseForm.image
+        };
+
+        const response = await addCourse(params);
+        if (response.success) {
+          this.$Message.success('Course created successfully!');
+          this.showCreateCourseModal = false;
+          this.createCourseForm = { name: '', credits: '', startTime: '', endTime: '', introduction: '', image: '' };
+          this.uploadFileName = '';
+          await this.loadCourses();
         } else {
+          this.$Message.error('Failed to create course');
         }
       } catch (error) {
+        console.error('Create course error:', error);
+        this.$Message.error('Failed to create course');
       }
-    },
-    openEditInfoModal() {
-      this.editCourseInfo = {
-        id: this.courseInfo.id,
-        name: this.courseInfo.name,
-        credits: this.courseInfo.credits,
-        startTime: this.courseInfo.startTime || '',
-        endTime: this.courseInfo.endTime || '',
-        introduction: this.courseInfo.introduction || '',
-        image: this.courseInfo.image || ''
-      };
-      this.showEditInfoModal = true;
     }
   }
 }
@@ -554,4 +521,5 @@ export default {
   margin-left: auto;
   border-radius: 22px;
 }
-</style> 
+</style>
+
