@@ -2,7 +2,9 @@ package cn.wl.study.serviceimpl;
 
 import cn.wl.basics.baseVo.Result;
 import cn.wl.basics.utils.ResultUtil;
+import cn.wl.study.entity.PostLike;
 import cn.wl.study.entity.Posts;
+import cn.wl.study.mapper.PostLikeMapper;
 import cn.wl.study.mapper.PostsMapper;
 import cn.wl.study.service.IPostsService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -24,6 +26,8 @@ public class IPostsServiceImpl extends ServiceImpl<PostsMapper, Posts> implement
 
     @Autowired
     private PostsMapper postsMapper;
+    @Autowired
+    private PostLikeMapper postLikeMapper;
 
     // 根据post_id和topic_id查询单个post
     @Override
@@ -67,15 +71,6 @@ public class IPostsServiceImpl extends ServiceImpl<PostsMapper, Posts> implement
         }
         return ResultUtil.error();
     }
-
-    /*
-    @Override
-    public Result<Posts> likesPosts(Posts posts){
-        posts.setLikes(posts.getLikes() + 1);
-        return new ResultUtil<Posts>().setData(posts);
-    }
-
-     */
 
     @Override
     public String getSummary(String postsContent){
