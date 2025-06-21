@@ -14,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
+import java.time.LocalDate;
+
 @Slf4j
 @Service
 @Transactional
@@ -33,6 +36,7 @@ public class ITopicLikeServiceImpl extends ServiceImpl<TopicLikeMapper, TopicLik
             TopicLike topicLike = new TopicLike();
             topicLike.setTopicId(topicId);
             topicLike.setUserId(userId);
+            topicLike.setCreateTime(LocalDate.now());
             updateTopicLikes(topicId,1);
             return new ResultUtil<TopicLike>().setData(topicLike);
         }else{
