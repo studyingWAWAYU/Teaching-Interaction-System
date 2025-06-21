@@ -15,26 +15,26 @@
             <Col span="15">
             <Row class="operation">
                 <Col span="12">
-                <Button @click="addMenu" type="primary" shape="circle" ghost icon="md-add" :disabled="!$route.meta.permTypes.includes('add')">添加菜单</Button>
-                <Button @click="deletePermissionFx" type="error" shape="circle" ghost icon="md-trash" :disabled="!$route.meta.permTypes.includes('delete')">删除菜单</Button>
-                <Button @click="getPermissionList" type="success" shape="circle" ghost icon="md-trash">刷新菜单</Button>
+                <Button @click="addMenu" type="primary" shape="circle" ghost icon="md-add" :disabled="!$route.meta.permTypes.includes('add')">Add Menu</Button>
+                <Button @click="deletePermissionFx" type="error" shape="circle" ghost icon="md-trash" :disabled="!$route.meta.permTypes.includes('delete')">Delete Menu</Button>
+                <Button @click="getPermissionList" type="success" shape="circle" ghost icon="md-trash">Refresh Menu</Button>
                 <i-switch v-model="strict" size="large" style="margin-left:5px">
-                    <span slot="open">级联</span>
-                    <span slot="close">单选</span>
+                    <span slot="open">Cascade</span>
+                    <span slot="close">Single</span>
                 </i-switch>
                 </Col>
                 <Col span="12">
-                <Input v-model="searchKey" suffix="ios-search" @on-change="search" placeholder="模拟搜索菜单" clearable />
+                <Input v-model="searchKey" suffix="ios-search" @on-change="search" placeholder="Search Menu" clearable />
                 </Col>
             </Row>
             <Divider dashed />
             <Row :gutter="16" v-show="form.id">
                 <Col span="24">
                 <Alert show-icon type="success">
-                    当前选择的菜单：
+                    Current Selected Menu：
                     <span class="select-title">{{editTitle}}</span>
                     <Divider type="vertical" />
-                    <a class="select-clear" @click="cancelEdit">取消选择</a>
+                    <a class="select-clear" @click="cancelEdit">Cancel Selection</a>
                 </Alert>
                 </Col>
                 <Divider dashed />
@@ -42,79 +42,79 @@
             <Form ref="form" :model="form" :label-width="130" :rules="formValidate">
                 <Row :gutter="16">
                     <Col span="12">
-                    <FormItem label="类型" prop="type">
+                    <FormItem label="Type" prop="type">
                         <div v-show="form.type==-1">
                             <Icon type="ios-navigate-outline" size="16" style="margin-right:5px;"></Icon>
-                            <span>一级菜单</span>
+                            <span>Top Menu</span>
                         </div>
                         <div v-show="form.type==0">
                             <Icon type="ios-list-box-outline" size="16" style="margin-right:5px;"></Icon>
-                            <span>普通菜单</span>
+                            <span>Normal Menu</span>
                         </div>
                         <div v-show="form.type==1">
                             <Icon type="md-radio-button-on" size="16" style="margin-right:5px;"></Icon>
-                            <span>按钮级权限</span>
+                            <span>Button Permission</span>
                         </div>
                     </FormItem>
                     </Col>
                     <Col span="12" v-show="form.type==-1||form.type==0">
-                    <FormItem label="名称" prop="title">
+                    <FormItem label="Name" prop="title">
                         <Input v-model="form.title" style="width:100%" />
                     </FormItem>
                     </Col>
                     <Col span="12" v-show="form.type==1">
-                    <FormItem label="名称" prop="title">
-                        <Input v-model="form.title" placeholder="操作按钮名称不得重复" style="width:100%" />
+                    <FormItem label="Name" prop="title">
+                        <Input v-model="form.title" placeholder="Button name must be unique" style="width:100%" />
                     </FormItem>
                     </Col>
                     <Col span="12" v-show="form.type==0">
-                    <FormItem label="路径" prop="path">
+                    <FormItem label="Path" prop="path">
                         <Input v-model="form.path" @on-blur="changeFormPath" style="width:100%" />
                     </FormItem>
                     </Col>
                     <Col span="12" v-show="form.type==1">
-                    <FormItem label="按钮权限类型" prop="buttonType">
-                        <Select v-model="form.buttonType" placeholder="请选择或输入搜索" filterable clearable style="width:100%">
+                    <FormItem label="Button Permission Type" prop="buttonType">
+                        <Select v-model="form.buttonType" placeholder="Please select or search" filterable clearable style="width:100%">
                             <Option v-for="(item, i) in dictPermissions" :key="i" :value="item.value">{{item.title}}</Option>
                         </Select>
                     </FormItem>
                     </Col>
                     <Col span="12" v-show="form.type==-1">
-                    <FormItem :label="form.type==-1? '英文名' : '路由英文名'" prop="name">
-                        <Input v-model="form.name" @on-blur="changeFormName" placeholder="需唯一" style="width:100%" />
+                    <FormItem :label="form.type==-1? 'English Name' : 'Route English Name'" prop="name">
+                        <Input v-model="form.name" @on-blur="changeFormName" placeholder="Must be unique" style="width:100%" />
                     </FormItem>
                     </Col>
                     <Col span="12" v-show="form.type==-1||form.type==0">
-                    <FormItem label="图标" prop="icon">
+                    <FormItem label="Icon" prop="icon">
                         <icon-choose v-model="form.icon"></icon-choose>
                     </FormItem>
                     </Col>
                     <Col span="12" v-show="form.type==0">
-                    <FormItem label="对应位置" prop="component">
+                    <FormItem label="Component" prop="component">
                         <Input v-model="form.component" style="width:100%" />
                     </FormItem>
                     </Col>
                     <Col span="12">
-                    <FormItem label="排序值" prop="sortOrder">
+                    <FormItem label="Sort Order" prop="sortOrder">
                         <InputNumber :max="1000" :min="0" v-model="form.sortOrder" style="width:100%"></InputNumber>
                     </FormItem>
                     </Col>
                     <Col span="12">
-                    <FormItem label="是否启用" prop="status">
+                    <FormItem label="Enabled" prop="status">
                         <i-switch size="large" v-model="form.status" :true-value="0" :false-value="-1">
-                            <span slot="open">启用</span>
-                            <span slot="close">禁用</span>
+                            <span slot="open">Enable</span>
+                            <span slot="close">Disable</span>
                         </i-switch>
                     </FormItem>
                     </Col>
                     <Col span="12">
                     <Form-item>
-                        <Button style="margin-right:5px" @click="submitEdit" ghost shape="circle" :loading="submitLoading" type="primary" icon="ios-create-outline" :disabled="!$route.meta.permTypes.includes('edit')">保存菜单</Button>
+                        <Button style="margin-right:5px" @click="submitEdit" ghost shape="circle" :loading="submitLoading" type="primary" icon="ios-create-outline" :disabled="!$route.meta.permTypes.includes('edit')">Save Menu</Button>
                     </Form-item>
                     </Col>
                 </Row>
             </Form>
-            <Divider>有 {{form.title}} 权限的用户</Divider>
+            <Divider>Users with {{form.title}} Permission</Divider>
             <Row :gutter="16">
                 <Table :loading="userByPermissionLoading" border stripe size="small" :columns="userByPermissionColumns" :data="userByPermissionList"></Table>
             </Row>
@@ -125,67 +125,67 @@
     <Modal draggable :title="modalTitle" v-model="menuModalVisible" :mask="false" :width="500" :styles="{top: '30px'}">
         <Form ref="formAdd" :model="formAdd" :label-width="100" :rules="formValidate">
             <div v-if="showParent">
-                <FormItem label="上级节点：">{{parentTitle}}</FormItem>
+                <FormItem label="Parent Node：">{{parentTitle}}</FormItem>
             </div>
-            <FormItem label="类型" prop="type">
+            <FormItem label="Type" prop="type">
                 <div v-show="formAdd.type==-1">
                     <Icon type="ios-navigate-outline" size="16" style="margin-right:5px;"></Icon>
-                    <span>顶部菜单</span>
+                    <span>Top Menu</span>
                 </div>
                 <div v-show="formAdd.type==0">
                     <Icon type="ios-list-box-outline" size="16" style="margin-right:5px;"></Icon>
-                    <span>页面菜单</span>
+                    <span>Page Menu</span>
                 </div>
                 <div v-show="formAdd.type==1">
                     <Icon type="md-radio-button-on" size="16" style="margin-right:5px;"></Icon>
-                    <span>操作按钮</span>
+                    <span>Button</span>
                 </div>
             </FormItem>
-            <FormItem label="名称" prop="title" v-if="formAdd.type==-1||formAdd.type==0">
+            <FormItem label="Name" prop="title" v-if="formAdd.type==-1||formAdd.type==0">
                 <Input v-model="formAdd.title" />
             </FormItem>
-            <FormItem label="名称" prop="title" v-if="formAdd.type==1" class="block-tool">
-                <Tooltip placement="right" content="操作按钮名称不得重复">
+            <FormItem label="Name" prop="title" v-if="formAdd.type==1" class="block-tool">
+                <Tooltip placement="right" content="Button name must be unique">
                     <Input v-model="formAdd.title" />
                 </Tooltip>
             </FormItem>
-            <FormItem label="路径" prop="path" v-if="formAdd.type==0">
+            <FormItem label="Path" prop="path" v-if="formAdd.type==0">
                 <Input v-model="formAdd.path" />
             </FormItem>
-            <FormItem label="按钮权限类型" prop="buttonType" v-if="formAdd.type==1">
-                <Select v-model="formAdd.buttonType" placeholder="请选择或输入搜索" filterable clearable>
+            <FormItem label="Button Permission Type" prop="buttonType" v-if="formAdd.type==1">
+                <Select v-model="formAdd.buttonType" placeholder="Please select or search" filterable clearable>
                     <Option v-for="(item, i) in dictPermissions" :key="i" :value="item.value">{{item.title}}</Option>
                 </Select>
             </FormItem>
-            <FormItem label="英文名" prop="name" v-if="formAdd.type==-1" class="block-tool">
-                <Tooltip placement="right" content="需唯一">
+            <FormItem label="English Name" prop="name" v-if="formAdd.type==-1" class="block-tool">
+                <Tooltip placement="right" content="Must be unique">
                     <Input v-model="formAdd.name" />
                 </Tooltip>
             </FormItem>
-            <FormItem label="路由英文名" prop="name" v-if="formAdd.type==0" class="block-tool">
-                <Tooltip placement="right" content="需唯一">
+            <FormItem label="Route English Name" prop="name" v-if="formAdd.type==0" class="block-tool">
+                <Tooltip placement="right" content="Must be unique">
                     <Input v-model="formAdd.name" />
                 </Tooltip>
             </FormItem>
-            <FormItem label="图标" prop="icon" v-if="formAdd.type==-1||formAdd.type==0">
+            <FormItem label="Icon" prop="icon" v-if="formAdd.type==-1||formAdd.type==0">
                 <icon-choose v-model="formAdd.icon"></icon-choose>
             </FormItem>
-            <FormItem label="对应位置" prop="component" v-if="formAdd.type==0">
+            <FormItem label="Component" prop="component" v-if="formAdd.type==0">
                 <Input v-model="formAdd.component" />
             </FormItem>
-            <FormItem label="排序值" prop="sortOrder">
+            <FormItem label="Sort Order" prop="sortOrder">
                 <InputNumber :max="1000" :min="0" v-model="formAdd.sortOrder"></InputNumber>
             </FormItem>
-            <FormItem label="是否启用" prop="status">
+            <FormItem label="Enabled" prop="status">
                 <i-switch size="large" v-model="formAdd.status" :true-value="0" :false-value="-1">
-                    <span slot="open">启用</span>
-                    <span slot="close">禁用</span>
+                    <span slot="open">Enable</span>
+                    <span slot="close">Disable</span>
                 </i-switch>
             </FormItem>
         </Form>
         <div slot="footer">
-            <Button type="text" @click="menuModalVisible = false">取消</Button>
-            <Button type="primary" :loading="submitLoading" @click="submitAdd">提交</Button>
+            <Button type="text" @click="menuModalVisible = false">Cancel</Button>
+            <Button type="primary" :loading="submitLoading" @click="submitAdd">Submit</Button>
         </div>
     </Modal>
 </div>
@@ -244,33 +244,33 @@ export default {
             formValidate: {
                 title: [{
                     required: true,
-                    message: "菜单名称不能为空",
+                    message: "Menu name cannot be empty",
                     trigger: "blur"
                 }],
                 name: [{
                     required: true,
-                    message: "路由英文名不能为空",
+                    message: "Route English name cannot be empty",
                     trigger: "blur"
                 }],
                 icon: [{
                     required: true,
-                    message: "图标不能为空",
+                    message: "Icon cannot be empty",
                     trigger: "click"
                 }],
                 path: [{
                     required: true,
-                    message: "路径不能为空",
+                    message: "Path cannot be empty",
                     trigger: "blur"
                 }],
                 component: [{
                     required: true,
-                    message: "对应位置不能为空",
+                    message: "Component cannot be empty",
                     trigger: "blur"
                 }],
                 sortOrder: [{
                     required: true,
                     type: "number",
-                    message: "排序值不能为空",
+                    message: "Sort order cannot be empty",
                     trigger: "blur"
                 }]
             },
@@ -279,31 +279,31 @@ export default {
             dictPermissions: [],
             userByPermissionList: [],
             userByPermissionColumns: [{
-                title: "用户名",
+                title: "Username",
                 key: "userName",
                 minWidth: 120,
                 tooltip: true,
                 sortable: false,
             }, {
-                title: "对应角色",
+                title: "Role",
                 key: "roleStr",
                 minWidth: 200,
                 tooltip: true,
                 sortable: false,
             }, {
-                title: "登录账号",
+                title: "Account",
                 key: "code",
                 minWidth: 120,
                 tooltip: true,
                 sortable: false,
             }, {
-                title: "用户手机",
+                title: "Mobile",
                 key: "mobile",
                 minWidth: 120,
                 tooltip: true,
                 sortable: false,
             }, {
-                title: "用户标识",
+                title: "User ID",
                 key: "userId",
                 minWidth: 120,
                 tooltip: true,
@@ -388,7 +388,6 @@ export default {
         },
         selectTree(v) {
             if (v.length > 0) {
-                // 转换null为""
                 for (let attr in v[0]) {
                     if (v[0][attr] == null) {
                         v[0][attr] = "";
@@ -434,7 +433,7 @@ export default {
         },
         submitEdit() {
             if (!this.form.id) {
-                this.$Message.warning("请先点击选择要修改的菜单节点");
+                this.$Message.warning("Please select a menu node to edit first");
                 return;
             }
             this.submitLoading = true;
@@ -454,8 +453,7 @@ export default {
             editPermission(this.form).then(res => {
                 this.submitLoading = false;
                 if (res.success) {
-                    this.$Message.success("编辑成功");
-                    // 静态配置模式：无需重新加载菜单
+                    this.$Message.success("Edit successful");
                     this.init();
                     this.menuModalVisible = false;
                 }
@@ -473,8 +471,7 @@ export default {
                     addPermission(this.formAdd).then(res => {
                         this.submitLoading = false;
                         if (res.success) {
-                            this.$Message.success("添加成功");
-                            // 静态配置模式：无需重新加载菜单
+                            this.$Message.success("Add successful");
                             this.init();
                             this.menuModalVisible = false;
                         }
@@ -484,7 +481,7 @@ export default {
         },
         addMenu() {
             if (!this.form.id) {
-                this.modalTitle = "添加顶部菜单(可拖动)";
+                this.modalTitle = "Add Top Menu (Draggable)";
                 this.showParent = false;
                 this.formAdd = {
                     type: -1,
@@ -496,7 +493,7 @@ export default {
                 return;
             }
             this.parentTitle = this.form.title;
-            this.modalTitle = "添加子节点";
+            this.modalTitle = "Add Sub Node";
             this.showParent = true;
             let type = 0;
             if (this.form.level == 1) {
@@ -505,8 +502,8 @@ export default {
                 type = 1;
             } else if (this.form.level == 3) {
                 this.$Modal.warning({
-                    title: "抱歉，不能添加啦",
-                    content: "仅支持2级菜单目录"
+                    title: "Sorry, cannot add more",
+                    content: "Only two-level menu is supported"
                 });
                 return;
             } else {
@@ -536,12 +533,12 @@ export default {
         },
         deletePermissionFx() {
             if (this.selectCount <= 0) {
-                this.$Message.warning("请选择要删除的菜单");
+                this.$Message.warning("Please select the menu to delete");
                 return;
             }
             this.$Modal.confirm({
-                title: "确认删除",
-                content: "您确认要删除所选的 " + this.selectCount + " 条数据?",
+                title: "Confirm Deletion",
+                content: "Are you sure you want to delete the selected " + this.selectCount + " items?",
                 loading: true,
                 onOk: () => {
                     let ids = "";
@@ -554,8 +551,7 @@ export default {
                     }).then(res => {
                         this.$Modal.remove();
                         if (res.success) {
-                            this.$Message.success("删除成功");
-                            // 静态配置模式：无需重新加载菜单
+                            this.$Message.success("Delete successful");
                             this.selectList = [];
                             this.selectCount = 0;
                             this.cancelEdit();
