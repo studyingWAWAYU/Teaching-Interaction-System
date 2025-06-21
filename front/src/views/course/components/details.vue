@@ -38,8 +38,8 @@
           </div>
         </div>
       </div>
-      
-<!--      添加评价表单-->
+
+      <!-- 添加评价 -->
       <div class="card-boxs feedback-form" v-if="showFeedbackForm && !isTeacher">
         <h3>Add Your Feedback</h3>
         <Form :model="feedbackForm" :label-width="80">
@@ -48,10 +48,10 @@
           </FormItem>
           <FormItem label="Content">
             <Input
-              v-model="feedbackForm.content"
-              type="textarea"
-              :rows="4"
-              placeholder="Share your thoughts about this course..."
+                v-model="feedbackForm.content"
+                type="textarea"
+                :rows="4"
+                placeholder="Share your thoughts about this course..."
             />
           </FormItem>
           <FormItem>
@@ -89,7 +89,7 @@
 </template>
 
 <script>
-import { addFeedback, deleteFeedbacks } from '@/api/feedback'
+import { addFeedback, deleteFeedbacks, getAllFeedbacks, insertFeedback } from '@/api/feedback'
 import Cookies from 'js-cookie'
 import { saveOrUpdateCourse } from '@/api/course'
 
@@ -100,10 +100,6 @@ export default {
       type: Object,
       required: true
     },
-    reviews: {
-      type: Array,
-      required: true
-    },
     isTeacher: {
       type: Boolean,
       default: false
@@ -111,6 +107,8 @@ export default {
   },
   data() {
     return {
+      reviews: [],
+      loading: false,
       showFeedbackForm: false,
       submitting: false,
       feedbackForm: {
@@ -147,7 +145,26 @@ export default {
       }
     }
   },
+  created() {
+    this.fetchReviews()
+  },
   methods: {
+    async fetchReviews() {
+      try {
+        this.loading = true
+        const response = await getAllFeedbacks()
+        if (response && response.data) {
+          // 过滤出当前课程的评论
+          this.reviews = response.data.filter(review => review.courseId === this.courseInfo.id)
+        }
+      } catch (error) {
+        console.error('Failed to fetch reviews:', error)
+        this.$Message.error('Failed to load reviews')
+      } finally {
+        this.loading = false
+      }
+    },
+
     async submitFeedback() {
       if (!this.feedbackForm.rating || !this.feedbackForm.content.trim()) {
         this.$Message.warning('Please provide both rating and content');
@@ -162,24 +179,21 @@ export default {
       this.submitting = true;
       try {
         const params = {
-          id: this.courseInfo.id,
+          courseId: this.courseInfo.id,
           content: this.feedbackForm.content.trim(),
           rating: this.feedbackForm.rating
         };
-        
-        const res = await addFeedback(params);
-        if (res.success) {
-          this.$Message.success('Feedback submitted successfully!');
-          this.cancelFeedback();
-          this.$emit('refresh-reviews');
-        } else {
-          this.$Message.error(res.message || 'Failed to submit feedback');
-        }
+
+        await insertFeedback(params);
+        this.$Message.success('Feedback submitted successfully!');
+        this.cancelFeedback();
+        this.fetchReviews();
       } catch (error) {
+        console.error('Submit feedback error:', error)
         if (error.response && error.response.status === 401) {
           this.$Message.error('Please login to submit feedback');
         } else {
-          this.$Message.error('Failed to submit feedback. Please try again.');
+          this.$Message.error('Failed to submit feedback');
         }
       } finally {
         this.submitting = false;
@@ -198,7 +212,7 @@ export default {
       if (!time) return '';
       try {
         const date = new Date(time);
-        return date.toLocaleString();
+        return date.toLocaleDateString('en-US');
       } catch (error) {
         return time;
       }
@@ -213,18 +227,15 @@ export default {
         try {
           const params = {
             id: this.courseInfo.id,
-            content: this.editIntroduction.trim()
+            introduction: this.editIntroduction.trim()
           };
-          const res = await saveOrUpdateCourse(params);
-          if (res.success) {
-            this.$Message.success('Course introduction updated successfully!');
-            this.$emit('update-introduction', this.editIntroduction.trim());
-            this.editIntroMode = false;
-          } else {
-            this.$Message.error(res.message || 'Failed to update introduction');
-          }
+          await saveOrUpdateCourse(params);
+          this.$Message.success('Course introduction updated successfully!');
+          this.$emit('update-introduction', this.editIntroduction.trim());
+          this.editIntroMode = false;
         } catch (error) {
-          this.$Message.error('Failed to update introduction');
+          console.error('Update course intro error:', error)
+          this.$Message.error('Failed to update course introduction');
         }
       } else {
         this.editIntroduction = this.courseInfo.introduction
@@ -236,19 +247,16 @@ export default {
       this.$Modal.confirm({
         title: 'Confirm deletion',
         content: 'Are you sure you want to delete this feedback?',
-        okText: 'del',
+        okText: 'Delete',
         cancelText: 'Cancel',
         onOk: async () => {
           try {
-            const res = await deleteFeedbacks({ ids: [review.id] })
-            if (res.success) {
-              this.$Message.success('删除成功')
-              this.$emit('refresh-reviews')
-            } else {
-              this.$Message.error(res.message || '删除失败')
-            }
-          } catch (e) {
-            this.$Message.error('删除失败')
+            await deleteFeedbacks({ ids: [review.id] })
+            this.$Message.success('Feedback deleted successfully')
+            this.fetchReviews();
+          } catch (error) {
+            console.error('Delete review error:', error)
+            this.$Message.error('Failed to delete feedback')
           }
         }
       })
@@ -276,7 +284,7 @@ export default {
         margin: 0;
         display: flex;
         align-items: center;
-        
+
         .ivu-icon {
           margin-right: 8px;
           color: #4293ec;
@@ -459,4 +467,5 @@ export default {
     box-sizing: border-box;
   }
 }
-</style> 
+</style>
+
