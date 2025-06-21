@@ -82,5 +82,5 @@ export const deletePosts = (topicId, params) => {
 };
 
 export const getSummary = (topicId, params) => {
-    return postRequest(`/course/${topicId}/posts//getSummary`,params);
+    return postRequest(`/course/${topicId}/posts/getSummary`,params);
 }
