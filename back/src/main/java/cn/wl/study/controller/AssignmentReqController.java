@@ -1,6 +1,5 @@
 package cn.wl.study.controller;
 
-import cn.hutool.core.date.DateUtil;
 import cn.wl.basics.utils.PageUtil;
 import cn.wl.basics.utils.ResultUtil;
 import cn.wl.basics.baseVo.PageVo;
@@ -9,15 +8,11 @@ import cn.wl.basics.utils.SecurityUtil;
 import cn.wl.data.entity.User;
 import cn.wl.data.service.IUserService;
 import cn.wl.data.utils.WlNullUtils;
-import cn.wl.data.vo.AntvVo;
 import cn.wl.study.entity.Assignment;
 import cn.wl.study.entity.AssignmentReq;
 import cn.wl.study.entity.Course;
-import cn.wl.study.entity.Timetable;
 import cn.wl.study.service.IAssignmentReqService;
-import cn.wl.study.service.IAssignmentService;
 import cn.wl.study.service.ICourseService;
-import cn.wl.study.service.ITimetableService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
@@ -27,11 +22,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 
 @Slf4j
@@ -43,9 +35,6 @@ public class AssignmentReqController {
 
     @Autowired
     private IAssignmentReqService iAssignmentReqService;
-
-    @Autowired
-    private ITimetableService iTimetableService;
 
     @Autowired
     private ICourseService iCourseService;
@@ -72,22 +61,6 @@ public class AssignmentReqController {
         assQw.eq("course_id",course.getId());
         iAssignmentReqService.remove(assQw);
         */
-        // 查询所有授课
-        QueryWrapper<Timetable> tQw = new QueryWrapper<>();
-        tQw.eq("course_id",course.getId());
-        List<Timetable> timetableList = iTimetableService.list(tQw);
-        for (Timetable t : timetableList) {
-            AssignmentReq a = new AssignmentReq();
-            a.setCourseId(course.getId());
-            a.setTitle(title);
-            a.setFile(file);
-            a.setDescription(description);
-            a.setStartTime(startTime);
-            a.setEnd_time(endTime);
-            a.setUploadTime(new Date(DateUtil.now()));
-            a.setStatus(status);
-            iAssignmentReqService.saveOrUpdate(a);
-        }
         return ResultUtil.success();
     }
 

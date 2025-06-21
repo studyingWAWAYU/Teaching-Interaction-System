@@ -11,10 +11,8 @@ import cn.wl.data.utils.WlNullUtils;
 import cn.wl.data.vo.AntvVo;
 import cn.wl.study.entity.Assignment;
 import cn.wl.study.entity.Course;
-import cn.wl.study.entity.Timetable;
 import cn.wl.study.service.IAssignmentService;
 import cn.wl.study.service.ICourseService;
-import cn.wl.study.service.ITimetableService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.annotations.Api;
@@ -41,9 +39,6 @@ public class AssignmentController {
     private IAssignmentService iAssignmentService;
 
     @Autowired
-    private ITimetableService iTimetableService;
-
-    @Autowired
     private ICourseService iCourseService;
 
     @Autowired
@@ -63,21 +58,6 @@ public class AssignmentController {
         QueryWrapper<Assignment> assQw = new QueryWrapper<>();
         assQw.eq("curriculum_id",curriculum.getId());
         iAssignmentService.remove(assQw);
-        // 查询所有授课
-        QueryWrapper<Timetable> tQw = new QueryWrapper<>();
-        tQw.eq("curriculum_id",curriculum.getId());
-        List<Timetable> timetableList = iTimetableService.list(tQw);
-        for (Timetable t : timetableList) {
-            Assignment a = new Assignment();
-            //a.setCourseId(course.getId());
-            //a.setCourseName(course.getTitle());
-            a.setTitle(title);
-            a.setFile1(file);
-            a.setFile2("");
-            a.setUserId(t.getUserId());
-            a.setUserName(t.getUserName());
-            iAssignmentService.saveOrUpdate(a);
-        }
         return ResultUtil.success();
     }
 

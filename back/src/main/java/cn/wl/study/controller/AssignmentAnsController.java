@@ -42,9 +42,6 @@ public class AssignmentAnsController {
     private IAssignmentReqService iAssignmentReqService;
 
     @Autowired
-    private ITimetableService iTimetableService;
-
-    @Autowired
     private ICourseService iCourseService;
 
     @Autowired
