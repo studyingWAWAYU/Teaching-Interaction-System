@@ -167,7 +167,7 @@
 
 <script>
 import Cookies from 'js-cookie';
-import { getAllTopics, getAllTopicsSorted, addTopics, updateTopics, deleteTopics, saveOrUpdateTopics, getSummary } from '@/api/discussion';
+import { getAllTopics, getAllTopicsSorted, addTopics, updateTopics, deleteTopics, saveOrUpdateTopics, getSummary, likeTopic, unlikeTopic, likePost, unlikePost } from '@/api/discussion';
 import { getAllPosts, getAllPostsSorted, addPosts, deletePosts } from '@/api/discussion';
 import { getAllUsers } from '@/views/roster/user/api';
 
@@ -426,10 +426,22 @@ export default {
         this.selectedTopic = null;
       }
     },
-    // 实现点赞功能
-    handleTopicLike(topic) {
-      topic.isLiked = !topic.isLiked;
-      topic.likes = (topic.likes || 0) + (topic.isLiked ? 1 : -1);
+    // 点赞话题
+    async handleTopicLike(topic) {
+      try {
+        if (topic.isLiked) {
+          await unlikeTopic(topic.id, { userId: this.currentUserId });
+          topic.likes--;
+          topic.isLiked = false;
+        } else {
+          await likeTopic(topic.id, { userId: this.currentUserId });
+          topic.likes++;
+          topic.isLiked = true;
+        }
+      } catch (error) {
+        this.$Message.error('Failed');
+        console.error('Like/unlike topic error:', error);
+      }
     },
 
     // =================== Reply 相关 ===================
@@ -534,9 +546,23 @@ export default {
         this.summaryLoading = false;
       }
     },
-    handleReplyLike(reply) {
-      reply.isLiked = !reply.isLiked;
-      reply.likes = (reply.likes || 0) + (reply.isLiked ? 1 : -1);
+
+    //点赞回复
+    async handleReplyLike(reply) {
+      try {
+        if (reply.isLiked) {
+          await unlikePost(reply.id, { userId: this.currentUserId });
+          reply.likes--;
+          reply.isLiked = false;
+        } else {
+          await likePost(reply.id, { userId: this.currentUserId });
+          reply.likes++;
+          reply.isLiked = true;
+        }
+      } catch (error) {
+        this.$Message.error('Failed');
+        console.error('Like/unlike reply error:', error);
+      }
     },
     hasUserReplied(topic) {
       if (!topic.replies) return false;
