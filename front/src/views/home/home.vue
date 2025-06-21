@@ -15,7 +15,7 @@
             <div class="titleLeft"><span>My Modules</span></div>
             <div class="addMenuBox">
               <div class="addMenu" v-for="(item, index) in addMenuTempList" :key="index" @click="selectItem(item)">
-                {{ item.title }}
+                {{ item.name }}
               </div>
             </div>
           </div>

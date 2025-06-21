@@ -3,7 +3,7 @@ export const menuConfig = [
   {
     id: 1,
     name: 'wlHome',
-    title: 'Teaching interaction system',
+    title: '教学资源共享平台',
     icon: 'md-home',
     type: -1,
     level: 0,
@@ -11,7 +11,7 @@ export const menuConfig = [
       {
         id: 2,
         name: 'userTwoMenu',
-        title: 'Basic Module',
+        title: '系统基础模块',
         icon: 'md-analytics',
         type: 0,
         level: 1,
@@ -21,7 +21,7 @@ export const menuConfig = [
           {
             id: 60,
             name: 'user-admin',
-            title: 'User Management',
+            title: '用户管理',
             icon: 'md-person',
             type: 0,
             level: 2,
@@ -32,7 +32,7 @@ export const menuConfig = [
           {
             id: 58,
             name: 'department-admin',
-            title: 'Institute Management',
+            title: '部门管理',
             icon: 'md-git-branch',
             type: 0,
             level: 2,
@@ -43,7 +43,7 @@ export const menuConfig = [
           {
             id: 61,
             name: 'role-manage',
-            title: 'Role Management',
+            title: '角色管理',
             icon: 'md-contacts',
             type: 0,
             level: 2,
@@ -65,7 +65,7 @@ export const menuConfig = [
           {
             id: 63,
             name: 'file-admin',
-            title: 'File Management',
+            title: '文件管理',
             icon: 'ios-folder',
             type: 0,
             level: 2,
@@ -76,7 +76,7 @@ export const menuConfig = [
           {
             id: 3,
             name: 'dict',
-            title: 'Data Dictionary',
+            title: '数据字典',
             icon: 'ios-apps',
             type: 0,
             level: 2,
@@ -111,7 +111,7 @@ export const menuConfig = [
       {
         id: 5,
         name: 'classMenu',
-        title: 'Course Management',
+        title: '旧课程管理模块',
         icon: 'ios-apps',
         type: 0,
         level: 1,
@@ -121,7 +121,7 @@ export const menuConfig = [
           {
             id: 6,
             name: 'curriculum',
-            title: 'Course',
+            title: '旧课程模块',
             icon: 'md-aperture',
             type: 0,
             level: 2,

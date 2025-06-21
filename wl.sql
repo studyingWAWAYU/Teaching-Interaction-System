@@ -27,26 +27,27 @@ CREATE TABLE IF NOT EXISTS `user` (
 
 DELETE FROM `user`;
 INSERT INTO `user` (`id`, `create_time`, `username`, `password`, `nickname`,`email`, `mobile`, `number`,`sex`, `avatar`, `department`,`my_door`,role_id) VALUES
-                                                                                                                                                             (1,'2025-06-10', 'admin','$2a$10$PS04ecXfknNd3V8d.ymLTObQciapMU4xU8.GADBZZsuTZr7ymnagy','admin', '916077357@qq.com','17857054388','20222012345','female', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of AI', 'user-adminWLdepartment-adminWLfile-adminWLrole-manageWLmenu-manage',2),
-                                                                                                                                                             (2,'2025-06-10', 'Evan','$2a$10$E59nactOiILAzQvfcs0JFOYuZp06d4bLhugEadyQuygpmiLc0W.ha', 'Evan', '13600000001@qq.com','13600000001','20222012456','male', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of AI', '',1),
-                                                                                                                                                             (3,'2025-06-10', 'Airel','$2a$10$vJyLo1RhFORH/SAu3sc9aeb37I5JRy5UugaN7fIt/e2vvsz6JWJCm','Airel','13600000002@qq.com','13600000002','20222012678','female','https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png','School of AI', '',0),
-                                                                                                                                                             (4,'2025-06-11', 'Adam','$2a$10$oeP4aplYnswfQ44pK6lAO.Np9BuPYJGRwo17THO7CUNlIQoVGsPmy', 'Adam', '13600000003@qq.com', '13600000003','20222056789','male','https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1669635627773202432.png', 'School of','',0);
+                                                                                                                                                             (1,'2025-06-10', 'admin','$2a$10$PS04ecXfknNd3V8d.ymLTObQciapMU4xU8.GADBZZsuTZr7ymnagy','admin', '916077357@qq.com','17857054388','20222012345','female', 'https://i.postimg.cc/pL33d1pD/image.png', 'School of AI', 'user-adminWLdepartment-adminWLfile-adminWLrole-manageWLmenu-manage',2),
+                                                                                                                                                             (2,'2025-06-10', 'Evan','$2a$10$E59nactOiILAzQvfcs0JFOYuZp06d4bLhugEadyQuygpmiLc0W.ha', 'Evan', '13600000001@qq.com','13600000001','20222012456','male', 'https://i.postimg.cc/pL33d1pD/image.png', 'School of AI', '',1),
+                                                                                                                                                             (3,'2025-06-10', 'Airel','$2a$10$vJyLo1RhFORH/SAu3sc9aeb37I5JRy5UugaN7fIt/e2vvsz6JWJCm','Airel','13600000002@qq.com','13600000002','20222012678','female','https://i.postimg.cc/pL33d1pD/image.png','School of AI', '',0),
+                                                                                                                                                             (4,'2025-06-11', 'Adam','$2a$10$oeP4aplYnswfQ44pK6lAO.Np9BuPYJGRwo17THO7CUNlIQoVGsPmy', 'Adam', '13600000003@qq.com', '13600000003','20222056789','male','https://i.postimg.cc/pL33d1pD/image.png', 'School of','',0);
+
 
 
 
 DROP TABLE IF EXISTS `student`;
 CREATE TABLE IF NOT EXISTS `student` (
-                                         `id` integer primary key auto_increment,
-                                         `grade` char(10) DEFAULT NULL,
-                                         `major` varchar(50) DEFAULT NULL,
-                                         user_id integer,
-                                         foreign key (user_id) references user(id)
+     `id` integer primary key auto_increment,
+     `grade` char(10) DEFAULT NULL,
+     `major` varchar(50) DEFAULT NULL,
+     user_id integer,
+     foreign key (user_id) references user(id)
 );
 
 DELETE FROM `student`;
 INSERT INTO `student` (`id`, `grade`, `major`,user_id) VALUES
-                                                           (1, '2022', 'Software Engineer',3),
-                                                           (2, '2022', 'Computer Science',4);
+       (1, '2022', 'Software Engineer',3),
+       (2, '2022', 'Computer Science',4);
 
 
 DROP TABLE IF EXISTS `teacher`;
@@ -101,21 +102,21 @@ CREATE TABLE IF NOT EXISTS `permission` (
 
 DELETE FROM `permission`;
 INSERT INTO `permission` (`id`, `description`, `name`, `parent_id`, `type`, `sort_order`, `component`, `path`, `title`, `icon`, `level`, `button_type`, `status`, `show_always`) VALUES
-    (1, NULL, 'wlHome', '0', -1, 1.00, '', '', '教学资源共享平台', 'md-home', 0, '', 0, b'1'),
-    (2, NULL, 'userTwoMenu', 1, 0, 1.00, 'Main', '/baseMenu', '系统基础模块', 'md-analytics', 1, '', 0, b'1'),
-    (3, NULL, 'dict', 2, 0, 7.00, 'dict/dict/index', 'dict', '数据字典', 'ios-apps', 2, '', 0, b'1'),
+    (1, NULL, 'wlHome', '0', -1, 1.00, '', '', 'Teaching Interaction System', 'md-home', 0, '', 0, b'1'),
+    (2, NULL, 'userTwoMenu', 1, 0, 1.00, 'Main', '/baseMenu', 'Basic Module', 'md-analytics', 1, '', 0, b'1'),
+    (3, NULL, 'dict', 2, 0, 7.00, 'dict/dict/index', 'dict', 'Data Dictionary', 'ios-apps', 2, '', 0, b'1'),
     (4, NULL, 'vue', 2, 0, 8.00, 'code/vue/index', 'vue', '测试菜单', 'md-bug', 2, '', 0, b'1'),
     (5, NULL, 'classMenu', 1, 0, 2.00, 'Main', '/classMenu', '课程管理模块', 'ios-apps', 1, '', 0, NULL),
     (6, NULL, 'course', 5, 0, 1.00, 'study/course/index', 'course', '课程模块', 'md-aperture', 2, '', 0, NULL),
     (7, NULL, 'resMenu', 1, 0, 3.00, 'Main', '/resMenu', '课程课件模块', 'ios-apps', 1, '', 0, NULL),
-    (8, NULL, 'courseResources', 7, 0, 1.00, 'study/courseResources/index', 'courseResources', '课程课件', 'md-aperture', 2, '', 0, NULL),
+    (8, NULL, 'courseResources', 7, 0, 1.00, 'study/courseResources/index', 'courseResources', 'courseResources', 'md-aperture', 2, '', 0, NULL),
     (9, NULL, 'timetableMenu', 1, 0, 4.00, 'Main', '/timetableMenu', '授课中心模块', 'ios-apps', 1, '', 0, NULL),
     (10, NULL, 'timetable', 9, 0, 1.00, 'study/timetable/index', 'timetable', '授课管理', 'md-aperture', 2, '', 0, NULL),
-    (11, NULL, 'assignmentMenu', 1, 0, 5.00, 'Main', '/assignmentMenu', '作业发布模块', 'ios-apps', 1, '', 0, NULL),
-    (12, NULL, 'assignment', 11, 0, 1.00, 'study/assignment/index', 'assignment', '课程作业', 'md-aperture', 2, '', 0, NULL),
-    (13, NULL, 'feedback', 1, 0, 6.00, 'Main', '/feedbackMenu', '课程评价模块', 'ios-apps', 1, '', 0, NULL),
-    (14, NULL, 'feedback', 13, 0, 1.00, 'study/feedback/index', 'feedback', '课程评价', 'md-aperture', 2, '', 0, NULL),
-    (15, NULL, 'timetable2', 9, 0, 2.00, 'study/timetable/myIndex', 'timetable2', '我的课表', 'md-aperture', 2, '', 0, NULL),
+    (11, NULL, 'assignmentMenu', 1, 0, 5.00, 'Main', '/assignmentMenu', 'AssignmentMenu', 'ios-apps', 1, '', 0, NULL),
+    (12, NULL, 'assignment', 11, 0, 1.00, 'study/assignment/index', 'assignment', 'Assignment', 'md-aperture', 2, '', 0, NULL),
+    (13, NULL, 'feedback', 1, 0, 6.00, 'Main', '/feedbackMenu', 'FeedbackMenu', 'ios-apps', 1, '', 0, NULL),
+    (14, NULL, 'feedback', 13, 0, 1.00, 'study/feedback/index', 'feedback', 'Feedback', 'md-aperture', 2, '', 0, NULL),
+    (15, NULL, 'timetable2', 9, 0, 2.00, 'study/timetable/myIndex', 'timetable2', 'timetable', 'md-aperture', 2, '', 0, NULL),
     (16, NULL, 'fenXiMenu', 1, 0, 7.00, 'Main', '/fenXiMenu', '课程质量分析模块', 'ios-apps', 1, '', 0, NULL),
     (17, NULL, 'zyTu', 16, 0, 1.00, 'study/zyTu/index', 'zyTu', '课程质量分析', 'md-aperture', 2, '', 0, NULL),
     (18, NULL, '', 6, 1, 1.00, '', '无', '添加课程', '', 3, 'add', 0, NULL),
@@ -158,13 +159,13 @@ INSERT INTO `permission` (`id`, `description`, `name`, `parent_id`, `type`, `sor
     (55, NULL, '', 3, 1, 2.00, '', '无', '编辑数据字典', '', 3, 'edit', 0, NULL),
     (56, NULL, '', 3, 1, 3.00, '', '无', '删除数据字典', '', 3, 'delete', 0, NULL),
     (57, NULL, '', 69, 1, 3.00, '', '无', '文件存储配置', '', 3, 'enable', 0, NULL),
-    (58, NULL, 'department-admin', 2, 0, 2.00, 'roster/department/department', 'dep', '部门管理', 'md-git-branch', 2, '', 0, b'1'),
-    (59, NULL, 'log-manage', 2, 0, 6.00, 'log/log/index', 'log', '日志管理', 'md-list-box', 2, '', 0, b'1'),
-    (60, NULL, 'user-admin', 2, 0, 1.00, 'roster/user/user', 'user', '用户管理', 'md-person', 2, '', 0, b'1'),
-    (61, NULL, 'role-manage', 2, 0, 3.00, 'role/role/index', 'role', '角色管理', 'md-contacts', 2, '', 0, b'1'),
-    (62, NULL, 'menu-manage', 2, 0, 4.00, 'menu/menu/index', 'menu', '菜单管理', 'md-menu', 2, '', 0, b'1'),
-    (63, NULL, 'file-admin', 2, 0, 5.00, 'file/file/index', 'file', '文件管理', 'ios-folder', 2, '', 0, b'1'),
-    (64,NULL,'courseTopics',6,0,1.00,'study/course/topics','course/${courseId}/topics/insert','新建主题','md-library',2,'',1,b'1');
+    (58, NULL, 'department-admin', 2, 0, 2.00, 'roster/department/department', 'dep', 'department management', 'md-git-branch', 2, '', 0, b'1'),
+    (59, NULL, 'log-manage', 2, 0, 6.00, 'log/log/index', 'log', 'log management', 'md-list-box', 2, '', 0, b'1'),
+    (60, NULL, 'user-admin', 2, 0, 1.00, 'roster/user/user', 'user', 'user management', 'md-person', 2, '', 0, b'1'),
+    (61, NULL, 'role-manage', 2, 0, 3.00, 'role/role/index', 'role', 'role management', 'md-contacts', 2, '', 0, b'1'),
+    (62, NULL, 'menu-manage', 2, 0, 4.00, 'menu/menu/index', 'menu', 'permission management', 'md-menu', 2, '', 0, b'1'),
+    (63, NULL, 'file-admin', 2, 0, 5.00, 'file/file/index', 'file', 'file management', 'ios-folder', 2, '', 0, b'1'),
+    (64,NULL,'courseTopics',6,0,1.00,'study/course/topics','course/${courseId}/topics/insert','create new topic','md-library',2,'',1,b'1');
 
 
 DROP TABLE IF EXISTS `role_permission`;
@@ -280,8 +281,8 @@ CREATE TABLE IF NOT EXISTS `course` (
 
 DELETE FROM `course`;
 INSERT INTO `course` (`id`, `create_by`, `start_time`,end_time, `content`, `image`, `status`, `title`,credit) VALUES
-                                                                                                           (1, 2, '2025-06-09', '2025-06-12', 'Java Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071506217668608.png', 'Normal', 'Java Program Design',3.0),
-                                                                                                           (2, 2, '2025-06-09', '2025-06-12', 'Python Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071540472549376.png', 'Normal', 'Python Program Design',3.0);
+                                                                                                           (1, 2, '2025-06-09', '2025-06-12', 'Java Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071506217668608.png', 'Onging', 'Java Program Design',3.0),
+                                                                                                           (2, 2, '2025-06-09', '2025-06-12', 'Python Program Design', 'https://asoa-1305425069.cos.ap-shanghai.myqcloud.com/1676071540472549376.png', 'Closed', 'Python Program Design',3.0);
 
 DROP TABLE IF EXISTS `gradebook`;
 CREATE TABLE IF NOT EXISTS `gradebook` (
@@ -444,21 +445,21 @@ CREATE TABLE IF NOT EXISTS `dict_data` (
 
 DELETE FROM `dict_data`;
 INSERT INTO `dict_data` (`id`, `description`, `dict_id`, `status`, `title`, `value`) VALUES
-                                                                                         (6, '', 2, 0, '人工智能学院', 'School of AI'),
-                                                                                         (7, '', 2, 0, '计算机学院', 'School of Computer Science'),
-                                                                                         (8, '', 3, 0, '男', 'male'),
-                                                                                         (9, '', 3, 0, '女', 'female'),
-                                                                                         (10, '', 3, -1, '其他', 'non-binary'),
-                                                                                         (11, '', 4, 0, '添加操作(add)', 'add'),
-                                                                                         (12, '', 4, 0, '编辑操作(edit)', 'edit'),
-                                                                                         (13, '', 4, 0, '删除操作(delete)', 'delete'),
-                                                                                         (14, '', 4, 0, '清空操作(clear)', 'clear'),
-                                                                                         (15, '', 4, 0, '启用操作(enable)', 'enable'),
-                                                                                         (16, '', 4, 0, '禁用操作(disable)', 'disable'),
-                                                                                         (17, '', 4, 0, '搜索操作(search)', 'search'),
-                                                                                         (18, '', 4, 0, '上传文件(upload)', 'upload'),
-                                                                                         (19, '', 4, 0, '导出操作(output)', 'output'),
-                                                                                         (20, '', 4, 0, '导入操作(input)', 'input');
+                                                                                         (6, '', 2, 0, 'School of Artificial intelligence', 'School of AI'),
+                                                                                         (7, '', 2, 0, 'School of Computer Science', 'School of Computer Science'),
+                                                                                         (8, '', 3, 0, 'male', 'male'),
+                                                                                         (9, '', 3, 0, 'female', 'female'),
+                                                                                         (10, '', 3, -1, 'non-binary', 'non-binary'),
+                                                                                         (11, '', 4, 0, 'add', 'add'),
+                                                                                         (12, '', 4, 0, 'edit', 'edit'),
+                                                                                         (13, '', 4, 0, 'delete', 'delete'),
+                                                                                         (14, '', 4, 0, 'clear', 'clear'),
+                                                                                         (15, '', 4, 0, 'enable', 'enable'),
+                                                                                         (16, '', 4, 0, 'disable', 'disable'),
+                                                                                         (17, '', 4, 0, 'search', 'search'),
+                                                                                         (18, '', 4, 0, 'upload', 'upload'),
+                                                                                         (19, '', 4, 0, 'output', 'output'),
+                                                                                         (20, '', 4, 0, 'input', 'input');
 
 DROP TABLE IF EXISTS `file`;
 CREATE TABLE IF NOT EXISTS `file` (

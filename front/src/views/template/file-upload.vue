@@ -36,7 +36,7 @@ export default {
         },
         text: {
             type: String,
-            default: "Upload File"
+            default: "上传文件"
         },
         maxSize: {
             type: Number,
@@ -60,7 +60,7 @@ export default {
     data() {
         return {
             accessToken: {},
-            title: "Click to download",
+            title: "点击下载",
             currentValue: this.value,
             loading: false,
             uploadFileUrl: uploadFile
@@ -74,7 +74,7 @@ export default {
         },
         download() {
             if (!this.currentValue.url) {
-                this.$Message.error("Invalid link");
+                this.$Message.error("无效的链接");
                 return;
             }
             window.open(
@@ -86,21 +86,21 @@ export default {
         handleFormatError(file) {
             this.loading = false;
             this.$Notice.warning({
-                title: "Unsupported file format",
-                desc: "The selected file ' " +
+                title: "不支持的文件格式",
+                desc: "所选文件‘ " +
                     file.name +
-                    " ' has an incorrect format. Please select " +
+                    " ’格式不正确, 请选择 " +
                     this.accept +
-                    " format files."
+                    " 格式文件"
             });
         },
         handleMaxSize(file) {
             this.loading = false;
             this.$Notice.warning({
-                title: "File size exceeds limit",
-                desc: "The selected file ' " +
+                title: "文件大小过大",
+                desc: "所选文件‘ " +
                     file.name +
-                    " ' is too large. It must not exceed " +
+                    " ’大小过大, 不得超过 " +
                     this.maxSize +
                     "M."
             });
@@ -118,7 +118,7 @@ export default {
                     size: file.size
                 };
                 this.title =
-                    "Click to download (" +
+                    "点击下载(" +
                     ((file.size * 1.0) / (1024 * 1024)).toFixed(2) +
                     " MB)";
                 this.$emit("input", this.currentValue);
@@ -142,11 +142,11 @@ export default {
             this.currentValue = value;
             if (this.currentValue.size) {
                 this.title =
-                    "Click to download (" +
+                    "点击下载(" +
                     ((this.currentValue.size * 1.0) / (1024 * 1024)).toFixed(2) +
                     " MB)";
             } else {
-                this.title = "Click to download";
+                this.title = "点击下载";
             }
             this.$emit("on-change", this.currentValue);
         }

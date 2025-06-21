@@ -173,11 +173,13 @@ export default {
           this.cancelFeedback();
           this.$emit('refresh-reviews');
         } else {
+          this.$Message.error(res.message || 'Failed to submit feedback');
         }
       } catch (error) {
         if (error.response && error.response.status === 401) {
           this.$Message.error('Please login to submit feedback');
         } else {
+          this.$Message.error('Failed to submit feedback. Please try again.');
         }
       } finally {
         this.submitting = false;
@@ -196,7 +198,7 @@ export default {
       if (!time) return '';
       try {
         const date = new Date(time);
-        return date.toLocaleDateString('zh-CN');
+        return date.toLocaleString();
       } catch (error) {
         return time;
       }
@@ -219,8 +221,10 @@ export default {
             this.$emit('update-introduction', this.editIntroduction.trim());
             this.editIntroMode = false;
           } else {
+            this.$Message.error(res.message || 'Failed to update introduction');
           }
         } catch (error) {
+          this.$Message.error('Failed to update introduction');
         }
       } else {
         this.editIntroduction = this.courseInfo.introduction
@@ -238,11 +242,13 @@ export default {
           try {
             const res = await deleteFeedbacks({ ids: [review.id] })
             if (res.success) {
-              this.$Message.success('Delete Successfully')
+              this.$Message.success('删除成功')
               this.$emit('refresh-reviews')
             } else {
+              this.$Message.error(res.message || '删除失败')
             }
           } catch (e) {
+            this.$Message.error('删除失败')
           }
         }
       })

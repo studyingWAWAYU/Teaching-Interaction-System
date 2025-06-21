@@ -14,22 +14,19 @@
 
     <div class="resource-list">
       <div class="file-item" v-for="file in files" :key="file.id">
-        <div class="file-main-info">
-          <div class="file-info">
-            <Icon :type="getFileIcon(file.title)" class="file-icon" />
-            <span class="file-name">{{ file.title }}</span>
-          </div>
-          <div v-if="file.description" class="file-description">
-            <span class="desc-label">Tips：</span>{{ file.description }}
-          </div>
+        <div class="file-info">
+          <Icon :type="getFileIcon(file.title)" class="file-icon" />
+          <span class="file-name">{{ file.title }}</span>
         </div>
         <div class="file-meta">
           <span class="upload-time">
             <Icon type="ios-time-outline" />
             {{ file.uploadTime }}
           </span>
-
-          <Button
+          
+          <!-- 学生权限：只显示下载按钮 -->
+          <Button 
+            v-if="!isTeacher"
             type="primary"
             size="middle"
             icon="ios-download-outline"
@@ -38,14 +35,22 @@
             Download
           </Button>
           
-          <!-- 教师权限：显示删除按钮 -->
+          <!-- 教师权限：显示编辑和删除按钮 -->
           <div v-if="isTeacher" class="teacher-actions">
             <Button 
+              type="primary"
+              size="small"
+              icon="ios-download-outline"
+              @click="handleDownload(file)"
+              class="action-btn">
+              Download
+            </Button>
+            <Button 
               type="error"
-              size="middle"
+              size="small"
               icon="ios-trash-outline"
               @click="handleDelete(file)"
-              class="del-btn">
+              class="action-btn">
               Delete
             </Button>
           </div>
@@ -54,15 +59,12 @@
     </div>
 
     <!-- 上传课件模态框 -->
-    <Modal v-model="showUploadModal" title="Upload Resources" @on-ok="handleUpload">
-      <Form :model="uploadForm" :label-width="120">
-        <FormItem label="title">
-          <Input v-model="uploadForm.title" />
+    <Modal v-model="showUploadModal" title="上传课件" @on-ok="handleUpload">
+      <Form :model="uploadForm" :label-width="80">
+        <FormItem label="课件名称">
+          <Input v-model="uploadForm.title" placeholder="请输入课件名称" />
         </FormItem>
-        <FormItem label="Tips (Optional)">
-          <Input v-model="uploadForm.tip" />
-        </FormItem>
-        <FormItem label="Choose file">
+        <FormItem label="选择文件">
           <Upload
             ref="upload"
             :show-upload-list="false"
@@ -70,10 +72,18 @@
             :on-error="handleUploadError"
             :format="['pdf', 'docx', 'doc', 'ppt', 'pptx', 'zip', 'rar']"
             :max-size="20480"
-            action="/api/upload"
-            :before-upload="handleBeforeUpload" >
-            <Button icon="ios-cloud-upload-outline">{{ uploadForm.file ? uploadForm.file.name : 'Choose file' }}</Button>
+            action="/api/upload">
+            <Button icon="ios-cloud-upload-outline">选择文件</Button>
           </Upload>
+        </FormItem>
+      </Form>
+    </Modal>
+
+    <!-- 编辑课件模态框 -->
+    <Modal v-model="showEditModal" title="编辑课件" @on-ok="handleEditSubmit">
+      <Form :model="editForm" :label-width="80">
+        <FormItem label="课件名称">
+          <Input v-model="editForm.title" placeholder="请输入课件名称" />
         </FormItem>
       </Form>
     </Modal>
@@ -85,22 +95,27 @@ import Cookies from 'js-cookie'
 import { getAllCourseResources, addCourseResources, deleteCoursesResources, saveOrUpdateCourseResources } from '@/api/courseResources';
 import { getAllUsers } from '@/views/roster/user/api';
 
+// 模拟数据，后续可替换为API调用
 const mockFiles = [
   {
     id: 1,
-    title: 'Java Program Design Resource 1.pdf',
-    uploadTime: '2025-06-10 00:00',
-    description: 'This is very important ! '
+    title: 'Java Basic Grammar.pdf',
+    uploadTime: '2024-03-15 14:30'
   },
   {
     id: 2,
-    title: 'Java Program Design Resource 2.docx',
-    uploadTime: '2025-06-10 00:00'
+    title: 'Handout1.docx',
+    uploadTime: '2024-03-15 14:30'
   },
   {
     id: 3,
-    title: 'Java Program Design Resource 3.zip',
-    uploadTime: '2025-06-10 00:00'
+    title: 'Java Object.pptx',
+    uploadTime: '2024-03-20 10:15'
+  },
+  {
+    id: 4,
+    title: 'Java Code.zip',
+    uploadTime: '2024-03-25 16:45'
   }
 ]
 
@@ -115,8 +130,7 @@ export default {
       showEditModal: false,
       uploadForm: {
         title: '',
-        file: null,
-        tip: ''
+        file: null
       },
       editForm: {
         id: null,
@@ -142,7 +156,7 @@ export default {
         }
         return false
       } catch (error) {
-        console.error('User Info error:', error)
+        console.error('解析用户信息失败:', error)
         return false
       }
     }
@@ -151,12 +165,19 @@ export default {
     this.fetchFiles()
   },
   methods: {
+    // 获取课件列表
     async fetchFiles() {
       try {
         this.loading = true
+        // TODO: 替换为实际的API调用
+        // const response = await this.$api.getCourseFiles(this.$route.params.id)
+        // this.files = response.data
+        
+        // 临时使用模拟数据
         this.files = mockFiles
       } catch (error) {
         this.error = error.message
+        this.$Message.error('Failed to fetch the resources list.')
       } finally {
         this.loading = false
       }
@@ -165,8 +186,13 @@ export default {
     // 下载课件
     async handleDownload(file) {
       try {
-        this.$Message.success(`Start to download: ${file.title}`)
+        // TODO: 替换为实际的下载API调用
+        // const response = await this.$api.downloadFile(file.id)
+        // 处理文件下载逻辑
+        
+        this.$Message.success(`开始下载: ${file.title}`)
       } catch (error) {
+        this.$Message.error('下载失败，请稍后重试.')
       }
     },
 
@@ -182,28 +208,37 @@ export default {
     // 提交编辑
     async handleEditSubmit() {
       try {
+        // TODO: 替换为实际的编辑API调用
+        // await this.$api.updateFile(this.editForm)
+        
+        // 更新本地数据
         const index = this.files.findIndex(f => f.id === this.editForm.id)
         if (index !== -1) {
           this.files[index].title = this.editForm.title
         }
-        this.$Message.success('Edit Successfully')
+        
+        this.$Message.success('编辑成功')
         this.showEditModal = false
       } catch (error) {
+        this.$Message.error('编辑失败，请稍后重试')
       }
     },
 
     // 删除课件
     handleDelete(file) {
       this.$Modal.confirm({
-        title: 'Confirm deletion',
-        content: `Are you sure you want to delete "${file.title}"? `,
-        okText: 'del',
-        cancelText: 'Cancel',
+        title: '确认删除',
+        content: `确定要删除课件 "${file.title}" 吗？`,
         onOk: async () => {
           try {
+            // TODO: 替换为实际的删除API调用
+            // await this.$api.deleteFile(file.id)
+            
+            // 从本地数据中移除
             this.files = this.files.filter(f => f.id !== file.id)
-            this.$Message.success('Delete Successfully')
+            this.$Message.success('删除成功')
           } catch (error) {
+            this.$Message.error('删除失败，请稍后重试')
           }
         }
       })
@@ -212,44 +247,39 @@ export default {
     // 上传课件
     async handleUpload() {
       if (!this.uploadForm.title.trim()) {
-        this.$Message.error('Please input the file name')
+        this.$Message.error('请输入课件名称')
         return
       }
       
       try {
+        // TODO: 替换为实际的上传API调用
+        // await this.$api.uploadFile(this.uploadForm)
+        
+        // 添加到本地数据
         const newFile = {
           id: Date.now(),
           title: this.uploadForm.title,
-          uploadTime: new Date().toLocaleString(),
-          description: this.uploadForm.tip
+          uploadTime: new Date().toLocaleString()
         }
         this.files.unshift(newFile)
         
-        this.$Message.success('Upload Successfully')
+        this.$Message.success('上传成功')
         this.showUploadModal = false
-        this.uploadForm = { title: '', file: null, tip: '' }
+        this.uploadForm = { title: '', file: null }
       } catch (error) {
+        this.$Message.error('上传失败，请稍后重试')
       }
     },
 
     // 文件上传成功回调
     handleUploadSuccess(response, file) {
       this.uploadForm.file = file
-      // 自动填充title
-      if (file && file.name) {
-        this.uploadForm.title = file.name
-      }
-      this.$Message.success('Upload Successfully')
+      this.$Message.success('文件上传成功')
     },
 
-    handleBeforeUpload(file) {
-      // 选择文件时自动填充title和file
-      this.uploadForm.file = file
-      if (file && file.name) {
-        this.uploadForm.title = file.name
-      }
-      // 允许上传
-      return true
+    // 文件上传失败回调
+    handleUploadError(error, file) {
+      this.$Message.error('文件上传失败')
     },
 
     // 根据文件类型获取图标
@@ -286,7 +316,8 @@ export default {
       border: none;
       padding: 8px 24px;
       font-size: 16px;
-      border-radius: 22px;
+      font-weight: 540;
+      border-radius: 16px;
       box-shadow: 0 2px 6px rgba(45, 140, 240, 0.2);
 
       &:hover {
@@ -319,13 +350,6 @@ export default {
 
       &:last-child {
         margin-bottom: 0;
-      }
-
-      .file-main-info {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        flex: 1;
       }
 
       .file-info {
@@ -363,11 +387,13 @@ export default {
 
         .download-btn {
           transform: translateX(5px);
+          transition: all 0.3s ease;
           background: rgba(0,122,255,0.6);
           border: none;
           padding: 5px 20px;
           font-size: 15px;
-          border-radius: 22px;
+          font-weight: 540;
+          border-radius: 16px;
           box-shadow: 0 2px 6px rgba(45, 140, 240, 0.2);
 
           &:hover {
@@ -386,36 +412,47 @@ export default {
           display: flex;
           gap: 8px;
 
-          .del-btn {
-            opacity: 0.7;
-            transform: translateX(5px);
-            border-radius: 22px;
+          .action-btn {
+            transition: all 0.3s ease;
+            border-radius: 12px;
             padding: 4px 12px;
             font-size: 14px;
             border: none;
 
             &:hover {
-              opacity: 1.2;
               transform: translateY(-1px);
             }
+
+            &.ivu-btn-primary {
+              background: rgba(0,122,255,0.6);
+              box-shadow: 0 2px 6px rgba(45, 140, 240, 0.2);
+
+              &:hover {
+                background: rgba(0,122,255,0.8);
+                box-shadow: 0 4px 12px rgba(45, 140, 240, 0.3);
+              }
+            }
+
+            &.ivu-btn-warning {
+              background: rgba(255,153,0,0.6);
+              box-shadow: 0 2px 6px rgba(255, 153, 0, 0.2);
+
+              &:hover {
+                background: rgba(255,153,0,0.8);
+                box-shadow: 0 4px 12px rgba(255, 153, 0, 0.3);
+              }
+            }
+
+            &.ivu-btn-error {
+              background: rgba(237,64,20,0.6);
+              box-shadow: 0 2px 6px rgba(237, 64, 20, 0.2);
+
+              &:hover {
+                background: rgba(237,64,20,0.8);
+                box-shadow: 0 4px 12px rgba(237, 64, 20, 0.3);
+              }
+            }
           }
-        }
-      }
-
-      .file-description {
-        margin-top: 6px;
-        background: #f6f7fa;
-        color: #515a6e;
-        border-radius: 8px;
-        padding: 6px 14px;
-        font-size: 15px;
-        display: flex;
-        align-items: center;
-
-        .desc-label {
-          font-weight: bold;
-          color: #2d8cf0;
-          margin-right: 6px;
         }
       }
     }
