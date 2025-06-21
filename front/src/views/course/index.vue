@@ -31,11 +31,11 @@
             <div class="choice">
               <Button 
                 v-if="!isTeacher"
-                :type="isEnrolled ? 'error' : 'primary'" 
+                :type="isEnrolled ? 'error' : 'error'"
                 size="large" 
                 @click="handleEnroll"
                 class="course-btn">
-                {{ isEnrolled ? 'Drop Course' : 'Add Course' }}
+                {{ isEnrolled ? 'Drop Course' : 'Drop Course' }}
               </Button>
             </div>
           </div>

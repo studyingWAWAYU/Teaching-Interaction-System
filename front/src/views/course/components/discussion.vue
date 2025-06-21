@@ -277,6 +277,20 @@ export default {
         similarTopic: 'What is the mechanism of polymorphism?',
         courseId: this.courseId
       }
+      // ,{
+      //   id: 1,
+      //   title: 'What is generics?',
+      //   description: 'None',
+      //   createBy: 2,
+      //   updateTime: '2025/6/21 21:16:43',
+      //   likes: 0,
+      //   isLiked: false,
+      //   replyCount: 0,
+      //   replies: [],
+      //   similarTopic: '',
+      //   courseId: this.courseId
+      // }
+
     ];
     this.initData();
   },

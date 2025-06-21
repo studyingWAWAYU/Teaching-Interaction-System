@@ -286,8 +286,8 @@ const mockAssignments = [
         title: 'Java assignment 3.docx',
         uploadTime: '2025-06-15 14:30'
       }
-    ],
-    // submission: {
+    ]
+    // , submission: {
     //   files: [
     //     {
     //       id: 3,

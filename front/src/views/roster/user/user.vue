@@ -59,7 +59,7 @@
           shape="round"
           :disabled="!$route.meta.permTypes.includes('add')"
         >
-           Add Customer
+           Add User
         </Button>
         <Button
           @click="importModalVisible = true"
