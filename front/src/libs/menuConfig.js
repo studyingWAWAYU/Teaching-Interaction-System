@@ -1,9 +1,8 @@
-// 静态菜单配置
 export const menuConfig = [
   {
     id: 1,
     name: 'wlHome',
-    title: '教学资源共享平台',
+    title: '教学互动平台',
     icon: 'md-home',
     type: -1,
     level: 0,

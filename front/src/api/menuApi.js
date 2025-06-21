@@ -1,24 +1,37 @@
-import menuConfig from '@/libs/menuConfig.js';
+import { menuConfig, filterMenuByRole } from '@/libs/menuConfig.js';
 
-// 模拟菜单API接口
+function getRoleId() {
+    let role_id = null;
+    try {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        role_id = userInfo && userInfo.role_id !== undefined ? userInfo.role_id : null;
+    } catch (e) {
+        role_id = null;
+    }
+    if (role_id === null) {
+        role_id = Number(localStorage.getItem('role_id'));
+    }
+    return role_id;
+}
+
 export const getMenuList = () => {
     return new Promise((resolve) => {
-        // 模拟API响应格式
+        const role_id = getRoleId();
+        const filteredMenu = filterMenuByRole(menuConfig, role_id);
         resolve({
             success: true,
-            result: menuConfig,
-            message: '获取菜单成功'
+            result: filteredMenu,
+            message: 'Load menu successfully'
         });
     });
 };
 
-// 获取所有菜单列表（用于菜单管理页面）
 export const getAllMenuList = () => {
     return new Promise((resolve) => {
         resolve({
             success: true,
             result: menuConfig,
-            message: '获取所有菜单成功'
+            message: 'Load menu successfully'
         });
     });
 };
@@ -30,14 +43,13 @@ export const searchMenu = (params) => {
         let result = menuConfig;
         
         if (title) {
-            // 简单的搜索逻辑
             result = searchMenuRecursive(menuConfig, title);
         }
         
         resolve({
             success: true,
             result: result,
-            message: '搜索菜单成功'
+            message: 'Get menu successfully'
         });
     });
 };

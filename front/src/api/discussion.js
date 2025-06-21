@@ -81,6 +81,7 @@ export const deletePosts = (topicId, params) => {
     return postRequest(`/course/${topicId}/posts/delByIds`, params);
 };
 
+// 生成概要和关键词
 export const getSummary = (topicId, params) => {
     return postRequest(`/course/${topicId}/posts/getSummary`,params);
 }
