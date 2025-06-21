@@ -1,9 +1,8 @@
-// 静态菜单配置
 export const menuConfig = [
   {
     id: 1,
     name: 'wlHome',
-    title: '教学资源共享平台',
+    title: 'Teaching Interaction System',
     icon: 'md-home',
     type: -1,
     level: 0,
@@ -11,7 +10,7 @@ export const menuConfig = [
       {
         id: 2,
         name: 'userTwoMenu',
-        title: '系统基础模块',
+        title: 'Basic Module',
         icon: 'md-analytics',
         type: 0,
         level: 1,
@@ -21,7 +20,7 @@ export const menuConfig = [
           {
             id: 60,
             name: 'user-admin',
-            title: '用户管理',
+            title: 'User Management',
             icon: 'md-person',
             type: 0,
             level: 2,
@@ -32,7 +31,7 @@ export const menuConfig = [
           {
             id: 58,
             name: 'department-admin',
-            title: '部门管理',
+            title: 'Institute Management',
             icon: 'md-git-branch',
             type: 0,
             level: 2,
@@ -43,7 +42,7 @@ export const menuConfig = [
           {
             id: 61,
             name: 'role-manage',
-            title: '角色管理',
+            title: 'Role Management',
             icon: 'md-contacts',
             type: 0,
             level: 2,
@@ -52,20 +51,9 @@ export const menuConfig = [
             permTypes: ['add', 'edit', 'delete', 'enable']
           },
           {
-            id: 62,
-            name: 'menu-manage',
-            title: '菜单管理',
-            icon: 'md-menu',
-            type: 0,
-            level: 2,
-            component: 'menu/menu/index',
-            path: 'menu',
-            permTypes: ['add', 'edit', 'delete']
-          },
-          {
             id: 63,
             name: 'file-admin',
-            title: '文件管理',
+            title: 'File Management',
             icon: 'ios-folder',
             type: 0,
             level: 2,
@@ -76,7 +64,7 @@ export const menuConfig = [
           {
             id: 3,
             name: 'dict',
-            title: '数据字典',
+            title: 'Data Dictionary',
             icon: 'ios-apps',
             type: 0,
             level: 2,
@@ -111,23 +99,52 @@ export const menuConfig = [
       {
         id: 5,
         name: 'classMenu',
-        title: '旧课程管理模块',
+        title: 'Course Management',
         icon: 'ios-apps',
         type: 0,
-        level: 1,
+        level: 2,
         component: 'Main',
         path: '/classMenu',
         children: [
           {
             id: 6,
             name: 'curriculum',
-            title: '旧课程模块',
+            title: 'Course',
             icon: 'md-aperture',
             type: 0,
             level: 2,
             component: 'study/curriculum/index',
             path: 'curriculum',
-            permTypes: ['add', 'edit', 'delete', 'enable', 'disable']
+          },
+          {
+            id: 7,
+            name: 'Course File',
+            title: 'Course File',
+            icon: 'md-aperture',
+            type: 0,
+            level: 2,
+            component: 'study/curriculum/coursefile',
+            path: 'coursefile',
+          },
+          {
+            id: 8,
+            name: 'Course Detail',
+            title: 'Course Detail',
+            icon: 'md-aperture',
+            type: 0,
+            level: 2,
+            component: 'study/curriculum/coursedetail',
+            path: 'coursedetail',
+          },
+          {
+            id: 9,
+            name: 'Discussion',
+            title: 'Discussion',
+            icon: 'md-aperture',
+            type: 0,
+            level: 2,
+            component: 'study/curriculum/coursetopic',
+            path: 'coursetopic',
           }
         ]
       }

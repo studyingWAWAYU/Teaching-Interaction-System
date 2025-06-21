@@ -2,12 +2,12 @@
   <div class="student-manage-content">
     <div class="header">
       <div class="search-box">
-        <Input 
-          v-model="searchKeyword" 
-          placeholder="Search by name or student ID"
-          @on-change="handleSearch"
-          clearable
-          size="large">
+        <Input
+            v-model="searchKeyword"
+            placeholder="Search by name or student ID"
+            @on-change="handleSearch"
+            clearable
+            size="large">
           <Icon type="ios-search" slot="prefix" />
         </Input>
       </div>
@@ -17,19 +17,19 @@
       </div>
     </div>
 
-<!--    学生列表-->
+    <!--    学生列表-->
     <div class="student-list">
-      <Table 
-        :columns="columns" 
-        :data="filteredStudents"
-        :loading="loading"
-        stripe
-        size="large">
+      <Table
+          :columns="columns"
+          :data="filteredStudents"
+          :loading="loading"
+          stripe
+          size="large">
         <template slot-scope="{ row, index }" slot="action">
-          <Button 
-            type="error" 
-            size="small"
-            @click="handleDeleteStudent(row)">
+          <Button
+              type="error"
+              size="small"
+              @click="handleDeleteStudent(row)">
             Delete
           </Button>
         </template>
@@ -43,17 +43,27 @@
         </template>
       </Table>
     </div>
-    <Modal v-model="showAddModal" title="Add Student" @on-ok="handleAddStudent">
-      <Form :model="addForm" :label-width="80" :rules="addFormRules" ref="addFormRef">
-        <FormItem label="Name" prop="name">
-          <Input v-model="addForm.name"/>
-        </FormItem>
-        <FormItem label="Student ID" prop="studentId">
-          <Input v-model="addForm.studentId"/>
+    <Modal v-model="showAddModal" title="Add Student" @on-ok="handleAddStudent" ok-text="Add" cancel-text="Cancel">
+      <Form :model="addForm" :label-width="120" :rules="addFormRules" ref="addFormRef">
+        <FormItem label="Select Student" prop="selectedUserId">
+          <Select
+              v-model="addForm.selectedUserId"
+              placeholder="Choose a student to add"
+              filterable
+              clearable
+              style="width: 100%">
+            <Option
+                v-for="user in availableUsers"
+                :value="user.id"
+                :key="user.id"
+                :label="`${user.username} (${user.nickname || 'No Name'})`">
+              {{ user.username }} - {{ user.nickname || 'No Name' }}
+            </Option>
+          </Select>
         </FormItem>
       </Form>
     </Modal>
-    <Modal v-model="showDeleteModal" title="Confirm Delete">
+    <Modal v-model="showDeleteModal" title="Confirm Delete" >
       <p>Are you sure you want to delete student "{{ deleteStudent.name }}"?</p>
       <div slot="footer">
         <Button @click="showDeleteModal = false">Cancel</Button>
@@ -64,40 +74,8 @@
 </template>
 
 <script>
-const mockStudents = [
-  {
-    id: 1,
-    name: 'John Smith',
-    studentId: '2023001',
-    email: 'john.smith@example.com',
-    department: 'Software Engineering',
-    score: null
-  },
-  {
-    id: 2,
-    name: 'Emily Johnson',
-    studentId: '2023002',
-    email: 'emily.johnson@example.com',
-    department: 'Computer Science',
-    score: null
-  },
-  {
-    id: 3,
-    name: 'Michael Brown',
-    studentId: '2023003',
-    email: 'michael.brown@example.com',
-    department: 'Artificial Intelligence',
-    score: null
-  },
-  {
-    id: 4,
-    name: 'Sophia Davis',
-    studentId: '2023004',
-    email: 'sophia.davis@example.com',
-    department: 'Cyber Security',
-    score: null
-  }
-]
+import { getAllGradeBooks, addGradeBook, saveOrUpdateGradeBook, deleteGradeBooks } from '@/api/gradeBook'
+import { getAllUsers } from '@/views/roster/user/api'
 
 export default {
   name: 'StudentManage',
@@ -111,20 +89,17 @@ export default {
     return {
       loading: false,
       students: [],
+      allUsers: [],
       searchKeyword: '',
       showAddModal: false,
       showDeleteModal: false,
       deleteStudent: {},
       addForm: {
-        name: '',
-        studentId: ''
+        selectedUserId: null
       },
       addFormRules: {
-        name: [
-          { required: true, message: 'Please enter the name', trigger: 'blur' }
-        ],
-        studentId: [
-          { required: true, message: 'Please enter the student ID', trigger: 'blur' }
+        selectedUserId: [
+          { required: true, message: 'Please select a student', trigger: 'change' }
         ]
       },
       columns: [
@@ -144,57 +119,136 @@ export default {
         return this.students
       }
       const keyword = this.searchKeyword.toLowerCase()
-      return this.students.filter(student => 
-        student.name.toLowerCase().includes(keyword) ||
-        student.studentId.toLowerCase().includes(keyword) ||
-        student.email.toLowerCase().includes(keyword)
+      return this.students.filter(student =>
+          student.name.toLowerCase().includes(keyword) ||
+          student.studentId.toLowerCase().includes(keyword) ||
+          student.email.toLowerCase().includes(keyword)
       )
+    },
+    // 过滤出还没有加入当前课程的用户
+    availableUsers() {
+      const enrolledUserIds = this.students.map(student => student.userId)
+      return this.allUsers.filter(user => !enrolledUserIds.includes(user.id))
     }
   },
   created() {
     this.fetchStudents()
+    this.fetchAllUsers()
   },
   methods: {
-    fetchStudents() {
-      this.loading = true
-      this.students = [...mockStudents]
-      this.loading = false
+    async fetchStudents() {
+      try {
+        this.loading = true
+        const response = await getAllGradeBooks()
+        if (response && response.data) {
+          // 过滤出当前课程的学生
+          this.students = response.data.filter(student => student.courseId === this.courseId)
+        }
+      } catch (error) {
+        console.error('Failed to fetch students:', error)
+        this.$Message.error('Failed to load students')
+      } finally {
+        this.loading = false
+      }
     },
-    handleSearch() {},
-    handleAddStudent() {
-      this.$refs.addFormRef.validate((valid) => {
+
+    async fetchAllUsers() {
+      try {
+        const response = await getAllUsers()
+        if (response && response.success) {
+          this.allUsers = response.result || []
+        }
+      } catch (error) {
+        console.error('Failed to fetch users:', error)
+        this.$Message.error('Failed to load users')
+      }
+    },
+
+    async handleAddStudent() {
+      this.$refs.addFormRef.validate(async (valid) => {
         if (valid) {
-          const newStudent = {
-            id: Date.now(),
-            ...this.addForm,
-            enrollTime: new Date().toLocaleString(),
-            score: null
+          try {
+            const selectedUser = this.allUsers.find(user => user.id === this.addForm.selectedUserId)
+            if (!selectedUser) {
+              this.$Message.error('Selected user not found')
+              return
+            }
+
+            const params = {
+              courseId: this.courseId,
+              userId: selectedUser.id,
+              name: selectedUser.nickname || selectedUser.username,
+              studentId: selectedUser.username,
+              email: selectedUser.email || '',
+              department: selectedUser.departmentName || '',
+              score: null
+            }
+
+            await addGradeBook(params)
+            this.$Message.success('Student added successfully')
+            this.showAddModal = false
+            this.resetAddForm()
+            this.fetchStudents() // 重新获取学生列表
+          } catch (error) {
+            console.error('Add student error:', error)
+            this.$Message.error('Failed to add student')
           }
-          this.students.unshift(newStudent)
-          this.$Message.success('Student added successfully')
-          this.showAddModal = false
-          this.resetAddForm()
         }
       })
     },
+
     resetAddForm() {
-      this.addForm = { name: '', studentId: '', email: '', department: '' }
+      this.addForm = { selectedUserId: null }
       this.$refs.addFormRef.resetFields()
     },
+
     handleDeleteStudent(student) {
       this.deleteStudent = student
       this.showDeleteModal = true
     },
-    confirmDeleteStudent() {
-      this.students = this.students.filter(s => s.id !== this.deleteStudent.id)
-      this.$Message.success('Student deleted successfully')
-      this.showDeleteModal = false
-      this.deleteStudent = {}
+
+    async confirmDeleteStudent() {
+      try {
+        const params = {
+          ids: [this.deleteStudent.id]
+        }
+        await deleteGradeBooks(params)
+        this.$Message.success('Student deleted successfully')
+        this.showDeleteModal = false
+        this.deleteStudent = {}
+        this.fetchStudents()
+      } catch (error) {
+        console.error('Delete student error:', error)
+        this.$Message.error('Failed to delete student')
+      }
     },
-    toggleScoreMode() {
+
+  // 保存所有修改的成绩
+    async toggleScoreMode() {
       if (this.scoreMode) {
-        // 保存分数，实际可在此处调用API
-        this.$Message.success('Scores saved')
+        try {
+          const updatePromises = this.students.map(student => {
+            if (student.score !== null && student.score !== undefined) {
+              return saveOrUpdateGradeBook({
+                id: student.id,
+                courseId: student.courseId,
+                userId: student.userId,
+                name: student.name,
+                studentId: student.studentId,
+                email: student.email,
+                department: student.department,
+                score: student.score
+              })
+            }
+            return Promise.resolve()
+          })
+
+          await Promise.all(updatePromises)
+          this.$Message.success('Scores saved successfully')
+        } catch (error) {
+          console.error('Save scores error:', error)
+          this.$Message.error('Failed to save scores')
+        }
       }
       this.scoreMode = !this.scoreMode
     }
@@ -306,6 +360,7 @@ export default {
   }
 }
 </style>
+
 
 
 
